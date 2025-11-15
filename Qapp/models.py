@@ -55,3 +55,16 @@ class CustomUser(AbstractUser):
     
     def get_full_name(self):   
         return f"{self.first_name} {self.last_name}"
+    
+
+
+class Club(models.Model):
+    club_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    president_name =  models.CharField(max_length=100, unique=True, null=True, blank=True)
+    vise_president_name =  models.CharField(max_length=100, unique=True, null=True, blank=True)
+    president_mobile_number =  models.IntegerField(unique=True, null=True, blank=True)
+    vise_president_mobile_number =  models.IntegerField(unique=True, null=True, blank=True)
+    core_members = models.JSONField(default=dict,blank=True,null=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+    entry_fees = models.IntegerField(null=True, blank=True)
