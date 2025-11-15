@@ -32,6 +32,7 @@ class Subject(models.Model):
 class Section(models.Model):
     section_name = models.CharField(max_length=100)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, null=True, blank=True)
+    subject = models.ManyToManyField(Subject)
     
     class Meta:
         constraints = [

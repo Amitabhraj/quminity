@@ -1,19 +1,11 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from Qapp.models import CustomUser as User
+from Qapp.use_cases.student_side.check_student_cred import check_cred
 
 def MainView(request, studentId, qid, studentName):
-    print(f"Received parameters - studentId: {studentId}, qid: {qid}, studentName: {studentName}")
-    try:
-        student_obj = User.objects.get(
-            id=studentId,
-            qid=qid, 
-            username=studentName
-        )
-    except User.DoesNotExist:
-        messages.error(request, "User account not found or invalid credentials.")
-        return redirect(reverse('user_login')) 
+    student_obj = check_cred(request, studentId, qid, studentName) 
     
     # Context variable is automatically passed to the template for use
     context = {
