@@ -53,8 +53,8 @@
                         <p>Enter your QID and password to access it.</p>
                         <form class="mt-4" action="" method="POST">{% csrf_token %}
                             <div class="form-group">
-                                <label class="form-label" for="exampleInputEmail1">QID</label>
-                                <input type="email" class="form-control mb-0" id="exampleInputEmail1" placeholder="Enter email">
+                                <label class="form-label" for="exampleInputNumber1">QID</label>
+                                <input type="number" class="form-control mb-0" id="exampleInputNumber1" placeholder="Enter QID">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="exampleInputPassword1">Password</label>
@@ -62,10 +62,6 @@
                                 <input type="password" class="form-control mb-0" id="exampleInputPassword1" placeholder="Password">
                             </div>
                             <div class="d-inline-block w-100">
-                                <div class="form-check d-inline-block mt-2 pt-1">
-                                    <input type="checkbox" class="form-check-input" id="customCheck11">
-                                    <label class="form-check-label" for="customCheck11">Remember Me</label>
-                                </div>
                                 <button type="submit" class="btn btn-primary float-end">Sign in</button>
                             </div>
                         </form>

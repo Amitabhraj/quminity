@@ -64,6 +64,10 @@ STATICFILES_DIRS = [
 # Optional: for production (collectstatic)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+
+AUTH_USER_MODEL = "Qapp.CustomUser"
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
