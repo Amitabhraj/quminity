@@ -19,7 +19,7 @@ class Course(models.Model):
         return self.course_name
     
 
-class Subjects(models.Model):
+class Subject(models.Model):
     course = models.ForeignKey(Course,on_delete=models.CASCADE, null=True, blank=True)
     subject_name = models.CharField(default="",null=True,blank=True,max_length=100)
     subject_code = models.CharField(default="",null=True,blank=True,max_length=100)
