@@ -1,5 +1,6 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser,User
 from django.db import models
 
 courses_name_choices = [
@@ -19,10 +20,12 @@ class Course(models.Model):
         return self.course_name
     
 
+
 class Subject(models.Model):
     course = models.ForeignKey(Course,on_delete=models.CASCADE, null=True, blank=True)
     subject_name = models.CharField(default="",null=True,blank=True,max_length=100)
     subject_code = models.CharField(default="",null=True,blank=True,max_length=100)
+    faculty_name = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.subject_name} - {self.subject_code}"
@@ -68,3 +71,18 @@ class Club(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     entry_fees = models.IntegerField(null=True, blank=True)
+    student_enrolled = models.ManyToManyField(CustomUser)
+
+    def __str__(self):
+        return f"{self.club_name}"
+    
+
+class ClubEventPayment(models.Model):
+    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    amount = models.IntegerField(default=0)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.payment_id}"
