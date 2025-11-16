@@ -798,131 +798,30 @@
                     <div class="card">
                         <div class="card-body p-0">
                             <ul class="todo-task-lists m-0 p-0">
-                            {% for subject in subjects %}
+                            {% for club in club %}
                             <li class="d-flex align-items-center p-3">
                                 <div class="user-img img-fluid"><img src="{% static 'images/user/01.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
                                       <div class="d-flex align-items-center justify-content-between w-100">
                                     <div class="ms-3">
-                                        <h6 class="d-inline-block">{{subject}}</h6>
-                                        <span class="badge bg-warning ms-0 ms-md-3 my-1 my-md-0 text-white">Expirinq</span>
-                                        <p class="mb-0">by Danlel Cllfferton</p>
+                                        <h6 class="d-inline-block">{{club.club_name}}</h6>
+                                        {% if club.president_name %}
+                                        <p class="mb-0">by President - {{club.president_name}}</p>
+                                        {% endif %}
                                     </div>
                                     <div class="card-header-toolbar d-flex align-items-center">
                                         <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check1">
-                                            <label class="form-check-label" for="check1"></label>
+                                            {% if user in club.student_enrolled.all %}
+                                            <p>Already Joined</p>
+                                            {% else %}
+                                            <p>Entry Fees:- {{club.entry_fees}}</p>
+                                            <a href="/payment-club/{{club.id}}/{{club.club_name}}/{{club.entry_fees}}"><button>Join</button></a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                </div>
                             </li>
                             {% endfor %}
-                            <li class="d-flex align-items-center p-3 active-task">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/01.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6>Fix Critical Crashes</h6>
-                                        <p class="mb-0">by Cralg Danles</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check2" checked="checked">
-                                            <label class="form-check-label" for="check2"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/02.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6 class="d-inline-block">IOS App - Redesign the contact</h6>
-                                        <span class="badge bg-success ms-0 ms-md-3 my-1 my-md-0">Ending</span>
-                                        <p class="mb-0">by Simona Gomez </p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check3">
-                                            <label class="form-check-label" for="check3"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/03.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">   
-                                    <div class="ms-3">
-                                        <h6>Final Meetup for the Secrat Project Client</h6>
-                                        <p class="mb-0">bt Serena Gemoz</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check4">
-                                            <label class="form-check-label" for="check4"></label>
-                                        </div>
-                                    </div>
-                                </div>    
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/04.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6>Code the Parsing Element</h6>
-                                        <p class="mb-0">by Jeena Gaze</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check5">
-                                            <label class="form-check-label" for="check5"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/05.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6 class="d-inline-block">Test the Bug, that causes design</h6>
-                                        <span class="badge bg-danger ms-0 ms-md-3 my-1 my-md-0">Urgent</span>
-                                        <p class="mb-0">by migule Slimmonas</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check6">
-                                            <label class="form-check-label" for="check6"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/06.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6>Android App Design</h6>
-                                        <p class="mb-0">by Becky Dimes</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check7">
-                                            <label class="form-check-label" for="check7"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-center p-3">
-                                <div class="user-img img-fluid"><img src="{% static 'images/user/07.jpg' %}" alt="story-img" class="rounded-circle avatar-40"></div>
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="ms-3">
-                                        <h6>Skype Meetup with clients</h6>
-                                        <p class="mb-0">by James Romero</p>
-                                    </div>
-                                    <div class="card-header-toolbar d-flex align-items-center">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="todo-check" class="form-check-input" id="check8">
-                                            <label class="form-check-label" for="check8"></label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+
                             </ul>
                         </div>
                     </div>

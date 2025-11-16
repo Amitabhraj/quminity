@@ -1,15 +1,15 @@
 from django.shortcuts import render
+from Qapp.models import Club
 from Qapp.use_cases.student_side.check_student_cred import check_cred
 
 
 def studentClub(request, studentId, qid, studentName):
     student_obj = check_cred(request, studentId, qid, studentName) 
-    student_section = student_obj.section
-    subject_names = list(student_section.subject.values_list('subject_name', flat=True))
+    all_club = Club.objects.all()
+
 
     context = {
-        'section':student_section,
-        'subjects':subject_names
+        'club':all_club
     }
 
     return render(request,'html/dashboard/studentClub.html',context)

@@ -1,0 +1,32 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<button id="pay-btn">Pay Now</button>
+
+<script>
+    document.getElementById("pay-btn").onclick = function(){
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": "{{ amount }}",
+            "currency": "INR",
+            "name": "Quminity Event",
+            "description": "Event Entry Fee",
+            "order_id": "{{ order_id }}",
+            "handler": function (response){
+                fetch("/payment-success/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify(response)
+                })
+                .then(() => {
+                    window.location.href = "/payment-done/{{ order_id }}/";
+                });
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.open();
+    }
+</script>
