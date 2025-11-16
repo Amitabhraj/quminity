@@ -53,6 +53,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'quminity.urls'
 
+RAZORPAY_KEY_ID = 'rzp_test_RgCIkA0ynsEs2a'
+RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
+
 # Static URL
 STATIC_URL = 'static/'
 
