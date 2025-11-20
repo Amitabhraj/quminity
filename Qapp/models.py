@@ -79,6 +79,7 @@ class Club(models.Model):
 
 class ClubEventPayment(models.Model):
     event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
     payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     amount = models.IntegerField(default=0)
