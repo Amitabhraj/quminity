@@ -281,10 +281,9 @@
           <div class="iq-navbar-custom">
               <nav class="navbar navbar-expand-lg navbar-light p-0">
                   <div class="iq-navbar-logo d-flex justify-content-between">
-                      <a href="../dashboard/index.html">
-                          <img src="{% static 'images/logo.png' %}" class="img-fluid" alt="">
-                          <span>SocialV</span>
-                      </a>
+                      <a href="/">
+                          <img src="{% static 'images/logo/quminity.jpg' %}" class="img-fluid" alt="" style="height:75px;border-radius: 40%;">
+                        </a>
                       <div class="iq-menu-bt align-self-center">
                           <div class="wrapper-menu">
                               <div class="main-circle"><i class="ri-menu-line"></i></div>
@@ -553,7 +552,7 @@
                               <a href="#" class="   d-flex align-items-center dropdown-toggle" id="drop-down-arrow" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                   <img src="{% static 'images/user/1.jpg' %}" class="img-fluid rounded-circle me-3" alt="user">
                                   <div class="caption">
-                                      <h6 class="mb-0 line-height">Bni Cyst</h6>
+                                      <h6 class="mb-0 line-height">{{request.user.username}}</h6>
                                   </div>
                               </a>
                               <div class="sub-drop dropdown-menu caption-menu" aria-labelledby="drop-down-arrow">

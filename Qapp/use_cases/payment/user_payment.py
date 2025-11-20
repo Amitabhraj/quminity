@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from quminity.settings import RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 import razorpay
 import json
-from Qapp.models import ClubEventPayment
+from Qapp.models import Club, ClubEventPayment
 
 
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
@@ -18,7 +18,6 @@ def club_payment(request, Id, clubName, entryFee):
 def create_payment(request, clubId, clubName, amount):
 
     payment = ClubEventPayment.objects.create(amount=amount)
-
     razorpay_order = client.order.create(dict(
         amount=amount*100,
         currency="INR",
@@ -26,12 +25,18 @@ def create_payment(request, clubId, clubName, amount):
     ))
 
     try:
-        club_obj = ClubEventPayment.objects.get(id=payment.id)
+        club_obj = Club.objects.get(id=clubId)
+        user_obj = request.user
     except ClubEventPayment.DoesNotExist:
         return redirect("/")
 
     payment.order_id = razorpay_order["id"]
     payment.event_or_club = club_obj
+
+    #adding user_obj into Club's student_enrolled
+    club_obj.student_enrolled.add(user_obj)
+
+    payment.student = user_obj
     payment.save()
 
     context = {
