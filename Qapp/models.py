@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser,User
 from django.db import models
+from django.utils import timezone
+
 
 courses_name_choices = [
     ('B.tech CSE', 'B.tech CSE'),
@@ -87,3 +89,19 @@ class ClubEventPayment(models.Model):
 
     def __str__(self):
         return f"{self.payment_id}"
+
+
+
+class ActiveToken(models.Model):
+    token = models.CharField(max_length=200)
+    expires_at = models.DateTimeField(default=timezone.now,null=True, blank=True)
+
+class Attendance(models.Model):
+    student_id = models.CharField(max_length=100)
+    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    ip_address = models.GenericIPAddressField()
+    present = models.BooleanField(default=True)
+    attendance_mark_time = models.DateTimeField(default=timezone.now)
+    token_obj = models.ForeignKey(ActiveToken,on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now)
+

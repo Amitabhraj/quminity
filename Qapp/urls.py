@@ -9,10 +9,28 @@ from .use_cases.user_onboarding.user_login import user_login
 from .use_cases.student_side.studentView import MainView as student_dashboard
 from .use_cases.faculty_side.facultyView import MainView as faculty_dashboard
 from .use_cases.admin_side.adminView import MainView as admin_dashboard
+from Qapp.qr_code import qrCode
+from Qapp.qr_code.generateToken import instructor_qr
+from Qapp.qr_code.validateAttend import validate_attendance
+
 
 urlpatterns = [
     path('', check_authentication, name='check_authentication'),
     path('login/', user_login, name='user_login'),
+
+
+    ############# QR CODE ATTENDANCE #############
+    # Instructor
+    path('instructor/', qrCode.instructor_page, name='instructor_page'),
+    path('api/instructor_qr/', instructor_qr, name='instructor_qr'),
+
+    # (Optional support for your old JS)
+    path('api/get_qr/', instructor_qr),
+
+    # Student
+    path('scan/', qrCode.scan_page, name='scan_page'),
+    path('api/validate/', validate_attendance, name='validate_attendance'),
+    #############################################
 
 
     path("payment-club/<int:clubId>/<str:clubName>/<int:amount>/", create_payment, name="create_payment"),
@@ -28,6 +46,6 @@ urlpatterns = [
 
 
     path('student_dashboard/<int:studentId>/<int:qid>/<str:studentName>/', student_dashboard, name='studentView'),
-    path('teacher_dashboard/<int:facultyId>/<int:qid>/<str:facultyName>/', faculty_dashboard, name='facultyView'),
+    path('teacher_dashboard/<int:FacultyId>/<int:qid>/<str:facultyName>/', faculty_dashboard, name='facultyView'),
     path('moderator_dashboard/<int:adminId>/<int:qid>/<str:adminName>/', admin_dashboard, name='adminView'),
 ]

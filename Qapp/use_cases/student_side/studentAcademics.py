@@ -12,4 +12,4 @@ def studentAcad(request, studentId, qid, studentName):
         'subjects':subject
     }
 
-    return render(request,'html/dashboard/studentAcad.html',context)
+    return render(request,'html/dashboard/chatting.html',context)

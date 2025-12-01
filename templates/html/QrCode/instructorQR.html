@@ -1,0 +1,15 @@
+<img id="qr" width="200">
+
+<script>
+function refreshQR() {
+    fetch("/api/instructor_qr/")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("qr").src = 
+            "data:image/png;base64," + data.qr;  // <- use 'qr' key
+    });
+}
+
+setInterval(refreshQR, 3000);
+window.onload = refreshQR;
+</script>
