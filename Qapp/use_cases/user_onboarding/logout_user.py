@@ -8,16 +8,14 @@ from django.contrib.auth import logout
 ########### Logout Start ####################
 #################################################
 
-def user_logout(request,userId):
+def user_logout(request):
     if request.user.is_authenticated:
-        user_id = request.user.id
-        if user_id == userId:
-            logout(request)
-            messages.success(request, "Successfully Logged Out")
-            return redirect("/")
-        else:
-            messages.error(request, "Invalid Action")
-            return redirect("/")
+        logout(request)
+        messages.success(request, "Successfully Logged Out")
+        return redirect("/")
+    else:
+        messages.error(request, "No user is logged in")
+        return redirect("/")
 
 #################################################
 ########### Logout END ####################

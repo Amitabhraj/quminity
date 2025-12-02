@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser,User
 from django.db import models
+from django.utils import timezone
+
 
 courses_name_choices = [
     ('B.tech CSE', 'B.tech CSE'),
@@ -71,6 +73,7 @@ class Club(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     entry_fees = models.IntegerField(null=True, blank=True)
+    core_members = models.ManyToManyField(CustomUser, related_name='core_members', blank=True)
     student_enrolled = models.ManyToManyField(CustomUser)
 
     def __str__(self):
@@ -87,3 +90,24 @@ class ClubEventPayment(models.Model):
 
     def __str__(self):
         return f"{self.payment_id}"
+
+
+
+class ActiveToken(models.Model):
+    token = models.CharField(max_length=200)
+    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    expires_at = models.DateTimeField(default=timezone.now,null=True, blank=True)
+
+
+
+class Attendance(models.Model):
+    student_id = models.CharField(max_length=100)
+    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    ip_address = models.GenericIPAddressField()
+    present = models.BooleanField(default=True)
+    token_obj = models.ForeignKey(ActiveToken,on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now)
+    mark_attendance_by_cordinator = models.BooleanField(default=False)
+
+
+
