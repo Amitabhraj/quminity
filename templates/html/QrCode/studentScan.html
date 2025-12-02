@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Attendance</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,9 +13,14 @@
         }
         #reader { width: 300px; margin: auto; }
         #msg {
+            margin-top: 12px;
+            font-weight: bold;
+            color: #008000;
+        }
+        #error {
             margin-top: 10px;
             font-weight: bold;
-            color: green;
+            color: red;
         }
     </style>
 </head>
@@ -22,15 +28,15 @@
 
     <h2>Scan Event QR</h2>
 
-    <!-- CAMERA SCAN -->
+    <!-- CAMERA SCANNER -->
     <div id="reader"></div>
-
     <p id="msg"></p>
+    <p id="error"></p>
 
     <hr>
 
-    <!-- IMAGE UPLOAD SCAN (NEW) -->
-    <h3>Or Upload QR Image</h3>
+    <!-- IMAGE FILE SCANNER -->
+    <h3>Or Upload a QR Image</h3>
     <input type="file" id="qr-img" accept="image/*">
 
     <script>
@@ -48,9 +54,15 @@
                 });
 
                 const result = await response.json();
-                document.getElementById("msg").innerText = result.message || "Attendance marked!";
+
+                if (result.status === "success") {
+                    document.getElementById("msg").innerText = result.message;
+                    document.getElementById("error").innerText = "";
+                } else {
+                    document.getElementById("error").innerText = result.message;
+                }
             } catch (error) {
-                document.getElementById("msg").innerText = "Failed to mark attendance.";
+                document.getElementById("error").innerText = "Failed to submit attendance.";
             } finally {
                 isSubmitting = false;
             }
@@ -58,39 +70,42 @@
 
         function onScanSuccess(decodedText) {
             document.getElementById("msg").innerText = "QR scanned! Submitting...";
+            document.getElementById("error").innerText = "";
             submitAttendance(decodedText);
         }
 
-        // OLD CAMERA SCANNER (unchanged)
+        // --------------------------
+        // CAMERA SCANNER
+        // --------------------------
         const scanner = new Html5QrcodeScanner(
             "reader",
             {
                 fps: 10,
                 qrbox: { width: 250, height: 250 },
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
-                aspectRatio: 1
+                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
             },
             false
         );
 
         scanner.render(onScanSuccess);
 
-        // -----------------------------------------
-        // NEW: IMAGE FILE UPLOAD QR SCANNING
-        // -----------------------------------------
+        // --------------------------
+        // IMAGE UPLOAD SCANNER
+        // --------------------------
         document.getElementById("qr-img").addEventListener("change", async function () {
             if (this.files.length === 0) return;
 
             const file = this.files[0];
-            const imgScanner = new Html5Qrcode("reader");
+            const imgScanner = new Html5Qrcode("__temp_img_scaner__");
 
             try {
                 const decodedText = await imgScanner.scanFile(file, true);
                 document.getElementById("msg").innerText = "QR scanned from image! Submitting...";
+                document.getElementById("error").innerText = "";
                 submitAttendance(decodedText);
             } catch (err) {
-                console.log(err);
-                document.getElementById("msg").innerText = "Failed to detect QR in image.";
+                console.error(err);
+                document.getElementById("error").innerText = "Failed to detect QR in this image.";
             }
         });
 
