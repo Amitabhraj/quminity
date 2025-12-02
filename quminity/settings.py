@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xpp6b4&n9=$6709*p2#!#=&c&7oonu7^+esba#f()s(*r+pn10
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -56,6 +56,12 @@ ROOT_URLCONF = 'quminity.urls'
 #Test API
 RAZORPAY_KEY_ID = 'rzp_test_RgCIkA0ynsEs2a'
 RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
+
+
+QR_SECRET_KEY = "_n66ymbrj)w^7#_rs1feqc&+*5ehg35(xha^4fn+y86q85ouv7"
+QR_JWT_ALGO = "HS256"
+QR_TOKEN_TTL =  3
+QR_EVENT_ID = "EVT2025"
 
 # Static URL
 STATIC_URL = 'static/'
@@ -122,17 +128,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+# Indian Time Zone Settings
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata' 
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

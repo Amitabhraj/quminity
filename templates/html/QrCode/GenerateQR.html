@@ -1,0 +1,18 @@
+<center>
+<h2>QR Code for Club: {{club.club_name}}</h2>
+<img id="qr" width="200">
+</center>
+
+<script>
+function refreshQR() {
+    fetch("/api/GenerateQR/{{club.id}}/")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("qr").src = 
+            "data:image/png;base64," + data.qr;  // <- use 'qr' key
+    });
+}
+
+setInterval(refreshQR, 3000);
+window.onload = refreshQR;
+</script>

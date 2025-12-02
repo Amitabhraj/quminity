@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import ClubEventPayment, CustomUser,Section,Course,Subject,Club
+from .models import (ClubEventPayment, CustomUser,Section,Course,
+                     Subject,Club,ActiveToken,Attendance)
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         ("Additional Info", {"fields": ("qid", "anonymous","section")}),
     )
-
+admin.site.register(Attendance)
+admin.site.register(ActiveToken)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Section)
 admin.site.register(Subject)
