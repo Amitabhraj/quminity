@@ -12,16 +12,16 @@ from .use_cases.admin_side.adminView import MainView as admin_dashboard
 from Qapp.qr_code import qrCode
 from Qapp.qr_code.generateToken import GenerateQR
 from Qapp.qr_code.validateAttend import validate_attendance
-
+from Qapp.use_cases.chatting.chatting import demoChat
 
 urlpatterns = [
     path('', check_authentication, name='check_authentication'),
     path('login/', user_login, name='user_login'),
+    path('logout_user/', user_logout, name='user_logout'),
 
 
     ############# QR CODE ATTENDANCE #############
     # Instructor
-    path('ShowClubForAttendance/', qrCode.ShowAssociatedClub, name='instructor_page'),
     path('Show-Attendance-QR/<int:club_id>/', qrCode.QrGeneratePage, name='Show_Attendance_QR'),
     path('api/GenerateQR/<int:club_id>/', GenerateQR, name='GenerateQR'),
 
@@ -30,17 +30,24 @@ urlpatterns = [
     path('api/validate/', validate_attendance, name='validate_attendance'),
     #############################################
 
-
+    
+    ####################### Payments ########################
     path("payment-club/<int:clubId>/<str:clubName>/<int:amount>/", create_payment, name="create_payment"),
     path("payment-success/", payment_success, name="payment_success"),
     path("payment-done/<str:order_id>/", payment_done, name="payment_done"),
+    #########################################################
+    
+    ############### Messaging ####################
+    path('demo_chat/', demoChat, name='demoChat'),
+    ###############################################
 
 
-    path('logout_user/', user_logout, name='user_logout'),
-
+    ########################## Pages on Index Page ############################
+    path('ShowClubForAttendance/', qrCode.ShowAssociatedClub, name='ShowClubForAttendance'),
     path('studentAcad/<int:studentId>/<int:qid>/<str:studentName>/', studentAcad, name='studentAcad'),
     path('studentClub/<int:studentId>/<int:qid>/<str:studentName>/', studentClub, name='studentClub'),
     path('studentDiscussion/<int:studentId>/<int:qid>/<str:studentName>/', studentDiscussion, name='studentDiscussion'),
+    ###########################################################################
 
 
     path('student_dashboard/<int:studentId>/<int:qid>/<str:studentName>/', student_dashboard, name='studentView'),

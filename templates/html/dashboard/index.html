@@ -101,6 +101,12 @@
                      <a href="/studentClub/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}">
                       <button class="btn btn-primary d-block w-100">Explore</button>
                      </a>
+                     <br>
+                     {% if club %}
+                     <a href="/ShowClubForAttendance/">
+                      <button class="btn btn-success d-block w-100">Club Attendance</button>
+                     </a>
+                     {% endif %}
                   </div>
                </div>
 
@@ -120,25 +126,6 @@
                      </a>
                   </div>
                </div>
-
-               {% if club %}
-               <div class="card mb-0">
-                  <div class="top-bg-image">
-                     <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100" alt="group-bg">
-                  </div>
-                  <div class="card-body text-center">
-                     <div class="group-icon">
-                           <img src="{% static 'images/page-img/event_manage.png' %}" alt="profile-img" class="rounded-circle img-fluid avatar-120">
-                     </div>
-                     <div class="group-info pt-3 pb-3">
-                           <h4>Club Attendance</h4>
-                     </div>
-                     <a href="/ShowClubForAttendance/">
-                      <button class="btn btn-primary d-block w-100">Explore</button>
-                     </a>
-                  </div>
-               </div>
-               {% endif %}
 
             </div>
         </div>
