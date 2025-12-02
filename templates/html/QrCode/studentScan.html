@@ -1,151 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Attendance</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+        #qr-reader {
+            width: 300px;
+            margin: 20px auto;
         }
-        #reader { width: 300px; margin: auto; }
         #msg {
-            margin-top: 10px;
+            font-size: 18px;
+            margin-top: 15px;
+            text-align: center;
             font-weight: bold;
-            color: green;
-        }
-        #preview-img {
-            display: none;
-            width: 260px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
         }
     </style>
 </head>
+
 <body>
 
-    <h2>Scan Event QR</h2>
+<h2 style="text-align:center;">Scan Event QR</h2>
 
-    <!-- LIVE CAMERA SCANNER -->
-    <div id="reader"></div>
-    <p id="msg"></p>
+<div id="qr-reader"></div>
 
-    <hr>
-
-    <h3>Or Upload QR Image</h3>
-    <input type="file" id="qr-img" accept="image/*">
-    <img id="preview-img">
+<p id="msg"></p>
 
 <script>
-    let isSubmitting = false;
+    // API URL
+    const API_URL = "/api/validate/";
 
-    async function submitAttendance(token) {
-        if (isSubmitting) return;
-        isSubmitting = true;
+    // After QR Scan
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log("Scanned Token:", decodedText);
 
-        try {
-            const response = await fetch("/api/validate/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token })
-            });
+        // Disable scanner to prevent multiple scans
+        html5QrcodeScanner.clear();
 
-            const result = await response.json();
-            document.getElementById("msg").innerText = result.message || "Attendance marked!";
-        } catch (error) {
-            document.getElementById("msg").innerText = "Failed to mark attendance.";
-        } finally {
-            isSubmitting = false;
-        }
-    }
-
-
-    // ---------------------------------------------
-    // 1️⃣ LIVE CAMERA SCANNER
-    // ---------------------------------------------
-    function onScanSuccess(decodedText) {
-        document.getElementById("msg").innerText = "QR scanned! Submitting...";
+        // Send token to backend
         submitAttendance(decodedText);
     }
 
-    const scanner = new Html5QrcodeScanner(
-        "reader",
-        {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-            aspectRatio: 1
-        },
+    // Send token to Django backend
+    function submitAttendance(token) {
+        document.getElementById("msg").innerText = "Validating...";
+
+        fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `token=${encodeURIComponent(token)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById("msg").style.color = "green";
+                document.getElementById("msg").innerText = data.message;
+            } else {
+                document.getElementById("msg").style.color = "red";
+                document.getElementById("msg").innerText = data.message;
+            }
+        })
+        .catch(error => {
+            document.getElementById("msg").style.color = "red";
+            document.getElementById("msg").innerText = "Error validating attendance!";
+            console.error("Error:", error);
+        });
+    }
+
+    // Django CSRF Token Extractor
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // QR Scanner
+    var html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: 250 },
         false
     );
-    scanner.render(onScanSuccess);
-
-
-    // ---------------------------------------------
-    // 2️⃣ IMAGE UPLOAD SCANNER
-    // ---------------------------------------------
-    document.getElementById("qr-img").addEventListener("change", async function () {
-
-        if (this.files.length === 0) return;
-
-        const file = this.files[0];
-        const imgScanner = new Html5Qrcode("reader");
-        const preview = document.getElementById("preview-img");
-
-        // show preview image
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-
-        document.getElementById("msg").innerText = "Processing QR...";
-
-        // TRY-1: Html5Qrcode scanFileV2
-        try {
-            const decoded = await imgScanner.scanFileV2(file, {
-                useBarCodeDetectorIfSupported: true,
-                qrEngine: "worker",
-                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
-            });
-
-            document.getElementById("msg").innerText = "QR detected from image!";
-            return submitAttendance(decoded.text);
-
-        } catch (err) {
-            console.log("scanFileV2 failed → trying jsQR...");
-        }
-
-
-        // TRY-2: jsQR fallback
-        try {
-            const imageBitmap = await createImageBitmap(file);
-            const canvas = document.createElement("canvas");
-            canvas.width = imageBitmap.width;
-            canvas.height = imageBitmap.height;
-
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(imageBitmap, 0, 0);
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-            const jsQrResult = jsQR(imageData.data, canvas.width, canvas.height);
-
-            if (jsQrResult) {
-                document.getElementById("msg").innerText = "QR detected (fallback)!";
-                return submitAttendance(jsQrResult.data);
-            } else {
-                document.getElementById("msg").innerText = "Unable to detect QR. Try clearer image.";
-            }
-
-        } catch (err) {
-            console.log(err);
-            document.getElementById("msg").innerText = "Failed to read QR.";
-        }
-
-    });
-
+    html5QrcodeScanner.render(onScanSuccess);
 </script>
 
 </body>
