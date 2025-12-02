@@ -109,5 +109,11 @@ class Attendance(models.Model):
     date = models.DateTimeField(default=timezone.now)
     mark_attendance_by_cordinator = models.BooleanField(default=False)
 
+    def __str__(self):
+        if self.present:
+            return f"{self.student_id} - Present in {self.event_or_club.club_name} on {self.date.strftime('%Y-%m-%d')}"
+        else:
+            return f"{self.student_id} - Absent in {self.event_or_club.club_name} on {self.date.strftime('%Y-%m-%d')}"
+
 
 
