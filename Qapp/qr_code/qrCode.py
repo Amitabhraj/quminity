@@ -1,7 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render,redirect
+from Qapp.decorators import login_required
 from Qapp.qr_code.common import check_club_core_member, get_event_or_club_association_from_user
 
+
+@login_required
 def ShowAssociatedClub(request):
     success, result = get_event_or_club_association_from_user(request)
     if not success:
