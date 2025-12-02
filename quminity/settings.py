@@ -60,7 +60,7 @@ RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
 
 QR_SECRET_KEY = "_n66ymbrj)w^7#_rs1feqc&+*5ehg35(xha^4fn+y86q85ouv7"
 QR_JWT_ALGO = "HS256"
-QR_TOKEN_TTL =  3
+QR_TOKEN_TTL =  30
 QR_EVENT_ID = "EVT2025"
 
 # Static URL

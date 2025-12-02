@@ -32,10 +32,7 @@ def create_payment(request, clubId, clubName, amount):
 
     payment.order_id = razorpay_order["id"]
     payment.event_or_club = club_obj
-
-    #adding user_obj into Club's student_enrolled
-    club_obj.student_enrolled.add(user_obj)
-
+    
     payment.student = user_obj
     payment.save()
 
@@ -59,6 +56,10 @@ def payment_success(request):
         payment = ClubEventPayment.objects.get(order_id=order_id)
         payment.payment_id = payment_id
         payment.status = True
+        
+        club_obj = payment.event_or_club
+        user_obj = payment.student
+        club_obj.student_enrolled.add(user_obj)
         payment.save()
 
         return JsonResponse({"status": "success"})

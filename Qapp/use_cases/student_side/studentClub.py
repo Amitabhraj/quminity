@@ -7,7 +7,6 @@ def studentClub(request, studentId, qid, studentName):
     student_obj = check_cred(request, studentId, qid, studentName) 
     all_club = Club.objects.all()
 
-
     context = {
         'club':all_club
     }
