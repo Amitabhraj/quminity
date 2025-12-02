@@ -10,7 +10,7 @@ def ShowAssociatedClub(request):
     if not success:
         return redirect("/")
     context = {'club': result}
-    return render(request, "html/QRCode/ShowAssociatedClub.html", context)
+    return render(request, "html/QrCode/ShowAssociatedClub.html", context)
 
 
 
@@ -19,8 +19,8 @@ def QrGeneratePage(request,club_id):
     if not success:
         return redirect("/")
     context = {'club':club_or_event}
-    return render(request, "html/QRCode/GenerateQR.html",context)
+    return render(request, "html/QrCode/GenerateQR.html",context)
 
 
 def scan_page(request):
-    return render(request, "html/QRCode/studentScan.html")
+    return render(request, "html/QrCode/studentScan.html")
