@@ -1,23 +1,34 @@
 <center>
 <h2>QR Code for Club: {{club.club_name}}</h2>
-<img id="qr-img" style="
-    width: 300px;
-    height: 300px;
-    image-rendering: pixelated;
-    border: 4px solid black;
-">
+
+<img id="qr-img"
+     style="
+        max-width: 90vw;
+        width: 350px;
+        aspect-ratio: 1/1;
+        border: 3px solid black;
+     ">
 </center>
 
 <script>
 function refreshQR() {
     fetch("/api/GenerateQR/{{club.id}}/")
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("qr-img").src = 
-            "data:image/png;base64," + data.qr;  // <- use 'qr' key
-    });
+        .then(res => res.json())
+        .then(data => {
+            const img = document.getElementById("qr-img");
+
+            // clear old QR first (prevents caching issues)
+            img.src = "";
+
+            // backend should return key matching "qr" or "qr_image"
+            img.src = "data:image/png;base64," + (data.qr || data.qr_image);
+        })
+        .catch(err => console.error("QR refresh failed:", err));
 }
 
+// refresh every 5 minutes
 setInterval(refreshQR, 300000);
+
+// load first QR
 window.onload = refreshQR;
 </script>

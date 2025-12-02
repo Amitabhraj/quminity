@@ -11,17 +11,11 @@ date_today = localtime(timezone.now()).date()
 
 SECRET_KEY = settings.QR_SECRET_KEY
 ALGO = settings.QR_JWT_ALGO
-EVENT_ID = settings.QR_EVENT_ID   # expected event ID for validation
+EVENT_ID = settings.QR_EVENT_ID  
 
 
 @csrf_exempt
 def validate_attendance(request):
-
-    # -------------------------
-    # Safe JSON Parsing
-    # -------------------------
-    
-
     token = request.POST.get("token")
     student_id = request.user.qid
 
