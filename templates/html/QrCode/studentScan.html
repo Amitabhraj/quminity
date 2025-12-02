@@ -10,10 +10,7 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        #reader {
-            width: 300px;
-            margin-bottom: 20px;
-        }
+        #reader { width: 300px; margin: auto; }
         #msg {
             margin-top: 10px;
             font-weight: bold;
@@ -24,8 +21,17 @@
 <body>
 
     <h2>Scan Event QR</h2>
+
+    <!-- CAMERA SCAN -->
     <div id="reader"></div>
+
     <p id="msg"></p>
+
+    <hr>
+
+    <!-- IMAGE UPLOAD SCAN (NEW) -->
+    <h3>Or Upload QR Image</h3>
+    <input type="file" id="qr-img" accept="image/*">
 
     <script>
         let isSubmitting = false;
@@ -55,17 +61,39 @@
             submitAttendance(decodedText);
         }
 
-        // FIXED: smaller scan box for better detection
+        // OLD CAMERA SCANNER (unchanged)
         const scanner = new Html5QrcodeScanner(
             "reader",
             {
                 fps: 10,
-                qrbox: { width: 500, height: 500 }
+                qrbox: { width: 250, height: 250 },
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+                aspectRatio: 1
             },
             false
         );
 
         scanner.render(onScanSuccess);
+
+        // -----------------------------------------
+        // NEW: IMAGE FILE UPLOAD QR SCANNING
+        // -----------------------------------------
+        document.getElementById("qr-img").addEventListener("change", async function () {
+            if (this.files.length === 0) return;
+
+            const file = this.files[0];
+            const imgScanner = new Html5Qrcode("reader");
+
+            try {
+                const decodedText = await imgScanner.scanFile(file, true);
+                document.getElementById("msg").innerText = "QR scanned from image! Submitting...";
+                submitAttendance(decodedText);
+            } catch (err) {
+                console.log(err);
+                document.getElementById("msg").innerText = "Failed to detect QR in image.";
+            }
+        });
+
     </script>
 
 </body>

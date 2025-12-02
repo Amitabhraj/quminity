@@ -1,5 +1,7 @@
-from Qapp.models import ActiveToken
+from Qapp.models import ActiveToken, Club
+from Qapp.qr_code.common import check_club_core_member
 import jwt
+from django.shortcuts import render,redirect
 import datetime
 import qrcode
 import base64
@@ -18,7 +20,11 @@ TOKEN_TTL = settings.QR_TOKEN_TTL
 EVENT_ID = settings.QR_EVENT_ID
 
 
-def instructor_qr(request):
+def GenerateQR(request,club_id):
+    success, event_or_club = check_club_core_member(request,club_id)
+    if not success:
+        return redirect("/")
+    
     payload = {
         "event": EVENT_ID,
         "role": "student_attendance",
@@ -30,8 +36,9 @@ def instructor_qr(request):
 
     qr = qrcode.QRCode(
         version=1,
-        box_size=10,
-        border=3
+        box_size=15,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        border=4
     )
     qr.add_data(token)
     qr.make(fit=True)
@@ -43,7 +50,7 @@ def instructor_qr(request):
 
     expires_at = timezone.now() + timedelta(seconds=TOKEN_TTL)
 
-    ActiveToken.objects.create(token=token, expires_at=expires_at)
+    ActiveToken.objects.create(token=token,event_or_club=event_or_club, expires_at=expires_at)
 
     return JsonResponse({
         "qr": qr_base64,

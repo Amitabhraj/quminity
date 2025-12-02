@@ -1,4 +1,3 @@
-
 {% load static %}
 <!doctype html>
 <html lang="en">
@@ -16,31 +15,61 @@
       <link rel="stylesheet" href="{% static 'vendor/font-awesome-line-awesome/css/all.min.css' %}">
       <link rel="stylesheet" href="{% static 'vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css' %}">
       
+      <style>
+        /* Responsive Logout Button */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+        @media(max-width: 576px){
+            .logout-btn {
+                top: 10px;
+                right: 10px;
+            }
+            .logout-btn button {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+        }
+      </style>
   </head>
   <body class="  ">
-    <!-- loader END -->
-    <!-- Wrapper Start -->
     <div class="wrapper">
+
         <div class="header-for-bg">
             <div class="background-header position-relative">
                 <img src="{% static 'images/page-img/community.png' %}" class="img-fluid w-100" style="height:400px;" alt="header-bg">
+
+                <!-- ✅ LOGOUT BUTTON ADDED HERE -->
+                <div class="logout-btn">
+                    <a href="/logout_user/">
+                        <button class="btn btn-danger">Logout</button>
+                    </a>
+                </div>
+                <!-- ✅ END -->
+
                 <div style="position:absolute; top:20px; left:20px; z-index:10;">
                   <img src="{% static 'images/logo/quminity.jpg' %}" 
-                        alt="Quminity Logo" 
-                        style="height:60px; width:auto;border-radius: 40%;" 
-                        class="img-fluid">
+                       alt="Quminity Logo" 
+                       style="height:60px; width:auto;border-radius: 40%;" 
+                       class="img-fluid">
                </div>
+
                 <div class="title-on-header">
                     <div class="data-block">
                         <h2>Welcome to Quminity</h2>
                     </div>
                 </div>
             </div>
-            </div>
-            <!-- Page Content  -->
+        </div>
+
+      <!-- Page Content -->
       <div id="content-page" class="content-page">
         <div class="container">
             <div class="d-grid gap-3 d-grid-template-1fr-19">
+
                <div class="card mb-0">
                   <div class="top-bg-image">
                      <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100" alt="group-bg">
@@ -52,7 +81,9 @@
                      <div class="group-info pt-3 pb-3">
                            <h4>Academics</h4>
                      </div>
-                     <a href="/studentAcad/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}/"><button class="btn btn-primary d-block w-100">Explore</button></a>
+                     <a href="/studentAcad/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}/">
+                      <button class="btn btn-primary d-block w-100">Explore</button>
+                     </a>
                   </div>
                </div>
 
@@ -67,10 +98,11 @@
                      <div class="group-info pt-3 pb-3">
                            <h4>Club/Societies</h4>
                      </div>
-                     <a href="/studentClub/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}"><button class="btn btn-primary d-block w-100">Explore</button></a>
+                     <a href="/studentClub/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}">
+                      <button class="btn btn-primary d-block w-100">Explore</button>
+                     </a>
                   </div>
                </div>
-
 
                <div class="card mb-0">
                   <div class="top-bg-image">
@@ -83,15 +115,36 @@
                      <div class="group-info pt-3 pb-3">
                            <h4>Discussion Forum</h4>
                      </div>
-                     <a href="/studentDiscussion/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}"><button class="btn btn-primary d-block w-100">Explore</button></a>
+                     <a href="/studentDiscussion/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}">
+                      <button class="btn btn-primary d-block w-100">Explore</button>
+                     </a>
                   </div>
                </div>
+
+               {% if club %}
+               <div class="card mb-0">
+                  <div class="top-bg-image">
+                     <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100" alt="group-bg">
+                  </div>
+                  <div class="card-body text-center">
+                     <div class="group-icon">
+                           <img src="{% static 'images/page-img/event_manage.png' %}" alt="profile-img" class="rounded-circle img-fluid avatar-120">
+                     </div>
+                     <div class="group-info pt-3 pb-3">
+                           <h4>Club Attendance</h4>
+                     </div>
+                     <a href="/ShowClubForAttendance/">
+                      <button class="btn btn-primary d-block w-100">Explore</button>
+                     </a>
+                  </div>
+               </div>
+               {% endif %}
 
             </div>
         </div>
       </div>
     </div>
-    <!-- Wrapper End-->
+
     <footer class="iq-footer bg-white">
        <div class="container-fluid">
           <div class="row">
@@ -106,60 +159,16 @@
              </div>
           </div>
        </div>
-    </footer> 
+    </footer>
 
-   <!-- Backend Bundle JavaScript -->
-    <script src="{% static 'js/libs.min.js' %}"></script>
-    <!-- slider JavaScript -->
-    <script src="{% static 'js/slider.js' %}"></script>
-    <!-- masonry JavaScript --> 
-    <script src="{% static 'js/masonry.pkgd.min.js' %}"></script>
-    <!-- SweetAlert JavaScript -->
-    <script src="{% static 'js/enchanter.js' %}"></script>
-    <!-- SweetAlert JavaScript -->
-    <script src="{% static 'js/sweetalert.js' %}"></script>
-    <!-- app JavaScript -->
-    <script src="{% static 'js/charts/weather-chart.js' %}"></script>
-    <script src="{% static 'js/app.js' %}"></script>
-    <script src="../vendor/vanillajs-datepicker/dist/js/datepicker.min.js' %}"></script>
-    <script src="{% static 'js/lottie.js' %}"></script>
-    
+   <script src="{% static 'js/libs.min.js' %}"></script>
+   <script src="{% static 'js/slider.js' %}"></script>
+   <script src="{% static 'js/masonry.pkgd.min.js' %}"></script>
+   <script src="{% static 'js/enchanter.js' %}"></script>
+   <script src="{% static 'js/sweetalert.js' %}"></script>
+   <script src="{% static 'js/charts/weather-chart.js' %}"></script>
+   <script src="{% static 'js/app.js' %}"></script>
+   <script src="{% static 'js/lottie.js' %}"></script>
 
-    <!-- offcanvas start -->
- 
-    <div class="offcanvas offcanvas-bottom share-offcanvas" tabindex="-1" id="share-btn" aria-labelledby="shareBottomLabel">
-       <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="shareBottomLabel">Share</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-       </div>
-       <div class="offcanvas-body small">
-          <div class="d-flex flex-wrap align-items-center">
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/08.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>Facebook</h6>
-             </div>
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/09.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>Twitter</h6>
-             </div>
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/10.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>Instagram</h6>
-             </div>
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/11.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>Google Plus</h6>
-             </div>
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/13.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>In</h6>
-             </div>
-             <div class="text-center me-3 mb-3">
-                <img src="{% static 'images/icon/12.png' %}" class="img-fluid rounded mb-2" alt="">
-                <h6>YouTube</h6>
-             </div>
-          </div>
-       </div>
-    </div>
   </body>
 </html>
