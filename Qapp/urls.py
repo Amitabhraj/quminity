@@ -1,5 +1,8 @@
 from django.urls import path
-from Qapp.use_cases.payment.user_payment import club_payment, create_payment, payment_done, payment_success
+from Qapp.use_cases.club.ClubPayment import CreateClubPayment
+from Qapp.use_cases.event.EventPayment import CreateEventPayment
+from Qapp.use_cases.payment.paymentStatus import PaymentStatus
+from Qapp.use_cases.payment.processPayment import paymentProcess
 from Qapp.use_cases.student_side.studentClub import studentClub
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
@@ -28,18 +31,22 @@ urlpatterns = [
     # Student
     path('scan/', qrCode.scan_page, name='scan_page'),
     path('api/validate/', validate_attendance, name='validate_attendance'),
-    #############################################
+    ############### QR CODE ATTENDANCE End #############
 
     
     ####################### Payments ########################
-    path("payment-club/<int:clubId>/<str:clubName>/<int:amount>/", create_payment, name="create_payment"),
-    path("payment-success/", payment_success, name="payment_success"),
-    path("payment-done/<str:order_id>/", payment_done, name="payment_done"),
-    #########################################################
+    path("payment-club/<int:clubId>/", CreateClubPayment, name="create_payment_club"),
+    path("payment-event/<int:eventId>/", CreateEventPayment, name="create_payment_event"),
+    path("payment-process/", paymentProcess, name="payment_success"),
+    path("payment-status/<str:order_id>/", PaymentStatus, name="payment_done"),
+    ######################## Payments End ###################
+
+
+
     
     ############### Messaging ####################
     path('demo_chat/', demoChat, name='demoChat'),
-    ###############################################
+    ################## Messaging End #############
 
 
     ########################## Pages on Index Page ############################

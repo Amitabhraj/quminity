@@ -60,28 +60,58 @@ class CustomUser(AbstractUser):
     
     def get_full_name(self):   
         return f"{self.first_name} {self.last_name}"
-    
 
+
+
+######################### Start Club/Events Models #########################
 
 class Club(models.Model):
     club_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    president_name =  models.CharField(max_length=100, unique=True, null=True, blank=True)
-    vise_president_name =  models.CharField(max_length=100, unique=True, null=True, blank=True)
-    president_mobile_number =  models.IntegerField(unique=True, null=True, blank=True)
-    vise_president_mobile_number =  models.IntegerField(unique=True, null=True, blank=True)
-    core_members = models.JSONField(default=dict,blank=True,null=True)
+    members_detail = models.JSONField(default=dict,blank=True,null=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     entry_fees = models.IntegerField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    club_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
+    logo = models.ImageField(upload_to='club_logos/', null=True, blank=True)
     core_members = models.ManyToManyField(CustomUser, related_name='core_members', blank=True)
-    student_enrolled = models.ManyToManyField(CustomUser)
+    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students', blank=True)
 
     def __str__(self):
         return f"{self.club_name}"
     
+class Event(models.Model):
+    event = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    event_date = models.DateTimeField(null=True, blank=True)
+    location = models.CharField(max_length=200, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    entry_fees = models.IntegerField(default=0,null=False, blank=False)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+    is_free = models.BooleanField(default=False)
+    event_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
+    banner = models.ImageField(upload_to='event_banners/', null=True, blank=True)
+    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_from_event', blank=True)
 
-class ClubEventPayment(models.Model):
-    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    def __str__(self):
+        return f"{self.event} by {self.club} on {self.event_date.strftime('%Y-%m-%d')}"
+
+
+class ClubPayment(models.Model):
+    club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
+    payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    amount = models.IntegerField(default=0)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.payment_id}"
+    
+
+class EventPayment(models.Model):
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
     student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
     payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -91,23 +121,24 @@ class ClubEventPayment(models.Model):
     def __str__(self):
         return f"{self.payment_id}"
 
+######################### End Club/Events Models #########################
+
 
 
 class ActiveToken(models.Model):
-    token = models.CharField(max_length=200)
-    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
+    current_token = models.CharField(max_length=200,null=True, blank=True)
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(default=timezone.now,null=True, blank=True)
 
 
 
 class Attendance(models.Model):
-    student_id = models.CharField(max_length=100)
-    event_or_club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
-    ip_address = models.GenericIPAddressField()
-    present = models.BooleanField(default=True)
-    token_obj = models.ForeignKey(ActiveToken,on_delete=models.CASCADE, null=True, blank=True)
-    date = models.DateTimeField(default=timezone.now)
-    mark_attendance_by_cordinator = models.BooleanField(default=False)
+    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+    is_present = models.BooleanField(default=False)
+    attendance_marked_at = models.DateTimeField(default=timezone.now)
+    attendance_marked_by_cordinator = models.BooleanField(default=False)
 
     def __str__(self):
         if self.present:

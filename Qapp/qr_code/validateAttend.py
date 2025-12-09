@@ -17,7 +17,7 @@ EVENT_ID = settings.QR_EVENT_ID
 @csrf_exempt
 def validate_attendance(request):
     token = request.POST.get("token")
-    student_id = request.user.qid
+    student = request.user
 
     if not token:
         return JsonResponse(
@@ -49,38 +49,30 @@ def validate_attendance(request):
         token_obj = ActiveToken.objects.get(
             token=token, expires_at__gt=timezone.now()
         )
+        event = token_obj.event
+        current_date_time = timezone.now()
+
+
+        # Check if already marked
+        if Attendance.objects.filter(
+            student=student,
+            event=event,
+            present=True
+        ).exists():
+            return JsonResponse(
+                {"status": "success", "message": "Attendance already marked"}
+            )
+
+        # if Not present then merking the Attendance
+        attendance = Attendance(student=student,
+                                event=event,
+                                attendance_marked_at=current_date_time,
+                                present=True
+                                )
+        attendance.save()
+        return JsonResponse(
+                {"status": "success", "message": f"Attendance Marked for Student ID: {student.qid}"}
+            )
+    
     except ActiveToken.DoesNotExist:
         return JsonResponse({"status": "error", "message": "QR Expired"}, status=400)
-
-    event_or_club = token_obj.event_or_club
-
-    # -------------------------
-    # Check if already marked
-    # -------------------------
-    if Attendance.objects.filter(
-        student_id=student_id,
-        event_or_club=event_or_club,
-        present=True,
-        date__date=date_today
-    ).exists():
-        return JsonResponse(
-            {"status": "success", "message": "Attendance already marked"}
-        )
-
-    # -------------------------
-    # Mark Attendance
-    # -------------------------
-    Attendance.objects.create(
-        student_id=student_id,
-        ip_address=request.META.get("REMOTE_ADDR"),
-        event_or_club=event_or_club,
-        token_obj=token_obj,
-        date=timezone.now(),
-        present=True
-    )
-
-    return JsonResponse({
-        "status": "success",
-        "message": f"Attendance marked for Student ID: {student_id}",
-        "payload": payload,
-    })

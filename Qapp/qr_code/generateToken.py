@@ -19,9 +19,9 @@ TOKEN_TTL = settings.QR_TOKEN_TTL
 EVENT_ID = settings.QR_EVENT_ID
 
 
-def GenerateQR(request, club_id):
+def GenerateQR(request, event_id):
     # Validate that the requesting user is a core member
-    success, event_or_club = check_club_core_member(request, club_id)
+    success, event = check_club_core_member(request, event_id)
     if not success:
         return redirect("/")
 
@@ -58,12 +58,22 @@ def GenerateQR(request, club_id):
     # Token expiry
     expires_at = timezone.now() + timedelta(seconds=TOKEN_TTL)
 
-    # Save ActiveToken in DB
-    ActiveToken.objects.create(
-        token=token,
-        event_or_club=event_or_club,
-        expires_at=expires_at
-    )
+    if ActiveToken.objects.filter(event=event).exists():
+        try:
+            token_obj = ActiveToken.objects.get(event=event)
+            token_obj.current_token = token
+            token_obj.expires_at = expires_at
+            token_obj.save()
+        except Exception as e:
+            message = f"Error updating existing token: {str(e)}"
+            return JsonResponse({"status": "error", "message": message}, status=500)
+    else:
+        ActiveToken.objects.create(
+            current_token=token,
+            event=event,
+            created_at = timezone.now(),
+            expires_at=expires_at
+        )
 
     return JsonResponse({
         "qr": qr_base64,
