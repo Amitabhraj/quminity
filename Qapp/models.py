@@ -174,8 +174,15 @@ class Notification(models.Model):
     file = models.FileField(upload_to='notification_file/', null=True, blank=True)
     notificatio_type = models.CharField(choices=notification_type,default=None,blank=True,null=True)
     event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+    subject = models.CharField(default="",null=True,blank=True)
+    message = models.TextField(default="",null=True,blank=True)
+    date = models.DateTimeField(default=timezone.now)
 
 
 
 
-
+class ClassRoom(models.Model):
+    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
+    present = models.BooleanField(default=False)
+    subject = models.ForeignKey(Subject,on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateTimeField(default=timezone.now)
