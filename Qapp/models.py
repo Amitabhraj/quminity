@@ -177,7 +177,10 @@ class Notification(models.Model):
     subject = models.CharField(default="",null=True,blank=True)
     message = models.TextField(default="",null=True,blank=True)
     date = models.DateTimeField(default=timezone.now)
+    read = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Push to {self.push_to.username} by-{self.push_by.username} , subject-{self.subject}"
 
 
 
@@ -186,3 +189,9 @@ class ClassRoom(models.Model):
     present = models.BooleanField(default=False)
     subject = models.ForeignKey(Subject,on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        if self.present:
+            return f"{self.student.username} Present in subject-{self.subject.subject_name} on date-{self.date.strftime('%Y-%m-%d')}"
+        else:
+            return f"{self.student.username} Absent in subject-{self.subject.subject_name} on date-{self.date.strftime('%Y-%m-%d')}"

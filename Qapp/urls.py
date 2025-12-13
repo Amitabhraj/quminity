@@ -1,8 +1,10 @@
 from django.urls import path
 from Qapp.qr_code.student.scan_qr import scan_attendance_qr
-from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceToDean
+from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
+from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
 from Qapp.use_cases.certificate.emailCertificate import GenerateCertificate
+from Qapp.use_cases.dean_side.DeanView import DashboardDean
 from Qapp.use_cases.event.manage_event import manageEvent
 from Qapp.use_cases.event.EventPayment import CreateEventPayment
 from Qapp.use_cases.payment.paymentStatus import PaymentStatus
@@ -38,7 +40,9 @@ urlpatterns = [
 
 
     #################### Attendance ###############################
-    path('ForwardAttendanceToDean/<int:eventId>/', ForwardAttendanceToDean, name='ForwardAttendanceToDean'),
+    path('ForwardAttendanceToDean/<int:eventId>/', ForwardAttendanceNotificationToDean, name='ForwardAttendanceToDean'),
+    path('approve-event-attendance-by-dean/',ApproveEventAttendance,name='ApproveEventAttendance'),
+    path('attendace-event-list/<int:eventId>/',ListEventAttendace,name='ListEventAttendace'),
     ##################### Attendance End ##########################
 
 
@@ -73,8 +77,8 @@ urlpatterns = [
     path('generate-certificate-event/<int:eventId>/', GenerateCertificate, name='GenerateCertificate'),
     ################################ Certificate End ######################
 
-
-    path('student_dashboard/<int:studentId>/<int:qid>/<str:studentName>/', student_dashboard, name='studentView'),
+    path('student_dashboard/', student_dashboard, name='studentView'),
+    path('dean_dashboard/', DashboardDean, name='DeanDashboard'),
     path('teacher_dashboard/<int:FacultyId>/<int:qid>/<str:facultyName>/', faculty_dashboard, name='facultyView'),
     path('moderator_dashboard/<int:adminId>/<int:qid>/<str:adminName>/', admin_dashboard, name='adminView'),
 ]
