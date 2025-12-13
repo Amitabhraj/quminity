@@ -77,6 +77,12 @@
     </h5>
   </div>
 
+  {% for message in messages %}
+  <div class="alert alert-success" role="alert">
+    {{message}}
+  </div>
+  {% endfor %}
+
   <div class="card-body">
     {% for notif in notifications %}
       <div class="border rounded p-3 mb-3 {% if notif.read %}bg-light{% endif %}">
@@ -99,11 +105,15 @@
               <i class="fas fa-check"></i> Attendance Approved
             </span>
           {% else %}
-            <a href="{% url 'ApproveEventAttendance' %}"
+            <a href="{% url 'ApproveEventAttendance' notif.event.id %}"
                class="btn btn-sm btn-success">
               <i class="fas fa-check-circle"></i> Mark Attendance
             </a>
           {% endif %}
+            <a href="/attendace-event-list/{{notif.event.id}}/"
+               class="btn btn-sm btn-primary">
+              <i class="fas fa-check-circle"></i> Attendance List
+            </a>
         </div>
       </div>
     {% empty %}

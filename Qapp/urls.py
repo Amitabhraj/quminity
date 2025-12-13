@@ -1,5 +1,6 @@
 from django.urls import path
 from Qapp.qr_code.student.scan_qr import scan_attendance_qr
+from Qapp.use_cases.attendance.attendaceList import ListEventAttendace
 from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
 from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
@@ -41,10 +42,9 @@ urlpatterns = [
 
     #################### Attendance ###############################
     path('ForwardAttendanceToDean/<int:eventId>/', ForwardAttendanceNotificationToDean, name='ForwardAttendanceToDean'),
-    path('approve-event-attendance-by-dean/',ApproveEventAttendance,name='ApproveEventAttendance'),
+    path('approve-event-attendance-by-dean/<int:eventId>/',ApproveEventAttendance,name='ApproveEventAttendance'),
     path('attendace-event-list/<int:eventId>/',ListEventAttendace,name='ListEventAttendace'),
     ##################### Attendance End ##########################
-
 
     
     ####################### Payments ########################
@@ -76,6 +76,8 @@ urlpatterns = [
     ################################ Certificate ##########################
     path('generate-certificate-event/<int:eventId>/', GenerateCertificate, name='GenerateCertificate'),
     ################################ Certificate End ######################
+
+
 
     path('student_dashboard/', student_dashboard, name='studentView'),
     path('dean_dashboard/', DashboardDean, name='DeanDashboard'),

@@ -8,10 +8,10 @@ from Qapp.models import Attendance, ClassRoom, Event, Notification
 @login_required
 def ApproveEventAttendance(request, eventId):
     event = get_object_or_404(Event, id=eventId)
-    attendance = Attendance.objects.filter(event=event,present=True)
+    attendance = Attendance.objects.filter(event=event,is_present=True)
     for attendance in attendance:
         student = attendance.student
-        classroom = ClassRoom.objects.filter(student=student,present=False,date=attendance.event.event_date)
+        classroom = ClassRoom.objects.filter(student=student,present=False)
         for classroom in classroom:
             classroom.present = True
             classroom.save()
@@ -19,5 +19,4 @@ def ApproveEventAttendance(request, eventId):
         request,
         f"Attendance for '{event.event}' approved successfully."
     )
-
     return redirect('DeanDashboard')
