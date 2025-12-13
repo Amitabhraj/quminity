@@ -1,3 +1,4 @@
+from django.utils import timezone
 from Qapp.models import Event
 
 def GetEvent(eventId):
@@ -6,3 +7,9 @@ def GetEvent(eventId):
         return {'redirect':False,'event_obj':event}
     except:
         return {'redirect':True,'event_obj':None}
+    
+
+def getEventList():
+    now = timezone.now()
+    events = Event.objects.filter(event_date__gt=now)
+    return events

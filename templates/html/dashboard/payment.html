@@ -18,7 +18,7 @@
             "description": "Event/Club Entry Fee",
             "order_id": "{{ payment.order_id }}",
             "handler": function (response){
-                fetch("/payment-process/", {
+                fetch("/payment-verification/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

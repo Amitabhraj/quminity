@@ -60,8 +60,25 @@ RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
 
 QR_SECRET_KEY = "_n66ymbrj)w^7#_rs1feqc&+*5ehg35(xha^4fn+y86q85ouv7"
 QR_JWT_ALGO = "HS256"
-QR_TOKEN_TTL =  3
+QR_TOKEN_EXPIRY =  2
 QR_EVENT_ID = "EVT2025"
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'amitabhraj07@gmail.com'
+EMAIL_HOST_PASSWORD = 'qlno zjtc fqps cmft'
+
+DEFAULT_FROM_EMAIL = 'Quminity <amitabhraj07@gmail.com>'
+
+
+
+
 
 # Static URL
 STATIC_URL = 'static/'

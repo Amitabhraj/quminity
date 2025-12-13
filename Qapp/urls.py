@@ -1,20 +1,25 @@
 from django.urls import path
+from Qapp.qr_code.student.scan_qr import scan_attendance_qr
+from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceToDean
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
+from Qapp.use_cases.certificate.emailCertificate import GenerateCertificate
+from Qapp.use_cases.event.manage_event import manageEvent
 from Qapp.use_cases.event.EventPayment import CreateEventPayment
 from Qapp.use_cases.payment.paymentStatus import PaymentStatus
-from Qapp.use_cases.payment.processPayment import paymentProcess
-from Qapp.use_cases.student_side.studentClub import studentClub
+from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
+from Qapp.use_cases.listing.listClubEvent import ClubEventList
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
 from .views import *
+from .use_cases.listing.listAssociatedClubEvent import ShowAssociatedClub
 from .use_cases.user_onboarding.logout_user import user_logout
 from .use_cases.user_onboarding.user_login import user_login
 from .use_cases.student_side.studentView import MainView as student_dashboard
 from .use_cases.faculty_side.facultyView import MainView as faculty_dashboard
 from .use_cases.admin_side.adminView import MainView as admin_dashboard
-from Qapp.qr_code import qrCode
-from Qapp.qr_code.generateToken import GenerateQR
-from Qapp.qr_code.validateAttend import validate_attendance
+from Qapp.qr_code.instructor import EventQrCode
+from Qapp.qr_code.instructor.generateToken import GenerateQR
+from Qapp.qr_code.instructor.validateAttend import validate_attendance
 from Qapp.use_cases.chatting.chatting import demoChat
 
 urlpatterns = [
@@ -24,24 +29,26 @@ urlpatterns = [
 
 
     ############# QR CODE ATTENDANCE #############
-    # Instructor
-    path('Show-Attendance-QR/<int:club_id>/', qrCode.QrGeneratePage, name='Show_Attendance_QR'),
-    path('api/GenerateQR/<int:club_id>/', GenerateQR, name='GenerateQR'),
+    path('show-event-qr/<int:eventId>/', EventQrCode.QrGeneratePage, name='Show_Attendance_QR'),
+    path('api/GenerateAttendanceQR/<int:eventId>/', GenerateQR, name='GenerateQR'),
 
-    # Student
-    path('scan/', qrCode.scan_page, name='scan_page'),
-    path('api/validate/', validate_attendance, name='validate_attendance'),
+    path('scan-attendance-qr/', scan_attendance_qr, name='scan_page'),
+    path('api/validate-attendance/', validate_attendance, name='validate_attendance'),
     ############### QR CODE ATTENDANCE End #############
+
+
+    #################### Attendance ###############################
+    path('ForwardAttendanceToDean/<int:eventId>/', ForwardAttendanceToDean, name='ForwardAttendanceToDean'),
+    ##################### Attendance End ##########################
+
 
     
     ####################### Payments ########################
     path("payment-club/<int:clubId>/", CreateClubPayment, name="create_payment_club"),
     path("payment-event/<int:eventId>/", CreateEventPayment, name="create_payment_event"),
-    path("payment-process/", paymentProcess, name="payment_success"),
+    path("payment-verification/", VerifyPayment, name="payment_success"),
     path("payment-status/<str:order_id>/", PaymentStatus, name="payment_done"),
     ######################## Payments End ###################
-
-
 
     
     ############### Messaging ####################
@@ -49,12 +56,22 @@ urlpatterns = [
     ################## Messaging End #############
 
 
-    ########################## Pages on Index Page ############################
-    path('ShowClubForAttendance/', qrCode.ShowAssociatedClub, name='ShowClubForAttendance'),
+    ########################## Manage Club/Events Start ############################
+    path('manage-club-events/', ShowAssociatedClub, name='ShowClubEvents'),
+    path('manage-club/', ShowAssociatedClub, name='ShowClubEvents'),
+    path('manage-event/<int:eventId>/', manageEvent, name='ManageEvent'),
+    ########################## Manage Club/Events End ############################
+
+    ###################### Main Pages Start ########################################
     path('studentAcad/<int:studentId>/<int:qid>/<str:studentName>/', studentAcad, name='studentAcad'),
-    path('studentClub/<int:studentId>/<int:qid>/<str:studentName>/', studentClub, name='studentClub'),
+    path('ListClubEvents/', ClubEventList, name='ClubEventList'),
     path('studentDiscussion/<int:studentId>/<int:qid>/<str:studentName>/', studentDiscussion, name='studentDiscussion'),
-    ###########################################################################
+    ##################### Main Pages Start End ####################################
+
+
+    ################################ Certificate ##########################
+    path('generate-certificate-event/<int:eventId>/', GenerateCertificate, name='GenerateCertificate'),
+    ################################ Certificate End ######################
 
 
     path('student_dashboard/<int:studentId>/<int:qid>/<str:studentName>/', student_dashboard, name='studentView'),

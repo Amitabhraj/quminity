@@ -1,5 +1,6 @@
 from Qapp.models import ActiveToken, Club
 from Qapp.qr_code.common import check_club_core_member
+from Qapp.use_cases.event.getEvent_coordinator import check_event_coordinator
 import jwt
 from django.shortcuts import redirect
 import qrcode
@@ -15,14 +16,14 @@ from django.utils import timezone
 # Load config from settings.py
 SECRET_KEY = settings.QR_SECRET_KEY
 ALGO = settings.QR_JWT_ALGO
-TOKEN_TTL = settings.QR_TOKEN_TTL
+TOKEN_EXPIRY = settings.QR_TOKEN_EXPIRY
 EVENT_ID = settings.QR_EVENT_ID
 
 
-def GenerateQR(request, event_id):
+def GenerateQR(request, eventId):
     # Validate that the requesting user is a core member
-    success, event = check_club_core_member(request, event_id)
-    if not success:
+    event = check_event_coordinator(request,eventId)
+    if not event:
         return redirect("/")
 
     # JWT payload
@@ -30,7 +31,7 @@ def GenerateQR(request, event_id):
         "event": EVENT_ID,
         "role": "student_attendance",
         "iat": int(time.time()),
-        "exp": int(time.time()) + TOKEN_TTL,
+        "exp": int(time.time()) + TOKEN_EXPIRY,
     }
 
     # Generate token
@@ -55,8 +56,8 @@ def GenerateQR(request, event_id):
     img.save(buffer, format="PNG")
     qr_base64 = base64.b64encode(buffer.getvalue()).decode()
 
-    # Token expiry
-    expires_at = timezone.now() + timedelta(seconds=TOKEN_TTL)
+    # Token expiry Date Time
+    expires_at = timezone.now() + timedelta(seconds=TOKEN_EXPIRY)
 
     if ActiveToken.objects.filter(event=event).exists():
         try:
@@ -78,5 +79,5 @@ def GenerateQR(request, event_id):
     return JsonResponse({
         "qr": qr_base64,
         "token": token,
-        "expires_in": TOKEN_TTL
+        "expires_in": TOKEN_EXPIRY
     })

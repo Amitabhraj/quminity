@@ -14,6 +14,10 @@ courses_name_choices = [
     ('MCA', 'MCA'),
 ]
 
+notification_type = [
+    ('Marking Attendance', 'Marking Attendance')
+]
+
 
 class Course(models.Model):
     course_name = models.CharField(max_length=100, choices=courses_name_choices,default="",null=True, blank=True)
@@ -71,11 +75,13 @@ class Club(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     entry_fees = models.IntegerField(null=True, blank=True)
+    active = models.BooleanField(default=True)
     description = models.TextField(null=True, blank=True)
     club_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
     logo = models.ImageField(upload_to='club_logos/', null=True, blank=True)
-    core_members = models.ManyToManyField(CustomUser, related_name='core_members', blank=True)
-    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students', blank=True)
+    core_members = models.ManyToManyField(CustomUser, related_name='core_members_club', blank=True)
+    student_enrolled = models.ManyToManyField(CustomUser, related_name='student_enrolled_club', blank=True)
+    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_club', blank=True)
 
     def __str__(self):
         return f"{self.club_name}"
@@ -89,10 +95,13 @@ class Event(models.Model):
     entry_fees = models.IntegerField(default=0,null=False, blank=False)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
+    faculty_assigned = models.ManyToManyField(CustomUser, related_name='faculty_assigned_event', blank=True)
+    event_coordinator = models.ManyToManyField(CustomUser, related_name='event_coordinator_event', blank=True)
     is_free = models.BooleanField(default=False)
     event_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
     banner = models.ImageField(upload_to='event_banners/', null=True, blank=True)
-    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_from_event', blank=True)
+    student_enrolled = models.ManyToManyField(CustomUser, related_name='student_enrolled_event', blank=True)
+    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_event', blank=True)
 
     def __str__(self):
         return f"{self.event} by {self.club} on {self.event_date.strftime('%Y-%m-%d')}"
@@ -141,10 +150,32 @@ class Attendance(models.Model):
     attendance_marked_by_cordinator = models.BooleanField(default=False)
 
     def __str__(self):
-        if self.present:
-            return f"{self.student_id} - Present in {self.event_or_club.club_name} on {self.date.strftime('%Y-%m-%d')}"
+        if self.is_present:
+            return f"{self.student_id} - Present in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
         else:
-            return f"{self.student_id} - Absent in {self.event_or_club.club_name} on {self.date.strftime('%Y-%m-%d')}"
+            return f"{self.student_id} - Absent in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
+
+
+
+class Certificate(models.Model):
+    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+    certificate_pushed_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Certificate Pushed to {self.student.username} for event - {self.event.event} at {self.certificate_pushed_at}"
+
+
+
+
+class Notification(models.Model):
+    push_to = models.ForeignKey(CustomUser,related_name="push_to_notification" ,on_delete=models.CASCADE, null=True, blank=True)
+    push_by = models.ForeignKey(CustomUser,related_name="push_by_notification", on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(upload_to='notification_file/', null=True, blank=True)
+    notificatio_type = models.CharField(choices=notification_type,default=None,blank=True,null=True)
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+
+
 
 
 

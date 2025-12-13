@@ -1,13 +1,21 @@
-from Qapp.models import Club
+from Qapp.models import Club, Event
+from django.db.models import Q
 
 def get_event_or_club_association_from_user(request):
     usr_obj = request.user
-    event_or_club = Club.objects.filter(core_members=usr_obj)
+    redirect = False
+    event = Event.objects.filter(Q(faculty_assigned=usr_obj) | Q(event_coordinator=usr_obj)).distinct()
+    club = Club.objects.filter(core_members=usr_obj)
 
-    if not event_or_club.exists():
-        return False, "User is not associated with any club"
+    if not event and not club:
+        redirect = True
 
-    return True, event_or_club
+    context = {
+        'events':event,
+        'clubs':club,
+        'redirect':redirect
+    }
+    return context
 
 
 

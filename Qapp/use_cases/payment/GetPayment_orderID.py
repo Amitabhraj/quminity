@@ -1,5 +1,10 @@
 from Qapp.models import ClubPayment, EventPayment
 
+"""
+This Function Filter Payment Object with Order ID and return Some Paramenters in 
+JSON Format
+"""
+
 def GetPayment(request,order_id):
     try:
         payment = EventPayment.objects.get(order_id=order_id)

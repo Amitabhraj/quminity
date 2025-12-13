@@ -54,11 +54,7 @@ def validate_attendance(request):
 
 
         # Check if already marked
-        if Attendance.objects.filter(
-            student=student,
-            event=event,
-            present=True
-        ).exists():
+        if Attendance.objects.filter(student=student,event=event,present=True).exists():
             return JsonResponse(
                 {"status": "success", "message": "Attendance already marked"}
             )

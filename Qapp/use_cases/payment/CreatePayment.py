@@ -3,6 +3,10 @@ from Qapp.models import Club, ClubPayment, Event,EventPayment
 from quminity.settings import RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+"""
+This is Main Fuction which Create Payment by Adding Order Id in Club/Event Payment
+Object According to Event/Club Id Provided
+"""
 
 def CreatePayment(request,clubId,eventId):  # Creating Event or Club Payment OBJECT
     user_obj = request.user

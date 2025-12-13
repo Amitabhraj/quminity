@@ -2,23 +2,17 @@ from django.shortcuts import redirect, render
 from Qapp.decorators import login_required
 from Qapp.models import ClubPayment
 from Qapp.use_cases.club.getClub import GetClub
-from Qapp.use_cases.payment.mainPayment import CreatePayment
+from Qapp.use_cases.payment.CreatePayment import CreatePayment
+from Qapp.use_cases.payment.paymentStatus import checkPaymentExist
 
 @login_required
 def CreateClubPayment(request, clubId):
-    user_obj = request.user
+    payment_exist = checkPaymentExist(request,clubId,eventId=None)
+    club = GetClub(clubId) #if club['redirect']==True , it means That club does exist of Provided Club-ID 
+
+    if club['redirect'] or payment_exist:
+        return redirect('ClubEventList')
     
-    club = GetClub(clubId)
-    club_obj = club['clubObj']
-    if club['redirect']:
-        return redirect('/')
-    
-    try:
-        # Check If Payment Already exists
-        payment = ClubPayment.objects.get(student=user_obj, club=club_obj, status=True)
-        return redirect('studentClub',user_obj.id,user_obj.qid,user_obj.username)
-    except ClubPayment.DoesNotExist:
-        # Create Payment Because User has not Paid for this Club
-        payment = CreatePayment(request,clubId=club_obj.id,eventId=None)
+    payment = CreatePayment(request,clubId=clubId,eventId=None)
 
     return render(request, "html/dashboard/payment.html", context=payment)

@@ -1,5 +1,5 @@
 from Qapp.decorators import login_required
-from Qapp.models import Club
+from Qapp.models import Club, CustomUser
 
 
 def GetClub(clubId):
@@ -8,3 +8,8 @@ def GetClub(clubId):
         return {'redirect':False,'clubObj':club}
     except:
         return {'redirect':True,'clubObj':None}
+    
+
+def getClubList():
+    club = Club.objects.filter(active=True)
+    return club
