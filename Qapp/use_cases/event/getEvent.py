@@ -11,5 +11,5 @@ def GetEvent(eventId):
 
 def getEventList():
     now = timezone.now()
-    events = Event.objects.filter(event_date__gt=now)
+    events = Event.objects.all()
     return events

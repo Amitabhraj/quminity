@@ -47,14 +47,14 @@ def validate_attendance(request):
     # -------------------------
     try:
         token_obj = ActiveToken.objects.get(
-            token=token, expires_at__gt=timezone.now()
+            current_token=token, expires_at__gt=timezone.now()
         )
         event = token_obj.event
         current_date_time = timezone.now()
 
 
         # Check if already marked
-        if Attendance.objects.filter(student=student,event=event,present=True).exists():
+        if Attendance.objects.filter(student=student,event=event,is_present=True).exists():
             return JsonResponse(
                 {"status": "success", "message": "Attendance already marked"}
             )
@@ -63,7 +63,7 @@ def validate_attendance(request):
         attendance = Attendance(student=student,
                                 event=event,
                                 attendance_marked_at=current_date_time,
-                                present=True
+                                is_present=True
                                 )
         attendance.save()
         return JsonResponse(

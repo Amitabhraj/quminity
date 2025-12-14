@@ -2,18 +2,23 @@
 <html>
 <head>
     <title>Scan Attendance</title>
-    <script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
         #qr-reader {
-            width: 300px;
+            width: 320px;
             margin: 20px auto;
         }
         #msg {
-            font-size: 18px;
-            margin-top: 15px;
             text-align: center;
+            font-size: 18px;
             font-weight: bold;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -23,76 +28,56 @@
 <h2 style="text-align:center;">Scan Event QR</h2>
 
 <div id="qr-reader"></div>
-
 <p id="msg"></p>
 
 <script>
-    // API URL
-    const API_URL = "/api/validate/";
+    const API_URL = "/api/validate-attendance/";
 
-    // After QR Scan
-    function onScanSuccess(decodedText, decodedResult) {
-        console.log("Scanned Token:", decodedText);
+    const qrCode = new Html5Qrcode("qr-reader");
 
-        // Disable scanner to prevent multiple scans
-        html5QrcodeScanner.clear();
-
-        // Send token to backend
+    function onScanSuccess(decodedText) {
+        qrCode.stop();
+        document.getElementById("msg").innerText = "Validating...";
         submitAttendance(decodedText);
     }
 
-    // Send token to Django backend
-    function submitAttendance(token) {
-        document.getElementById("msg").innerText = "Validating...";
+    qrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+    );
 
+    function submitAttendance(token) {
         fetch(API_URL, {
             method: "POST",
             headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
             },
             body: `token=${encodeURIComponent(token)}`
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            if (data.status === "success") {
-                document.getElementById("msg").style.color = "green";
-                document.getElementById("msg").innerText = data.message;
-            } else {
-                document.getElementById("msg").style.color = "red";
-                document.getElementById("msg").innerText = data.message;
-            }
+            document.getElementById("msg").style.color =
+                data.status === "success" ? "green" : "red";
+            document.getElementById("msg").innerText = data.message;
         })
-        .catch(error => {
+        .catch(() => {
             document.getElementById("msg").style.color = "red";
-            document.getElementById("msg").innerText = "Error validating attendance!";
-            console.error("Error:", error);
+            document.getElementById("msg").innerText = "Server error!";
         });
     }
 
-    // Django CSRF Token Extractor
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+        document.cookie.split(';').forEach(cookie => {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
             }
-        }
+        });
         return cookieValue;
     }
-
-    // QR Scanner
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { fps: 10, qrbox: 250 },
-        false
-    );
-    html5QrcodeScanner.render(onScanSuccess);
 </script>
 
 </body>

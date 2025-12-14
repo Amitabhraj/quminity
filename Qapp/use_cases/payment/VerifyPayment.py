@@ -16,6 +16,7 @@ This Function Verify the Payment Which is done by User ......!
 @login_required
 def VerifyPayment(request):
     if request.method == "POST":
+        user_obj = CustomUser.objects.get(id=request.user.id)
         data = json.loads(request.body)
         razorpay_order_id = data['razorpay_order_id']
         razorpay_payment_id = data['razorpay_payment_id']
@@ -35,18 +36,20 @@ def VerifyPayment(request):
                 payment_obj = result['payment']
                 payment_obj.payment_id = paymentDetail['razorpay_payment_id']
                 payment_obj.status = True
-                club_obj = payment_obj.club
-                event_obj = payment_obj.event
-                if club_obj:
+                payment_obj.save()
+                print(payment_obj)
+                try:
+                    club_obj = payment_obj.club
                     club_obj.student_enrolled.add(user_obj)
                     club_obj.save()
-                elif event_obj:
+                except:
+                    pass
+                try:
+                    event_obj = payment_obj.event
                     event_obj.student_enrolled.add(user_obj)
                     event_obj.save()
-                else:
-                    return JsonResponse({"message": "Some Error Occured !! Contact Coordinator","status":400})
-                user_obj = CustomUser.objects.get(id=request.user.id)
-                payment_obj.save()
+                except:
+                    pass
             else:
                 return JsonResponse({"message": "Payment Failed","status":400})
                     

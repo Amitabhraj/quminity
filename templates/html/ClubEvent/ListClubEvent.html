@@ -147,14 +147,19 @@
         {% for event in events %}
         <div class="event-card">
           <img src="{% static 'images/user/02.jpg' %}" />
-          <div class="ms-3 event-details">
-            <h5>{{event.event}}</h5>
-            <p class="mb-0 text-muted">{{event.event_date}}</p>
-          </div>
-          <div class="ms-auto text-end">
-            <p class="fees">₹{{event.entry_fees}}</p>
-            <a href="/payment-event/{{event.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
-          </div>
+            <div class="ms-3 event-details">
+              <h5>{{event.event}}</h5>
+              <p class="mb-0 text-muted">{{event.event_date}}</p>
+            </div>
+
+            <div class="ms-auto text-end">
+              {% if user in event.student_enrolled.all %}
+              <p class="text-success fw-bold">Joined</p>
+              {% else %}
+              <p class="fees">₹{{event.entry_fees}}</p>
+              <a href="/payment-event/{{event.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
+              {% endif %}
+            </div>
         </div>
         {% endfor %}
       </div>

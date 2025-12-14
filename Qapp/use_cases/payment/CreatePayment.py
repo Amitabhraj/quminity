@@ -15,7 +15,7 @@ def CreatePayment(request,clubId,eventId):  # Creating Event or Club Payment OBJ
         club=Club.objects.get(id=clubId)
         payment = ClubPayment.objects.create(student=user_obj,club=club,amount=club.entry_fees,status=False)
     elif eventId:
-        event=Event.objects.get(id=clubId)
+        event=Event.objects.get(id=eventId)
         payment = EventPayment.objects.create(student=user_obj,event=event,amount=event.entry_fees,status=False)
 
     razorpay_order = client.order.create(dict(amount=payment.amount*100,currency="INR",payment_capture=1))

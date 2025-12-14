@@ -9,8 +9,8 @@ from Qapp.use_cases.payment.paymentStatus import checkPaymentExist
 @login_required
 def CreateEventPayment(request, eventId):
     payment_exist = checkPaymentExist(request,clubId=None,eventId=eventId)
-    event = GetClub(eventId) #if club['redirect']==True , it means That club does exist of Provided Club-ID 
-
+    event = GetEvent(eventId) #if club['redirect']==True , it means That club does exist of Provided Club-ID 
+    print(payment_exist)
     if event['redirect'] or payment_exist:
         return redirect('ClubEventList')
     
