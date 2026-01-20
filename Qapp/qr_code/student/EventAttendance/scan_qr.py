@@ -1,4 +1,4 @@
 from django.shortcuts import render
 
-def scan_attendance_qr(request):
+def ScanEventAttendanceQr(request):
     return render(request, "html/QrCode/QrScan.html")

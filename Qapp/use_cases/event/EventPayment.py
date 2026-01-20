@@ -1,7 +1,5 @@
 from django.shortcuts import redirect, render
 from Qapp.decorators import login_required
-from Qapp.models import ClubPayment, EventPayment
-from Qapp.use_cases.club.getClub import GetClub
 from Qapp.use_cases.event.getEvent import GetEvent
 from Qapp.use_cases.payment.CreatePayment import CreatePayment
 from Qapp.use_cases.payment.paymentStatus import checkPaymentExist

@@ -1,5 +1,5 @@
 from django.urls import path
-from Qapp.qr_code.student.scan_qr import scan_attendance_qr
+from Qapp.qr_code.student.EventAttendance.scan_qr import ScanEventAttendanceQr
 from Qapp.use_cases.attendance.attendaceList import ListEventAttendace
 from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
 from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
@@ -20,10 +20,11 @@ from .use_cases.user_onboarding.user_login import user_login
 from .use_cases.student_side.studentView import MainView as student_dashboard
 from .use_cases.faculty_side.facultyView import MainView as faculty_dashboard
 from .use_cases.admin_side.adminView import MainView as admin_dashboard
-from Qapp.qr_code.instructor import EventQrCode
-from Qapp.qr_code.instructor.generateToken import GenerateQR
-from Qapp.qr_code.instructor.validateAttend import validate_attendance
+from Qapp.qr_code.instructor.EventAttendance import EventQrCode
+from Qapp.qr_code.instructor.EventAttendance.generateToken import GenerateQR
+from Qapp.qr_code.instructor.EventAttendance.validateAttend import validate_attendance
 from Qapp.use_cases.chatting.chatting import demoChat
+
 
 urlpatterns = [
     path('', check_authentication, name='check_authentication'),
@@ -35,7 +36,7 @@ urlpatterns = [
     path('show-event-qr/<int:eventId>/', EventQrCode.QrGeneratePage, name='Show_Attendance_QR'),
     path('api/GenerateAttendanceQR/<int:eventId>/', GenerateQR, name='GenerateQR'),
 
-    path('scan-attendance-qr/', scan_attendance_qr, name='scan_page'),
+    path('scan-attendance-qr/', ScanEventAttendanceQr, name='scan_page'),
     path('api/validate-attendance/', validate_attendance, name='validate_attendance'),
     ############### QR CODE ATTENDANCE End #############
 
