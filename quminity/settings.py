@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xpp6b4&n9=$6709*p2#!#=&c&7oonu7^+esba#f()s(*r+pn10
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -111,8 +111,7 @@ TEMPLATES = [
     },
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://quminity.onrender.com/','http://localhost:8000']
-
+CSRF_TRUSTED_ORIGINS = ["*"]
 WSGI_APPLICATION = 'quminity.wsgi.application'
 
 
