@@ -1,0 +1,49 @@
+
+<center style="padding-top: 30px;">
+<h2>QR Code for Event: {{event.event}}</h2>
+<h3>Date: {{event.event_date}}</h3>
+
+<img id="qr-img"
+     style="
+        max-width: 90vw;
+        width: 350px;
+        aspect-ratio: 1/1;
+        border: 3px solid black;
+     ">
+</center>
+
+<script>
+let qrTimeout = null;
+
+function refreshQR() {
+    fetch("/api/GenerateAttendanceQR/{{ event.id }}/")
+        .then(res => res.json())
+        .then(data => {
+            const img = document.getElementById("qr-img");
+
+            // Clear old QR (avoid caching issues)
+            img.src = "";
+
+            img.src = "data:image/png;base64," + (data.qr || data.qr_image);
+
+            // Clear previous timeout if exists
+            if (qrTimeout) {
+                clearTimeout(qrTimeout);
+            }
+
+            // Schedule next refresh using backend expiry
+            const expiresInMs = data.expires_in * 1000;
+
+            qrTimeout = setTimeout(refreshQR, expiresInMs);
+        })
+        .catch(err => {
+            console.error("QR refresh failed:", err);
+
+            // Optional retry after 5 seconds on failure
+            qrTimeout = setTimeout(refreshQR, 5000);
+        });
+}
+
+// Initial call after page load
+document.addEventListener("DOMContentLoaded", refreshQR);
+</script>

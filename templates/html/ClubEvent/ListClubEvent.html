@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quminity | Clubs & Events</title>
+  {% load static %}
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{% static 'css/libs.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/socialv.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/remixicon/fonts/remixicon.css' %}" />
+
+  <style>
+    body {
+      background: #f8f9fc;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    .page-header h2 {
+      font-weight: 700;
+      color: #333;
+    }
+
+    .tabs-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-tabs {
+      border-bottom: 2px solid #eee;
+    }
+
+    .nav-tabs .nav-link {
+      font-size: 18px;
+      font-weight: 600;
+      padding: 12px 25px;
+      border-radius: 0;
+      color: #444;
+      transition: 0.3s;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: #0d6efd;
+      border-bottom: 3px solid #0d6efd;
+      background: transparent;
+    }
+
+    .club-card, .event-card {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      transition: 0.3s;
+    }
+
+    .club-card:hover, .event-card:hover {
+      background: #f3f6ff;
+    }
+
+    .club-card img, .event-card img {
+      border-radius: 50%;
+      height: 55px;
+      width: 55px;
+    }
+
+    .club-details h5, .event-details h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .fees {
+      font-weight: bold;
+      color: #0d6efd;
+    }
+
+    .join-btn {
+      padding: 6px 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="iq-top-navbar">
+    <div class="iq-navbar-custom">
+      <nav class="navbar navbar-expand-lg navbar-light p-0">
+        <div class="iq-navbar-logo d-flex justify-content-between">
+          <a href="/">
+            <img src="{% static 'images/logo/quminity.jpg' %}" style="height:75px;border-radius: 40%;" />
+          </a>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <h2>Explore Clubs & Events</h2>
+  </div>
+
+  <div class="tabs-container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="clubs-tab" data-bs-toggle="tab" data-bs-target="#clubs" type="button" role="tab">Clubs</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">Events</button>
+      </li>
+    </ul>
+
+    <div class="tab-content p-3" id="myTabContent">
+      <!-- Clubs Tab -->
+      <div class="tab-pane fade show active" id="clubs" role="tabpanel">
+        {% for club in clubs %}
+        <div class="club-card">
+          <img src="{% static 'images/user/01.jpg' %}" />
+          <div class="ms-3 club-details">
+            <h5>{{club.club_name}}</h5>
+            {% if club.president_name %}
+            <p class="mb-0 text-muted">President: {{club.president_name}}</p>
+            {% endif %}
+          </div>
+          <div class="ms-auto text-end">
+            {% if user in club.student_enrolled.all %}
+            <p class="text-success fw-bold">Joined</p>
+            {% else %}
+            <p class="fees">₹{{club.entry_fees}}</p>
+            <a href="/payment-club/{{club.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Events Tab -->
+      <div class="tab-pane fade" id="events" role="tabpanel">
+        {% for event in events %}
+        <div class="event-card">
+          <img src="{% static 'images/user/02.jpg' %}" />
+            <div class="ms-3 event-details">
+              <h5>{{event.event}}</h5>
+              <p class="mb-0 text-muted">{{event.event_date}}</p>
+            </div>
+
+            <div class="ms-auto text-end">
+              {% if user in event.student_enrolled.all %}
+              <p class="text-success fw-bold">Joined</p>
+              {% else %}
+              <p class="fees">₹{{event.entry_fees}}</p>
+              <a href="/payment-event/{{event.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
+              {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/libs.min.js' %}"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

@@ -15,7 +15,9 @@ def check_authentication(request):
         elif input_user_type == "Faculty":
             return redirect('facultyView', facultyId=user_obj.id,qid=user_obj.qid , facultyName=user_obj.username)
         elif input_user_type == "Student":
-            return redirect('studentView', studentId=user_obj.id, qid=user_obj.qid ,studentName=user_obj.username)
+            return redirect('studentView')
+        elif input_user_type == "Dean":
+            return redirect('DeanDashboard')
         else:
             messages.error(request, "Authentication failed.")
             return redirect("/login")
