@@ -111,7 +111,12 @@ TEMPLATES = [
     },
 ]
 
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://quminity.onrender.com',
+                        'https://quminity.onrender.com/login',
+                        'http://localhost:8000',
+                        'http://quminity.onrender.com',
+                        'http://quminity.onrender.com/login']
+
 WSGI_APPLICATION = 'quminity.wsgi.application'
 
 
