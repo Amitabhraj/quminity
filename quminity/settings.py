@@ -59,6 +59,29 @@ ROOT_URLCONF = 'quminity.urls'
 RAZORPAY_KEY_ID = 'rzp_test_RgCIkA0ynsEs2a'
 RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
 
+
+QR_SECRET_KEY = "_n66ymbrj)w^7#_rs1feqc&+*5ehg35(xha^4fn+y86q85ouv7"
+QR_JWT_ALGO = "HS256"
+QR_TOKEN_EXPIRY =  30
+QR_EVENT_ID = "EVT2025"
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'amitabhraj07@gmail.com'
+EMAIL_HOST_PASSWORD = 'qlno zjtc fqps cmft'
+
+DEFAULT_FROM_EMAIL = 'Quminity <amitabhraj07@gmail.com>'
+
+
+
+
+
 # Static URL
 STATIC_URL = 'static/'
 
@@ -89,6 +112,12 @@ TEMPLATES = [
         },
     },
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://quminity.onrender.com',
+                        'https://quminity.onrender.com/login',
+                        'http://localhost:8000',
+                        'http://quminity.onrender.com',
+                        'http://quminity.onrender.com/login']
 
 WSGI_APPLICATION = 'quminity.wsgi.application'
 
@@ -124,17 +153,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+# Indian Time Zone Settings
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata' 
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

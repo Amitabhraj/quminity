@@ -1,96 +1,224 @@
-
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <title>Quminity Login</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-      <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
-      <link rel="stylesheet" href="{% static 'css/libs.min.css' %}">
-      <link rel="stylesheet" href="{% static 'css/socialv.css' %}">
-      <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
-      <link rel="stylesheet" href="{% static 'vendor/remixicon/fonts/remixicon.css' %}">
-      <link rel="stylesheet" href="{% static 'vendor/vanillajs-datepicker/dist/css/datepicker.min.css' %}">
-      <link rel="stylesheet" href="{% static 'vendor/font-awesome-line-awesome/css/all.min.css' %}">
-      <link rel="stylesheet" href="{% static 'vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css' %}">
-      
-  </head>
-  <body class=" ">
-    
-      <div class="wrapper">
-    <section class="sign-in-page">
-        <div id="container-inside">
-            <div id="circle-small"></div>
-            <div id="circle-medium"></div>
-            <div id="circle-large"></div>
-            <div id="circle-xlarge"></div>
-            <div id="circle-xxlarge"></div>
-        </div>
-        <div class="container p-0">
-            <div class="row no-gutters">
-                <div class="col-md-6 text-center pt-5">
-                    {% for message in messages %}
-                    <div class="alert alert-danger" role="alert">{{message}}</div>
-                    {% endfor %}
-                    <div class="sign-in-detail text-white">
-                        <a class="sign-in-logo mb-5" href="#"><img src="{% static 'images/logo/quminity.jpg' %}" class="img-fluid" alt="logo" style="height:100px;border-radius: 70%;"></a>
-                        <div class="sign-slider overflow-hidden ">
-                            <ul  class="swiper-wrapper list-inline m-0 p-0 ">
-                                <li class="swiper-slide">
-                                    <img src="{% static 'images/login/quantum.jpeg' %}" style="border-radius: 30%;" class="img-fluid mb-4" alt="logo" stye>
-                                    <h4 class="mb-1 text-white">Connect with Quantum</h4>
-                                </li>
-                                <li class="swiper-slide">
-                                    <img src="{% static 'images/login/quantum_2.jpeg' %}" style="border-radius: 30%;" class="img-fluid mb-4" alt="logo"> 
-                                    <h4 class="mb-1 text-white">Connect with Quantum</h4>
-                                </li>
-                            </ul>
-                        </div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quminity | Sign In</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+<link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
+
+<style>
+
+/* ===============================
+   BACKGROUND
+================================ */
+body {
+    min-height: 100vh;
+    background: #f4f6fb;
+    font-family: "Inter", system-ui, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ===============================
+   STUDY FLOATING BACKGROUND
+================================ */
+.study-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.study-icon {
+    position: absolute;
+    font-size: 46px;
+    opacity: 0.85;
+    animation: floatStudy 16s infinite ease-in-out;
+}
+
+/* Individual icons + colors */
+.book1 {
+    top: 12%;
+    left: 8%;
+    color: #ff6f61;
+}
+
+.book2 {
+    top: 78%;
+    left: 85%;
+    color: #6a5acd;
+    animation-delay: 3s;
+}
+
+.pen {
+    top: 35%;
+    left: 92%;
+    color: #2f80ed;
+    animation-delay: 6s;
+}
+
+.bulb {
+    top: 18%;
+    left: 70%;
+    color: #f2c94c;
+    animation-delay: 9s;
+    filter: drop-shadow(0 0 8px rgba(242,201,76,0.6));
+}
+
+.brain {
+    top: 62%;
+    left: 18%;
+    color: #eb5757;
+    animation-delay: 12s;
+}
+
+.note {
+    top: 88%;
+    left: 45%;
+    color: #27ae60;
+    animation-delay: 15s;
+}
+
+/* Floating animation */
+@keyframes floatStudy {
+    0%,100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-28px) rotate(6deg);
+    }
+}
+
+/* ===============================
+   GLASS LOGIN CARD
+================================ */
+.glass-card {
+    position: relative;
+    z-index: 5;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(14px);
+    border-radius: 22px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+    padding: 42px;
+}
+
+/* ===============================
+   FORM
+================================ */
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus {
+    border-color: #3a7bd5;
+    box-shadow: 0 0 0 2px rgba(58,123,213,0.15);
+}
+
+/* ===============================
+   BUTTON
+================================ */
+.btn-login {
+    background: #3a7bd5;
+    border: none;
+    padding: 12px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background: #2c63b8;
+    transform: translateY(-2px);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media(max-width: 768px) {
+    .glass-card {
+        padding: 28px;
+    }
+    .study-icon {
+        font-size: 34px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- 🎓 COLORED STUDY BACKGROUND -->
+<div class="study-bg">
+    <div class="study-icon book1">📘</div>
+    <div class="study-icon book2">📕</div>
+    <div class="study-icon pen">✏️</div>
+    <div class="study-icon bulb">💡</div>
+    <div class="study-icon brain">🧠</div>
+    <div class="study-icon note">📓</div>
+</div>
+
+<!-- LOGIN -->
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="row w-100 justify-content-center">
+        <div class="col-lg-5 col-md-8">
+
+            <div class="glass-card text-center">
+
+                <!-- LOGO -->
+                <img src="{% static 'images/logo/quminity.jpg' %}"
+                     alt="Quminity"
+                     style="height:90px;border-radius:50%;"
+                     class="mb-3">
+
+                <h2 class="fw-bold mb-1">Welcome</h2>
+                <p class="text-muted mb-4">
+                    Sign in to continue to <b>Quminity</b>
+                </p>
+
+                {% for message in messages %}
+                <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                <form method="POST" action="{% url 'user_login' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label">QID</label>
+                        <input type="number" name="qid" class="form-control" placeholder="Enter QID" required>
                     </div>
-                </div>
-                <div class="col-md-6 bg-white pt-5 pt-5 pb-lg-0 pb-5">
-                    <div class="sign-in-from">
-                        <h1 class="mb-0">Sign in</h1>
-                        <p>Enter your QID and password to access it.</p>
-                        <form class="mt-4" action="{% url 'user_login' %}" method="POST">{% csrf_token %}
-                            <div class="form-group">
-                                <label class="form-label" for="exampleInputNumber1">QID</label>
-                                <input type="number" name="qid" class="form-control mb-0" id="exampleInputNumber1" placeholder="Enter QID" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="exampleInputPassword1">Password</label>
-                                <a href="#" class="float-end">Forgot password?</a>
-                                <input type="password" class="form-control mb-0" id="exampleInputPassword1" placeholder="Password" required name="password">
-                            </div>
-                            <div class="d-inline-block w-100">
-                                <button type="submit" class="btn btn-primary float-end">Sign in</button>
-                            </div>
-                        </form>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Enter password" required>
                     </div>
-                </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <a href="#" class="small text-decoration-none">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-login w-100 text-white">
+                        Sign In
+                    </button>
+                </form>
+
             </div>
+
         </div>
-    </section>   
-      </div>
-    
-    <!-- Backend Bundle JavaScript -->
-    <script src="{% static 'js/libs.min.js' %}"></script>
-    <!-- slider JavaScript -->
-    <script src="{% static 'js/slider.js' %}"></script>
-    <!-- masonry JavaScript --> 
-    <script src="{% static 'js/masonry.pkgd.min.js' %}"></script>
-    <!-- SweetAlert JavaScript -->
-    <script src="{% static 'js/enchanter.js' %}"></script>
-    <!-- SweetAlert JavaScript -->
-    <script src="{% static 'js/sweetalert.js' %}"></script>
-    <!-- app JavaScript -->
-    <script src="{% static 'js/charts/weather-chart.js' %}"></script>
-    <script src="{% static 'js/app.js' %}"></script>
-    <script src="{% static 'vendor/vanillajs-datepicker/dist/js/datepicker.min.js' %}"></script>
-    <script src="{% static 'js/lottie.js' %}"></script>
-    
-  </body>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

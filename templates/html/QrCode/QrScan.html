@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Attendance</title>
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #qr-reader {
+            width: 320px;
+            margin: 20px auto;
+        }
+        #msg {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2 style="text-align:center;">Scan Event QR</h2>
+
+<div id="qr-reader"></div>
+<p id="msg"></p>
+
+<script>
+    const API_URL = "/api/validate-attendance/";
+
+    const qrCode = new Html5Qrcode("qr-reader");
+
+    function onScanSuccess(decodedText) {
+        qrCode.stop();
+        document.getElementById("msg").innerText = "Validating...";
+        submitAttendance(decodedText);
+    }
+
+    qrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+    );
+
+    function submitAttendance(token) {
+        fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: `token=${encodeURIComponent(token)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("msg").style.color =
+                data.status === "success" ? "green" : "red";
+            document.getElementById("msg").innerText = data.message;
+        })
+        .catch(() => {
+            document.getElementById("msg").style.color = "red";
+            document.getElementById("msg").innerText = "Server error!";
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        document.cookie.split(';').forEach(cookie => {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+            }
+        });
+        return cookieValue;
+    }
+</script>
+
+</body>
+</html>

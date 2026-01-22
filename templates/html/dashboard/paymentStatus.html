@@ -89,7 +89,7 @@
 
     <div class="container">
 
-        {% if status %}
+        {% if payment.status and payment.payment_id %}
         <div class="success-icon">✓</div>
 
         <h2>Payment Successful</h2>
@@ -108,7 +108,7 @@
 
         {% endif %}
 
-        <a href="/" class="btn">Go to Home Page</a>
+        <a href="/ListClubEvents/" class="btn">Back</a>
     </div>
 
 </body>

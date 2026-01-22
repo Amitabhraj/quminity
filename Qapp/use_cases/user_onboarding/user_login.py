@@ -13,8 +13,6 @@ def user_login(request):
         password = request.POST.get("password", "").strip()
 
         # Validate user existence
-        print(qid)
-        print(type(qid))
         try:
             user_obj = User.objects.get(qid=qid)
         except User.DoesNotExist:
@@ -32,13 +30,15 @@ def user_login(request):
             login(request, user)
             input_user_type = user_obj.groups.first().name if user_obj.groups.exists() else None
             messages.success(request, "Successfully logged in!")
-            
+            print(input_user_type)
             if input_user_type == "Admin":
                 return redirect('adminView', adminId=user_obj.qid,qid=user_obj.qid, adminName=user_obj.username)
             elif input_user_type == "Teacher":
                 return redirect('facultyView', FacultyId=user_obj.id,qid=user_obj.qid, facultyName=user_obj.username)
             elif input_user_type == "Student":
-                return redirect('studentView', studentId=user_obj.id,qid=user_obj.qid, studentName=user_obj.username)
+                return redirect('studentView')
+            elif input_user_type == "Dean":
+                return redirect('DeanDashboard')
             else:
                 messages.error(request, "Authentication failed.")
                 return redirect("/")
