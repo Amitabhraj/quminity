@@ -4,7 +4,7 @@ from .models import ClubEventPayment, CustomUser,Section,Course,Subject,Club
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ("Additional Info", {"fields": ("qid", "anonymous","section")}),
+        ("Additional Info", {"fields": ("qid", "anonymous","section","face_encoding")}),
     )
 
 admin.site.register(CustomUser, CustomUserAdmin)

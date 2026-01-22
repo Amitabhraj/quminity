@@ -3,6 +3,13 @@ from Qapp.use_cases.payment.user_payment import club_payment, create_payment, pa
 from Qapp.use_cases.student_side.studentClub import studentClub
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
+from Qapp.use_cases.user_onboarding.face_login.face_login_page import face_login_page
+from Qapp.use_cases.user_onboarding.face_login.face_login_page import face_login_page
+from Qapp.use_cases.user_onboarding.face_login.liveness_detection import liveness_check
+from Qapp.use_cases.user_onboarding.face_login.login_face import face_login
+from Qapp.use_cases.user_onboarding.register_face.face_detection import DetectFace
+from Qapp.use_cases.user_onboarding.register_face.face_register import register_face
+from Qapp.use_cases.user_onboarding.register_face.face_register_page import face_register_page
 from .views import *
 from .use_cases.user_onboarding.logout_user import user_logout
 from .use_cases.user_onboarding.user_login import user_login
@@ -13,6 +20,12 @@ from .use_cases.admin_side.adminView import MainView as admin_dashboard
 urlpatterns = [
     path('', check_authentication, name='check_authentication'),
     path('login/', user_login, name='user_login'),
+    path("face_login_page/", face_login_page, name="face_login_page"),
+    path("face_register_page/", face_register_page, name="face_register_page"),
+
+    path("api/face_login/", liveness_check, name="face_login_api"),
+    path("api/face_detect/", DetectFace, name="face_detect_api"),
+    path("api/face_register/", register_face, name="face_register_api"),
 
 
     path("payment-club/<int:clubId>/<str:clubName>/<int:amount>/", create_payment, name="create_payment"),

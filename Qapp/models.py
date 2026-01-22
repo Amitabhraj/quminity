@@ -50,6 +50,7 @@ class Section(models.Model):
 
 class CustomUser(AbstractUser):
     qid = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    face_encoding = models.BinaryField(null=True, blank=True, editable=True)
     anonymous = models.BooleanField(default=True,null=True, blank=True)
     section = models.ForeignKey(Section,on_delete=models.CASCADE, null=True, blank=True)
 
