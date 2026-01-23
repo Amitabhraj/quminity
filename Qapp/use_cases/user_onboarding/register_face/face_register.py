@@ -84,6 +84,8 @@ def register_face(request):
     session = request.session
     if 'blink_count' not in session: session['blink_count'] = 0; session['closed'] = False
 
+    print(ear, session['blink_count'])
+    
     if ear < 0.20:
         session['closed'] = True
     elif session.get('closed'):
