@@ -13,13 +13,8 @@ from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
 from Qapp.use_cases.listing.listClubEvent import ClubEventList
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
-from Qapp.use_cases.user_onboarding.face_login.face_login_page import face_login_page
-from Qapp.use_cases.user_onboarding.face_login.face_login_page import face_login_page
-from Qapp.use_cases.user_onboarding.face_login.liveness_detection import liveness_check
-from Qapp.use_cases.user_onboarding.face_login.login_face import face_login
-from Qapp.use_cases.user_onboarding.register_face.face_detection import DetectFace
-from Qapp.use_cases.user_onboarding.register_face.face_register import register_face
-from Qapp.use_cases.user_onboarding.register_face.face_register_page import face_register_page
+from Qapp.use_cases.user_onboarding.face_login.face_login import login_with_face,face_login_page
+from Qapp.use_cases.user_onboarding.register_face.face_register import register_face,face_register_page
 from .views import *
 from .use_cases.listing.listAssociatedClubEvent import ShowAssociatedClub
 from .use_cases.user_onboarding.logout_user import user_logout
@@ -36,16 +31,13 @@ from Qapp.use_cases.chatting.chatting import demoChat
 urlpatterns = [
     path('', check_authentication, name='check_authentication'),
     path('login/', user_login, name='user_login'),
-<<<<<<< HEAD
+
+
     path("face_login_page/", face_login_page, name="face_login_page"),
     path("face_register_page/", face_register_page, name="face_register_page"),
 
-    path("api/face_login/", liveness_check, name="face_login_api"),
-    path("api/face_detect/", DetectFace, name="face_detect_api"),
+    path("api/face_login/", login_with_face, name="login_with_face"),
     path("api/face_register/", register_face, name="face_register_api"),
-=======
-    path('logout_user/', user_logout, name='user_logout'),
->>>>>>> 010a1d17358b012400f38aef56d17a99f42193a4
 
 
     ############# QR CODE ATTENDANCE #############

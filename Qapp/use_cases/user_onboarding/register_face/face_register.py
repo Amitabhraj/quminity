@@ -1,148 +1,106 @@
+from django.shortcuts import render
 import cv2
 import numpy as np
 import face_recognition
 import pickle
-from PIL import Image
+import mediapipe as mp
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from quminity.settings import BASE_DIR
 
-
-# ==========================
-# LOAD HAAR CASCADES
-# ==========================
-face_cascade = cv2.CascadeClassifier(
-    str(BASE_DIR / "haarcascade_frontalface_default.xml")
-)
-eye_cascade = cv2.CascadeClassifier(
-    str(BASE_DIR / "haarcascade_eye_tree_eyeglasses.xml")
+# --- INITIALIZATION ---
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=False,
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5
 )
 
-
-# ==========================
-# SAFE IMAGE CONVERSION (CRITICAL)
-# ==========================
-def to_safe_rgb(bgr_image):
-    """
-    Converts OpenCV BGR image into a guaranteed-safe
-    uint8 RGB numpy array for dlib / face_recognition
-    """
-    rgb = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(rgb)
-    pil_img = pil_img.convert("RGB")   # strips alpha, metadata, profiles
-    safe_rgb = np.array(pil_img, dtype=np.uint8)
-    return safe_rgb
+# Configuration Thresholds
+EAR_THRESHOLD = 0.22
+SPOOF_THRESH_LAPLACIAN = 28.0
+SPOOF_THRESH_FFT = 45.0
+SPOOF_THRESH_SATURATION = 85.0
 
 
-# Load Haar Cascades
-face_cascade = cv2.CascadeClassifier(
-    str(BASE_DIR / "haarcascade_frontalface_default.xml")
-)
-eye_cascade = cv2.CascadeClassifier(
-    str(BASE_DIR / "haarcascade_eye_tree_eyeglasses.xml")
-)
+def face_register_page(request):
+    return render(request, 'html/dashboard/register_face.html') 
+
+
+# Global Initialize
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(refine_landmarks=True)
 
 @csrf_exempt
 def register_face(request):
-    if request.method != "POST":
-        return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+    if request.method != "POST": return JsonResponse({"success": False}, status=400)
+    
+    frame_file = request.FILES.get("frame")
+    if not frame_file: return JsonResponse({"success": False, "message": "No frame"})
 
-    if not request.user.is_authenticated:
-        return JsonResponse({"success": False, "message": "Login required"}, status=401)
+    # Decode Image
+    img = cv2.imdecode(np.frombuffer(frame_file.read(), np.uint8), cv2.IMREAD_COLOR)
+    h, w, _ = img.shape
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    frames = request.FILES.getlist("frames")
-    if len(frames) < 5:
-        return JsonResponse({"success": False, "message": "Insufficient frames"})
+    # 1. Face Mesh Analysis
+    results = face_mesh.process(rgb_img)
+    if not results.multi_face_landmarks:
+        return JsonResponse({"success": False, "message": "Face not in frame"})
 
-    eye_states = []
-    face_positions = []
-    texture_scores = []
-    valid_encodings = []
+    landmarks = results.multi_face_landmarks[0].landmark
 
-    for frame in frames:
-        img_array = np.frombuffer(frame.read(), np.uint8)
-        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        if img is None:
-            continue
+    # 2. Enhanced Spoof Check
+    # Laplacian: Sharpness check
+    lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+    
+    # FFT: Screen Pattern Check
+    dft = np.fft.fftshift(np.fft.fft2(gray))
+    mag = 20 * np.log(np.abs(dft) + 1)
+    cy, cx = h // 2, w // 2
+    y, x = np.ogrid[:h, :w]
+    mask = ((x - cx)**2 + (y - cy)**2 >= 40**2) & ~((x - cx)**2 + (y - cy)**2 <= 20**2)
+    fft_score = np.mean(mag[mask]) if np.any(mask) else 0
 
-        # Ensure correct format
-        img = np.ascontiguousarray(img, dtype=np.uint8)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # 3D Depth check (The 'Z' distance from eyes to nose tip)
+    nose_z = landmarks[1].z
+    eyes_z = (landmarks[33].z + landmarks[263].z) / 2
+    depth_diff = abs(nose_z - eyes_z)
 
-        # ---- FACE DETECTION (HAAR) ----
-        faces = face_cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.3,
-            minNeighbors=5,
-            minSize=(150, 150)
-        )
+    print("fft_score:", fft_score, " lap_var:", lap_var, " depth_diff:", depth_diff)
 
-        if len(faces) == 0:
-            continue
+    # Validation Logic
+    if lap_var < 37 or fft_score < 122 or depth_diff < 0.09:
+        return JsonResponse({"success": False, "message": "Possible spoof detected"})
 
-        x, y, w, h = faces[0]
-        face_positions.append((x, y, w, h))
+    # 3. Blink Logic
+    def get_ear(indices):
+        p = [np.array([landmarks[i].x * w, landmarks[i].y * h]) for i in indices]
+        return (np.linalg.norm(p[1]-p[5]) + np.linalg.norm(p[2]-p[4])) / (2.0 * np.linalg.norm(p[0]-p[3]))
 
-        # ---- LIVENESS CHECKS ----
-        roi_gray = gray[y:y+h, x:x+w]
-        roi_rgb = rgb[y:y+h, x:x+w]
+    ear = (get_ear([362, 385, 387, 263, 373, 380]) + get_ear([33, 160, 158, 133, 153, 144])) / 2.0
+    
+    session = request.session
+    if 'blink_count' not in session: session['blink_count'] = 0; session['closed'] = False
 
-        # Texture (anti-spoof)
-        texture_scores.append(cv2.Laplacian(roi_gray, cv2.CV_64F).var())
+    if ear < 0.20:
+        session['closed'] = True
+    elif session.get('closed'):
+        session['blink_count'] += 1
+        session['closed'] = False
+    session.modified = True
 
-        # Eye detection (blink)
-        eyes = eye_cascade.detectMultiScale(roi_gray, 1.1, 5)
-        eye_states.append(len(eyes) >= 2)
+    # 4. Success State
+    if session['blink_count'] >= 2:
+        all_x = [l.x * w for l in landmarks]; all_y = [l.y * h for l in landmarks]
+        box = (int(min(all_y)), int(max(all_x)), int(max(all_y)), int(min(all_x)))
+        enc = face_recognition.face_encodings(rgb_img, [box])
+        if enc:
+            user = request.user
+            user.face_encoding = pickle.dumps(enc[0])
+            user.save()
+            del session['blink_count']; del session['closed']
+            return JsonResponse({"success": True})
 
-        # ---- FACE ENCODING (CORRECT WAY) ----
-        try:
-            encodings = face_recognition.face_encodings(
-                roi_rgb,
-                known_face_locations=[(0, w, h, 0)],  # FULL ROI
-                num_jitters=2
-            )
-            if encodings:
-                valid_encodings.append(encodings[0])
-        except Exception:
-            continue
-
-    # ---- FINAL VALIDATION ----
-    if len(valid_encodings) < 1 or len(face_positions) < 3:
-        return JsonResponse({
-            "success": False,
-            "message": "Face detected but encoding failed."
-        })
-
-    # Motion check
-    motion = any(
-        abs(face_positions[i][0] - face_positions[i-1][0]) > 5
-        for i in range(1, len(face_positions))
-    )
-
-    # Texture check
-    avg_texture = np.mean(texture_scores)
-
-    # Blink check
-    blink_detected = False
-    for i in range(1, len(eye_states) - 1):
-        if eye_states[i-1] and not eye_states[i] and eye_states[i+1]:
-            blink_detected = True
-            break
-
-    if not motion:
-        return JsonResponse({"success": False, "message": "No movement detected"})
-    if avg_texture < 30:
-        return JsonResponse({"success": False, "message": "Spoof detected"})
-    if not blink_detected:
-        return JsonResponse({"success": False, "message": "Blink not detected"})
-
-    # ---- SAVE FACE ----
-    user = request.user
-    user.face_encoding = pickle.dumps(valid_encodings[0])
-    user.save()
-
-    return JsonResponse({
-        "success": True,
-        "message": "Face registered successfully"
-    })
+    return JsonResponse({"success": False, "blink_count": session['blink_count'], "message": "Blink your eyes"})
