@@ -3,6 +3,9 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 
+# if lap_var < 37 or fft_score < 122 or depth_diff < 0.09:
+#         return JsonResponse({"success": False, "message": "Possible spoof detected"})
+
 
 #################################################
 ########### Logout Start ####################

@@ -19,7 +19,11 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
 from .settings import *
+from Qapp.views import handle_404_redirect
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Qapp.urls')),
 ]+ static(STATIC_URL, document_root=STATIC_ROOT)
+
+handler404 = 'Qapp.views.handle_404_redirect'

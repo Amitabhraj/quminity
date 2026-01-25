@@ -4,265 +4,258 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Secure Face Registration | Quminity</title>
-
-    <link rel="stylesheet" href="{% static 'css/libs.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/socialv.css' %}">
-    <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
-
+    <title>Quminity | Secure Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        body {
-            background-color: #f4f6f9;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root { 
+            --primary: #3a7bd5; 
+            --success: #27ae60; 
+            --error: #e74c3c; 
+            --bg: #f8fafc;
+            --text-main: #2d3436;
         }
 
-        .navbar { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .navbar-brand img { height: 45px; border-radius: 50%; }
+        body { 
+            background-color: var(--bg); 
+            min-height: 100vh; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: var(--text-main);
+            margin: 0; 
+        }
+        
+        .navbar { background: #ffffff; box-shadow: 0 2px 0px rgba(0,0,0,0.05); padding: 5px 0; }
+        .navbar .container { display: flex; justify-content: flex-start; }
+        .nav-logo { height: 60px; border-radius: 100%; object-fit: contain; }
 
-        .register-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+        .main-container { height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        .glass-card { 
+            background: #ffffff; border-radius: 24px; padding: 45px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.07); width: 100%; 
+            max-width: 460px; text-align: center; border: 1px solid #edf2f7;
         }
 
-        .register-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
+        .cam-outer { 
+            position: relative; width: 270px; height: 270px; margin: 0 auto 25px; 
+            border-radius: 50%; overflow: hidden; border: 5px solid #f1f5f9; 
+            background: #000; transition: all 0.4s ease;
+        }
+        #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        .timer-badge { 
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%); 
+            background: var(--text-main); color: #fff; padding: 5px 16px; 
+            border-radius: 20px; font-weight: 700; font-size: 0.85rem; z-index: 10;
         }
 
-        /* 🎥 CAMERA CIRCLE */
-        .cam-outer-ring {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 4px solid #dee2e6;
-            background: #000;
-            transition: all 0.4s ease;
+        .status-scanning { border-color: var(--primary); box-shadow: 0 0 20px rgba(58, 123, 213, 0.2); }
+        .status-error { border-color: var(--error) !important; box-shadow: 0 0 20px rgba(231, 76, 60, 0.2); }
+        .status-success { border-color: var(--success) !important; box-shadow: 0 0 20px rgba(39, 174, 96, 0.2); }
+
+        .form-control { 
+            background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 12px; 
+            padding: 12px 16px; color: var(--text-main); margin-bottom: 15px; transition: 0.3s;
         }
+        
+        .btn-primary { background: var(--primary); border: none; border-radius: 12px; padding: 14px; font-weight: 700; }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* Mirror view */
-            border-radius: 50%;
-        }
-
-        .face-guide {
-            position: absolute;
-            width: 75%;
-            height: 75%;
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, transparent, #007bff, transparent);
-            box-shadow: 0 0 15px #007bff;
-            top: 0;
-            z-index: 10;
-            display: none;
-            animation: scanMove 2s linear infinite;
-        }
-
-        @keyframes scanMove {
-            0% { top: 0%; opacity: 0; }
-            50% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-
-        /* UI States */
-        .status-scanning { border-color: #007bff; box-shadow: 0 0 25px rgba(0, 123, 255, 0.3); }
-        .status-scanning .scan-line { display: block; }
-        .status-success { border-color: #28a745; box-shadow: 0 0 25px rgba(40, 167, 69, 0.3); }
-        .status-error { border-color: #dc3545; }
-
-        .blink-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #e9ecef;
-            color: #495057;
-            border-radius: 50px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            transition: 0.3s;
-        }
-
-        .status-text { font-size: 1rem; font-weight: 600; color: #495057; margin-bottom: 10px; }
-        .btn-retry { display: none; margin-top: 15px; }
+        .status-text { font-weight: 800; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px; color: #64748b; margin-top: 20px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top">
+<nav class="navbar">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="/">
-            <img src="{% static 'images/logo/quminity.jpg' %}" alt="Logo">
-            <span class="ms-2 fw-bold">Quminity</span>
+        <a class="navbar-brand" href="#">
+            <img src="{% static 'images/logo/quminity.jpg' %}" alt="Quminity" class="nav-logo">
         </a>
     </div>
 </nav>
 
-<div class="register-container">
-    <div class="register-card">
-        <h3>Biometric Identity</h3>
-        <p class="text-muted small mb-4">Position your face in the frame and <b>blink twice</b>.</p>
-
-        <div id="blinkDisplay" class="blink-badge">
-            Blinks detected: <span id="blinkCount">0</span> / 2
-        </div>
-
-        <div class="cam-outer-ring status-idle" id="camContainer">
-            <div class="face-guide"></div>
-            <div class="scan-line"></div>
-            <video id="video" autoplay playsinline muted></video>
-        </div>
-
-        <div id="statusLabel" class="status-text">Requesting Camera Access...</div>
+<div class="main-container">
+    {% csrf_token %}
+    <div class="glass-card animate__animated animate__fadeInUp">
         
-        <button id="retryBtn" class="btn btn-primary btn-pill btn-sm btn-retry" onclick="location.reload()">
-            <i class="fas fa-redo me-2"></i> Try Again
-        </button>
+        <div id="sectionForm">
+            <h4 class="fw-bold mb-1">Face Registration</h4>
+            <p class="text-muted small mb-4">Complete your secure profile setup</p>
+            
+            <input type="number" id="qid" class="form-control" placeholder="Enter Your QID">
+            <input type="text" id="name" class="form-control" placeholder="Full Name">
+            
+            <div class="input-group mb-3">
+                <input type="email" id="email" class="form-control mb-0" style="border-radius: 12px 0 0 12px;" placeholder="Email Address" oninput="toggleSendBtn()">
+                <button class="btn btn-dark px-3" type="button" style="border-radius: 0 12px 12px 0;" onclick="handleOTP('send')" id="btnSend" disabled>
+                  <span class="spinner-border spinner-border-sm" id="spinnerSend" aria-hidden="true" hidden></span>
+                  <span id="textSend">Send OTP</span>
+                </button>
+            </div>
+
+            <div id="otpWrapper" class="hidden animate__animated animate__fadeIn">
+                <div class="input-group mb-3">
+                    <input type="text" id="otp" class="form-control mb-0" style="border-radius: 12px 0 0 12px;" placeholder="Code">
+                    <button class="btn btn-success" type="button" style="border-radius: 0 12px 12px 0;" onclick="handleOTP('verify')" id="btnVerify">
+                        <span class="spinner-border spinner-border-sm" id="spinnerVerify" aria-hidden="true" hidden></span>
+                        <span id="textVerify">Verify</span>
+                    </button>
+                </div>
+            </div>
+
+            <button id="btnNext" class="btn btn-success w-100 py-3 mt-2" disabled onclick="startBiometrics()">
+                PROCEED TO FACE SCAN
+            </button>
+        </div>
+
+        <div id="sectionCamera" class="hidden">
+            <h5 class="fw-bold mb-4">Verifying Identity...</h5>
+            <div class="cam-outer status-scanning" id="camWrap">
+                <div id="timer" class="timer-badge">15s</div>
+                <video id="video" autoplay playsinline muted></video>
+            </div>
+            <div id="statusLabel" class="status-text animate__animated animate__pulse animate__infinite">Initializing Camera...</div>
+            <button id="btnRetry" class="btn btn-outline-danger btn-sm mt-4 px-4 rounded-pill" onclick="restartCamera()">RESTART SCAN</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const video = document.getElementById("video");
-    const statusLabel = document.getElementById("statusLabel");
-    const camContainer = document.getElementById("camContainer");
-    const blinkCountText = document.getElementById("blinkCount");
-    const blinkDisplay = document.getElementById("blinkDisplay");
-    const retryBtn = document.getElementById("retryBtn");
+    let timeLeft = 15, timerInterval, isProcessing = false;
+    let otpSent = false;
+    const getCSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    let isProcessing = false;
+    function toggleSendBtn() {
+        const email = document.getElementById('email').value;
+        const btn = document.getElementById('btnSend');
+        const isValid = email.includes('@') && email.includes('.');
+        if(!otpSent) {
+            btn.disabled = !isValid;
+        }
+    }
 
-    /**
-     * 1. THE BEST APPROACH: CAMERA INITIALIZATION
-     * We use specific constraints to ensure compatibility with mobile/desktop.
-     */
-    async function initCamera() {
-        const constraints = {
-            video: {
-                width: { ideal: 640 },
-                height: { ideal: 640 },
-                facingMode: "user"
-            }
-        };
+    async function handleOTP(mode) {
+        const btn = mode === 'send' ? document.getElementById('btnSend') : document.getElementById('btnVerify');
+        const spinner = mode === 'send' ? document.getElementById('spinnerSend') : document.getElementById('spinnerVerify');
+        const text = mode === 'send' ? document.getElementById('textSend') : document.getElementById('textVerify');
+
+        btn.disabled = true;
+        spinner.hidden = false;
+        text.innerText = mode === 'send' ? ' Sending...' : ' Verifying...';
+
+        const fd = new FormData();
+        fd.append('action', mode === 'send' ? 'send_otp' : 'verify_otp');
+        fd.append('email', document.getElementById('email').value);
+        if(mode === 'verify') fd.append('otp', document.getElementById('otp').value);
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = stream;
+            const res = await fetch("/api/face_register/", { method: 'POST', body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const data = await res.json();
             
-            // Wait for video to actually start playing
-            video.onloadedmetadata = () => {
-                video.play();
-                updateUI("scanning", "System Ready: Blink to Register");
-                startAutoRegistration();
-            };
-        } catch (err) {
-            console.error("Camera error:", err);
-            handleCameraError(err);
+            if(data.success) {
+                if(mode === 'send') {
+                    otpSent = true; 
+                    document.getElementById('otpWrapper').classList.remove('hidden');
+                    text.innerText = 'OTP Sent ✔️';
+                    btn.className = "btn btn-secondary px-3"; 
+                } else {
+                    document.getElementById('btnNext').disabled = false;
+                    text.innerText = 'Verified ✔️';
+                    btn.className = "btn btn-outline-success";
+                }
+            } else {
+                alert(data.message);
+                if(mode === 'send') {
+                    btn.disabled = false;
+                    text.innerText = 'Send OTP';
+                } else {
+                    btn.disabled = false;
+                    text.innerText = 'Verify';
+                }
+            }
+        } catch (e) { 
+            alert("Network Error"); 
+            btn.disabled = false;
+            text.innerText = mode === 'send' ? 'Send OTP' : 'Verify';
+        } finally {
+            spinner.hidden = true;
         }
     }
 
-    function handleCameraError(err) {
-        let msg = "Camera Error";
-        if (err.name === "NotAllowedError") msg = "Access Denied: Please allow camera in settings.";
-        else if (err.name === "NotFoundError") msg = "Hardware Error: No camera detected.";
-        else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-            msg = "Security Error: HTTPS is required for camera.";
-        }
-        updateUI("error", msg);
+    function startBiometrics() {
+        document.getElementById('sectionForm').classList.add('hidden');
+        document.getElementById('sectionCamera').classList.remove('hidden');
+        initCamera();
     }
 
-    function updateUI(state, message) {
-        statusLabel.innerText = message;
-        camContainer.className = "cam-outer-ring status-" + state;
-        if (state === "error") retryBtn.style.display = "inline-block";
+    function clearSession(){
+        const body = new FormData();
+        body.append("action", "clear_session");
+        fetch("/api/face_register/", { method: "POST", body: body, headers: {"X-CSRFToken": getCSRF()} });
     }
 
-    async function captureFrameBlob() {
+    function restartCamera() {
+        initCamera();
+        clearSession();
+    }
+
+    async function initCamera() {
+        timeLeft = 15; isProcessing = true;
+        document.getElementById('btnRetry').classList.add('hidden');
+        document.getElementById('camWrap').className = "cam-outer status-scanning";
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 640 } });
+            document.getElementById('video').srcObject = s;
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = (timeLeft < 10 ? `0${timeLeft}s` : `${timeLeft}s`);
+                if(timeLeft <= 0) finalize("SCAN TIMEOUT", "error");
+            }, 1000);
+            scanLoop();
+        } catch (e) { document.getElementById('statusLabel').innerText = "CAMERA BLOCKED"; }
+    }
+
+    async function scanLoop() {
+        if(!isProcessing) return;
         const canvas = document.createElement("canvas");
-        canvas.width = 400;
-        canvas.height = 400;
-        canvas.getContext("2d").drawImage(video, 0, 0, 400, 400);
-        return new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.7));
-    }
+        canvas.width = 400; canvas.height = 400;
+        canvas.getContext("2d").drawImage(document.getElementById('video'), 0, 0, 400, 400);
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.7));
 
-    /**
-     * 2. THE BEST APPROACH: ADAPTIVE CAPTURE LOOP
-     * Instead of a fixed interval, we wait for the previous request to finish.
-     */
-    async function startAutoRegistration() {
-        if (isProcessing) return;
-        isProcessing = true;
+        const fd = new FormData();
+        fd.append("action", "register_face");
+        fd.append("frame", blob);
+        fd.append("qid", document.getElementById('qid').value);
+        fd.append("name", document.getElementById('name').value);
+        fd.append("email", document.getElementById('email').value);
 
-        const loop = async () => {
-            if (!isProcessing) return;
+        try {
+            const res = await fetch("/api/face_register/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const data = await res.json();
 
-            const blob = await captureFrameBlob();
-            const formData = new FormData();
-            formData.append("frame", blob);
-
-            try {
-                const response = await fetch("/api/face_register/", {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    isProcessing = false;
-                    updateUI("success", "Registration Complete!");
-                    setTimeout(() => window.location.href = "/", 1500);
-                    return;
-                }
-
-                // Update UI based on blink count
-                if (data.blink_count !== undefined) {
-                    blinkCountText.innerText = data.blink_count;
-                    if (data.blink_count > 0) {
-                        blinkDisplay.style.background = "#007bff";
-                        blinkDisplay.style.color = "#fff";
-                    }
-                }
-
-                statusLabel.innerHTML = data.message;
-            } catch (err) {
-                console.error("API Error:", err);
+            if(data.registered) {
+                finalize(data.message, "success");
+                setTimeout(() => window.location.href = "/", 2000);
+                return;
             }
 
-            // Adaptive delay: wait 200ms before next frame
-            setTimeout(loop, 200);
-        };
+            document.getElementById('statusLabel').innerText = data.message;
+            document.getElementById('camWrap').className = `cam-outer ${data.success === false ? 'status-error' : 'status-scanning'}`;
 
-        loop();
+            if(isProcessing) setTimeout(scanLoop, 200);
+        } catch (e) { if(isProcessing) setTimeout(scanLoop, 500); }
     }
 
-    // Launch!
-    initCamera();
+    function finalize(m, s) {
+        isProcessing = false; clearInterval(timerInterval);
+        document.getElementById('statusLabel').innerText = m;
+        document.getElementById('camWrap').className = `cam-outer status-${s}`;
+        if(s === 'error') document.getElementById('btnRetry').classList.remove('hidden');
+    }
 </script>
-
 </body>
 </html>

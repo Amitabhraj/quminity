@@ -18,6 +18,14 @@ notification_type = [
     ('Marking Attendance', 'Marking Attendance')
 ]
 
+USER_TYPE = [
+    ('Admin', 'Admin'),
+    ('Faculty', 'Faculty'),
+    ('Student', 'Student'),
+    ("N_FACULTY","N_FACULTY"),
+    ("DEAN","DEAN"),
+]
+
 
 class Course(models.Model):
     course_name = models.CharField(max_length=100, choices=courses_name_choices,default="",null=True, blank=True)
@@ -59,6 +67,7 @@ class CustomUser(AbstractUser):
     face_encoding = models.BinaryField(null=True, blank=True, editable=True)
     anonymous = models.BooleanField(default=True,null=True, blank=True)
     section = models.ForeignKey(Section,on_delete=models.CASCADE, null=True, blank=True)
+    user_type = models.CharField(max_length=100,choices=USER_TYPE,default=None,blank=True,null=True)
 
     def __str__(self):
         return self.username

@@ -4,7 +4,7 @@ from .models import *
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ("Additional Info", {"fields": ("qid", "anonymous","section","face_encoding")}),
+        ("Additional Info", {"fields": ("qid", "anonymous","section","face_encoding",'user_type')}),
     )
 admin.site.register(Attendance)
 admin.site.register(ActiveToken)

@@ -1,23 +1,19 @@
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from .models import CustomUser as User
+from django.shortcuts import redirect
+from django.contrib.auth import logout
 
-# Create your views here.
-def check_authentication(request):
-    user_obj = request.user
-    if not user_obj.is_authenticated:
-        return redirect("/login")
-    else:
-        input_user_type = user_obj.groups.first().name if user_obj.groups.exists() else None
-        if input_user_type == "Admin":
-            return redirect('adminView', adminId=user_obj.qid,qid=user_obj.qid , adminName=user_obj.username)
-        elif input_user_type == "Faculty":
-            return redirect('facultyView', facultyId=user_obj.id,qid=user_obj.qid , facultyName=user_obj.username)
-        elif input_user_type == "Student":
+def handle_404_redirect(request, exception=None):
+    if request.user.is_authenticated:
+        if request.user.user_type == "Student":
             return redirect('studentView')
-        elif input_user_type == "Dean":
-            return redirect('DeanDashboard')
+        elif request.user.user_type == "Faculty":
+            return redirect('facultyView')
+        elif request.user.user_type == "Admin":
+            return redirect('adminView')
+        elif request.user.user_type == "Dean":
+            return redirect('DeanView')
         else:
-            messages.error(request, "Authentication failed.")
-            return redirect("/login")
+            logout(request)
+            return redirect('user_login')
+    else:
+        # If not logged in, send them to the login page
+        return redirect('user_login') # Replace 'login' with your login URL name

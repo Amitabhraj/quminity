@@ -13,12 +13,12 @@ from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
 from Qapp.use_cases.listing.listClubEvent import ClubEventList
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
+from Qapp.use_cases.user_onboarding.user_login import user_login
 from Qapp.use_cases.user_onboarding.face_login.face_login import login_with_face,face_login_page
 from Qapp.use_cases.user_onboarding.register_face.face_register import register_face,face_register_page
 from .views import *
 from .use_cases.listing.listAssociatedClubEvent import ShowAssociatedClub
 from .use_cases.user_onboarding.logout_user import user_logout
-from .use_cases.user_onboarding.user_login import user_login
 from .use_cases.student_side.studentView import MainView as student_dashboard
 from .use_cases.faculty_side.facultyView import MainView as faculty_dashboard
 from .use_cases.admin_side.adminView import MainView as admin_dashboard
@@ -29,8 +29,8 @@ from Qapp.use_cases.chatting.chatting import demoChat
 
 
 urlpatterns = [
-    path('', check_authentication, name='check_authentication'),
     path('login/', user_login, name='user_login'),
+    path('logout_user/', user_logout, name='user_logout'),
 
 
     path("face_login_page/", face_login_page, name="face_login_page"),
@@ -89,7 +89,7 @@ urlpatterns = [
 
 
     path('student_dashboard/', student_dashboard, name='studentView'),
-    path('dean_dashboard/', DashboardDean, name='DeanDashboard'),
-    path('teacher_dashboard/<int:FacultyId>/<int:qid>/<str:facultyName>/', faculty_dashboard, name='facultyView'),
-    path('moderator_dashboard/<int:adminId>/<int:qid>/<str:adminName>/', admin_dashboard, name='adminView'),
+    path('dean_dashboard/', DashboardDean, name='DeanView'),
+    path('teacher_dashboard/', faculty_dashboard, name='facultyView'),
+    path('moderator_dashboard/', admin_dashboard, name='adminView'),
 ]
