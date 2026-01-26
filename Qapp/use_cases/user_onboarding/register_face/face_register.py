@@ -46,6 +46,12 @@ def register_face(request):
 
     if action == "send_otp":
         email = request.POST.get("email")
+        try:
+            existing_user = CustomUser.objects.get(email=email)
+            [session.pop(k, None) for k in ['blinks', 'closed', 'reg_otp', 'otp_verified', 'is_saving']]
+            return JsonResponse({"success": False, "message": "Email Already Registered"})
+        except CustomUser.DoesNotExist:
+            pass
         otp = str(random.randint(100000, 999999))
         session['reg_otp'] = otp
         try:
@@ -64,6 +70,16 @@ def register_face(request):
         if not session.get('otp_verified'):
             return JsonResponse({"success": False, "message": "Verify Email First"})
         
+        name = request.POST.get("name")
+        qid = request.POST.get("qid")
+        email = request.POST.get("email")
+
+        try:
+            existing_user = CustomUser.objects.get(qid=qid)
+            [session.pop(k, None) for k in ['blinks', 'closed', 'reg_otp', 'otp_verified', 'is_saving']]
+            return JsonResponse({"qid_found": True, "message": "QID Already Registered"})
+        except CustomUser.DoesNotExist:
+            pass
 
         file = request.FILES.get("frame")
         
@@ -101,9 +117,7 @@ def register_face(request):
 
         # Validation Logic
         if lap_var < 37 or fft_score < 122 or depth_diff < 0.06:
-            if session.get('is_saving'):
-                pass
-            else:
+            if not session.get('is_saving'):
                 return JsonResponse({"success": False, "message": "Face is Not Clear"})
 
         ear = get_ear(landmarks, w, h)
@@ -131,10 +145,6 @@ def register_face(request):
                         "processing": True, 
                         "message": "WAIT... WE ARE PROCESSING YOUR REQUEST..."
                     })
-                
-                name = request.POST.get("name")
-                qid = request.POST.get("qid")
-                email = request.POST.get("email")
 
                 try:
                     user = CustomUser(
@@ -175,4 +185,4 @@ def register_face(request):
 
 
 def face_register_page(request):
-    return render(request, 'html/dashboard/register_face.html') 
+    return render(request, 'html/userOnboarding/register/register_face.html') 

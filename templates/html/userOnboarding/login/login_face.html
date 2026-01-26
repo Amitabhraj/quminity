@@ -1,0 +1,317 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quminity | Secure Identification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root {
+            --processing: #f1ff2b;
+            --primary: #3a7bd5;
+            --accent: #00d2ff;
+            --success: #00ff7b;
+            --error: #ff0000;
+            --bg-dark: #010204;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: rgb(255, 255, 255);
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .nav-logo { height: 60px; }
+
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding-top: 75px;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 25px 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            text-align: center;
+        }
+
+        .cam-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            padding: 10px;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+
+        .cam-outer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            z-index: 1;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .scan-ring {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: var(--accent);
+            animation: spin 4s linear infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .laser {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 40%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 210, 255, 0.2));
+            border-bottom: 2px solid var(--accent);
+            animation: scanLaser 2.5s ease-in-out infinite;
+            z-index: 3;
+            display: none;
+        }
+
+        @keyframes scanLaser {
+            0%, 100% { top: 0%; opacity: 0; }
+            50% { top: 60%; opacity: 1; }
+        }
+
+        .status-scanning { border-color: var(--accent) !important; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); }
+        .status-success { border-color: var(--success) !important; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+        .status-error { border-color: var(--error) !important; box-shadow: 0 0 30px rgba(255, 65, 108, 0.4); }
+
+        h4 { letter-spacing: -0.5px; font-weight: 700; color: #000; }
+        .status-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: #292929;
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: white;
+            padding: 16px;
+            border-radius: 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(58, 123, 213, 0.4);
+        }
+
+        .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(58, 123, 213, 0.5); color: #fff; }
+
+        .form-control {
+            background: rgba(0,0,0,0.05) !important;
+            border: 1px solid #ddd;
+            color: #000 !important;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .btn-back {
+            margin-top: 25px;
+            background: #f8fafc;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <img src="{% static 'images/logo/quminity.jpg' %}" alt="Quminity" class="nav-logo">
+</nav>
+
+<div class="main-container">
+    <div class="glass-card animate__animated animate__fadeIn">
+        {% csrf_token %}
+        
+        <div id="loginHeader">
+            <h4>Identity Verification</h4>
+            <p class="text-secondary small mb-4">Please look into the camera to continue</p>
+        </div>
+
+        <div id="loginForm">
+            <div class="mb-4">
+                <input type="number" id="qid" class="form-control py-3" placeholder="Enter Your QID">
+            </div>
+            <button class="btn btn-modern w-100" onclick="startLogin()">
+                START FACE RECOGNITION
+            </button>
+            <a href="/"><button class="btn-back">←&nbsp;&nbsp;Back to Login</button></a>
+        </div>
+
+        <div id="loginCamera" class="hidden">
+            <div class="cam-container" id="camContainer">
+                <div class="scan-ring" id="ring"></div>
+                <div class="laser" id="laser"></div>
+                <div class="cam-outer">
+                    <video id="video" autoplay playsinline muted></video>
+                </div>
+            </div>
+            
+            <div id="statusLabel" class="status-label mb-3">Initializing Sensor...</div>
+            
+            <div id="retryGroup" class="hidden">
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-4" onclick="restartScan()">
+                    TRY AGAIN
+                </button>
+            </div>
+            <a href="/"><button class="btn-back">←&nbsp;&nbsp;Back to Login</button></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isProcessing = false;
+    const getCSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    async function restartScan(){
+        const fd = new FormData(); fd.append("action", "clear_session");
+        const data = await fetch("/api/face_login/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+        document.getElementById('retryGroup').classList.add('hidden');
+        startLogin();
+    }
+
+    async function startLogin() {
+        const qid = document.getElementById('qid').value;
+        if(!qid) return;
+
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginCamera').classList.remove('hidden');
+        document.getElementById('laser').style.display = 'block';
+
+
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 480 } });
+            document.getElementById('video').srcObject = s;
+            isProcessing = true;
+            scanLoop();
+        } catch (e) { 
+            document.getElementById('statusLabel').innerText = "CAMERA ERROR";
+        }
+    }
+
+    async function scanLoop() {
+        if(!isProcessing) return;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 400; canvas.height = 400;
+        canvas.getContext("2d").drawImage(document.getElementById('video'), 0, 0, 400, 400);
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.7));
+
+        const fd = new FormData();
+        fd.append("action", "login_face");
+        fd.append("frame", blob);
+        fd.append("qid", document.getElementById('qid').value);
+
+        try {
+            const res = await fetch("/api/face_login/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const data = await res.json();
+
+            const statusLabel = document.getElementById('statusLabel');
+            const camContainer = document.getElementById('camContainer');
+            const ring = document.getElementById('ring');
+            const laser = document.getElementById('laser');
+
+            statusLabel.innerText = data.message;
+
+            if(data.authenticated) {
+                isProcessing = false;
+                statusLabel.style.color = "var(--success)";
+                camContainer.className = "cam-container status-success";
+                laser.style.display = 'none';
+                ring.style.borderTopColor = "var(--success)";
+                setTimeout(() => window.location.href = "/dashboard/", 1500);
+                return;
+            }
+
+            if(data.success === false) {
+                camContainer.className = "cam-container status-error";
+                ring.style.borderTopColor = "var(--error)";
+                if(data.message === "USER NOT FOUND" || data.message === "FACE DOES NOT MATCHED") {
+                    isProcessing = false;
+                    document.getElementById('retryGroup').classList.remove('hidden');
+                    laser.style.display = 'none';
+                    return;
+                }
+            } else {
+                camContainer.className = "cam-container status-scanning";
+                ring.style.borderTopColor = "var(--processing)";
+            }
+
+            setTimeout(scanLoop, 200);
+        } catch (e) { setTimeout(scanLoop, 500); }
+    }
+</script>
+
+</body>
+</html>

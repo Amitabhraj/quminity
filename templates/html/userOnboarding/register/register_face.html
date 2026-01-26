@@ -243,6 +243,12 @@
                 return;
             }
 
+            if(data.qid_found) {
+                finalize(data.message, "error");
+                setTimeout(() => window.location.href = "/", 3500);
+                return;
+            }
+
             document.getElementById('statusLabel').innerText = data.message;
             document.getElementById('camWrap').className = `cam-outer ${data.success === false ? 'status-error' : 'status-scanning'}`;
 
