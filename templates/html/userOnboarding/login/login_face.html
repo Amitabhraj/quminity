@@ -1,271 +1,239 @@
+{% extends 'html/base.html' %}
 {% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quminity | Secure Identification</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% block title %}Quminity | Biometric Access{% endblock %}
+
+{% block extra_css %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-
         :root {
-            --processing: #f1ff2b;
-            --primary: #3a7bd5;
-            --accent: #00d2ff;
-            --success: #00ff7b;
-            --error: #ff0000;
-            --bg-dark: #010204;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #000000;
+            --text-muted: #64748b;
+            --glass-border: rgba(0, 0, 0, 0.08);
         }
 
-        body {
-            background: rgb(255, 255, 255);
-            min-height: 100vh;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #fff;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        /* Navbar Styling */
-        .navbar {
-            background: #fff;
-            padding: 10px 20px;
-            border-bottom: 1px solid #f1f5f9;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-        .nav-logo { height: 60px; }
-
-        .main-container {
+        /* 1. COMPACT CAMERA FRAME (Fits without scrolling) */
+        .cam-frame {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            padding: 5px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding-top: 75px;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            filter: blur(150px);
-            opacity: 0.15;
-            z-index: -1;
-        }
-
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            padding: 25px 40px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
-            text-align: center;
-        }
-
-        .cam-container {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 30px;
-            border-radius: 50%;
-            padding: 10px;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-            transition: all 0.5s ease;
-        }
-
-        .cam-outer {
-            position: relative;
+        .video-container {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             overflow: hidden;
-            border: 1px solid var(--glass-border);
+            position: relative;
             z-index: 1;
+            background: #000; /* Black background for contrast while loading */
         }
 
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        #video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
             transform: scaleX(-1);
+            display: block;
         }
 
-        .scan-ring {
+        /* 2. SCANNING UI */
+        .scanner-ring {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
             border-radius: 50%;
             border: 4px solid transparent;
-            border-top-color: var(--accent);
-            animation: spin 4s linear infinite;
-            z-index: 2;
+            border-top-color: var(--accent-primary);
+            animation: spin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            z-index: 5;
             pointer-events: none;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .laser {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 40%;
-            background: linear-gradient(to bottom, transparent, rgba(0, 210, 255, 0.2));
-            border-bottom: 2px solid var(--accent);
-            animation: scanLaser 2.5s ease-in-out infinite;
-            z-index: 3;
-            display: none;
-        }
+        .status-success { border: 5px solid #10b981 !important; animation: none; }
+        .status-error { border: 5px solid #ef4444 !important; animation: none; }
 
-        @keyframes scanLaser {
-            0%, 100% { top: 0%; opacity: 0; }
-            50% { top: 60%; opacity: 1; }
-        }
-
-        .status-scanning { border-color: var(--accent) !important; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); }
-        .status-success { border-color: var(--success) !important; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
-        .status-error { border-color: var(--error) !important; box-shadow: 0 0 30px rgba(255, 65, 108, 0.4); }
-
-        h4 { letter-spacing: -0.5px; font-weight: 700; color: #000; }
-        .status-label {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            color: #292929;
-        }
-
-        .btn-modern {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border: none;
-            color: white;
-            padding: 16px;
-            border-radius: 18px;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px -5px rgba(58, 123, 213, 0.4);
-        }
-
-        .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(58, 123, 213, 0.5); color: #fff; }
-
+        /* 3. UI BUTTONS & INPUTS */
         .form-control {
-            background: rgba(0,0,0,0.05) !important;
-            border: 1px solid #ddd;
-            color: #000 !important;
-            border-radius: 15px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            color: #1e293b !important;
+            font-weight: 700;
             text-align: center;
-            font-size: 1.1rem;
         }
 
-        .btn-back {
-            margin-top: 25px;
-            background: #f8fafc;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 30px;
-            color: #64748b;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        .btn-action {
+            background: #000000;
+            border: none; color: white; padding: 15px; border-radius: 14px;
+            font-weight: 800; width: 100%; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-action:hover { background: #27272a; transform: translateY(-2px); }
+
+        .status-text {
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; 
+            color: var(--text-muted); text-transform: uppercase;
         }
 
+        .btn-back-link {
+            color: var(--text-muted); text-decoration: none; font-size: 0.8rem; 
+            font-weight: 700; transition: 0.3s; text-transform: uppercase;
+        }
+
+        /* UTILS */
         .hidden { display: none !important; }
+        
+        .float-icon {
+            position: fixed; opacity: 0.1; color: #000; font-size: 2rem; z-index: 0;
+            animation: floatMove 8s infinite ease-in-out;
+        }
+
+        /* Increased max-width and padding for a more "grand" feel */
+        .glass-card {
+            position: relative;
+            z-index: 10;
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgb(163, 163, 163);
+            border-radius: 100px;
+            padding: 10px 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Make the button feel more massive */
+        .btn-action {
+            height: 65px;
+            font-size: 0.9rem !important;
+            letter-spacing: 2.9px !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Force standard text to look bolder in Light Mode */
+        .fw-900 { font-weight: 900 !important; }
+        .fw-800 { font-weight: 800 !important; }
+
+        /* Input focus effect to make it feel high-tech */
+        .form-control:focus {
+            border-color: #000 !important;
+            box-shadow: 0 0 0 5px rgba(0,0,0,0.03) !important;
+        }
+        @keyframes floatMove { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
     </style>
-</head>
-<body>
+{% endblock %}
 
-<nav class="navbar">
-    <img src="{% static 'images/logo/quminity.jpg' %}" alt="Quminity" class="nav-logo">
-</nav>
-
-<div class="main-container">
-    <div class="glass-card animate__animated animate__fadeIn">
+{% block content %}
+    <div class="glass-card text-center animate__animated animate__fadeIn" style="max-width: 450px; padding: 60px 40px; position: relative; z-index: 1;">
         {% csrf_token %}
         
-        <div id="loginHeader">
-            <h4>Identity Verification</h4>
-            <p class="text-secondary small mb-4">Please look into the camera to continue</p>
-        </div>
+        <div id="setupView" class="py-1">
 
-        <div id="loginForm">
             <div class="mb-4">
-                <input type="number" id="qid" class="form-control py-3" placeholder="Enter Your QID">
+                <h2 class="fw-800 mb-2" style="font-size: 2.2rem; letter-spacing: 1px;">LOGIN GATEWAY</h2>
+                <p class="text-muted fw-bold small" style="letter-spacing: 1.5px;">ENTER QID TO SCAN YOUR FACE</p>
             </div>
-            <button class="btn btn-modern w-100" onclick="startLogin()">
-                START FACE RECOGNITION
+            
+            <div class="mb-3 text-start">
+                <label class="small fw-800 text-dark ms-1 mb-2" style="letter-spacing: 1px;">UNIVERSITY QID</label>
+                <input type="number" id="qid" class="form-control form-control-lg shadow-sm" placeholder="Enter QID">
+            </div>
+        
+            <button class="btn-action py-1 mb-2" onclick="initScan()">
+                AUTHORIZE CAMERA
             </button>
-            <a href="/"><button class="btn-back">←&nbsp;&nbsp;Back to Login</button></a>
-        </div>
-
-        <div id="loginCamera" class="hidden">
-            <div class="cam-container" id="camContainer">
-                <div class="scan-ring" id="ring"></div>
-                <div class="laser" id="laser"></div>
-                <div class="cam-outer">
-                    <video id="video" autoplay playsinline muted></video>
-                </div>
-            </div>
-            
-            <div id="statusLabel" class="status-label mb-3">Initializing Sensor...</div>
-            
-            <div id="retryGroup" class="hidden">
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-4" onclick="restartScan()">
-                    TRY AGAIN
-                </button>
-            </div>
-            <a href="/"><button class="btn-back">←&nbsp;&nbsp;Back to Login</button></a>
+        
+            <div class="mt-2">
+            <a href="/" class="btn-back-link">
+                <i class="fa fa-arrow-left me-2"></i>Go Back
+            </a>
         </div>
     </div>
-</div>
 
+    <div id="cameraView" class="hidden">
+        <h4 class="fw-900 mb-3">Initializing Sensor</h4>
+        
+        <div class="cam-frame">
+            <div class="scanner-ring" id="uiRing"></div>
+            <div class="video-container">
+                <video id="video" autoplay playsinline muted></video>
+            </div>
+        </div>
+
+        <p id="statusLabel" class="status-text mb-3 animate__animated animate__pulse animate__infinite">Aligning Profile...</p>
+
+        <div id="retryGroup" class="hidden mb-3">
+            <button class="btn btn-dark fw-800 px-4 py-2 rounded-pill btn-sm" onclick="restartScan()">RETRY</button>
+        </div>
+
+        <a href="javascript:void(0)" onclick="location.reload()" class="btn-back-link">
+            <i class="fa fa-times-circle me-1"></i>Abort
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     let isProcessing = false;
     const getCSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    async function restartScan(){
-        const fd = new FormData(); fd.append("action", "clear_session");
-        const data = await fetch("/api/face_login/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
-        document.getElementById('retryGroup').classList.add('hidden');
-        startLogin();
-    }
-
-    async function startLogin() {
+    async function initScan() {
         const qid = document.getElementById('qid').value;
         if(!qid) return;
 
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('loginCamera').classList.remove('hidden');
-        document.getElementById('laser').style.display = 'block';
+        // Visual Transition
+        document.getElementById('setupView').classList.add('hidden');
+        document.getElementById('cameraView').classList.remove('hidden');
 
+        const video = document.getElementById('video');
 
         try {
-            const s = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 480 } });
-            document.getElementById('video').srcObject = s;
-            isProcessing = true;
-            scanLoop();
-        } catch (e) { 
-            document.getElementById('statusLabel').innerText = "CAMERA ERROR";
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 640 }, 
+                    height: { ideal: 640 },
+                    facingMode: "user" 
+                } 
+            });
+            
+            video.srcObject = stream;
+            
+            // Critical: Wait for video metadata to play stream
+            video.onloadedmetadata = () => {
+                video.play();
+                isProcessing = true;
+                document.querySelector('#cameraView h4').innerText = "Verifying Identity";
+                captureLoop();
+            };
+            
+        } catch (e) {
+            console.error(e);
+            document.getElementById('statusLabel').innerText = "CAMERA BLOCKED";
+            document.getElementById('statusLabel').style.color = "#ef4444";
         }
     }
 
-    async function scanLoop() {
+    async function captureLoop() {
         if(!isProcessing) return;
 
+        const video = document.getElementById('video');
         const canvas = document.createElement("canvas");
         canvas.width = 400; canvas.height = 400;
-        canvas.getContext("2d").drawImage(document.getElementById('video'), 0, 0, 400, 400);
+        canvas.getContext("2d").drawImage(video, 0, 0, 400, 400);
+        
         const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.7));
 
         const fd = new FormData();
@@ -274,44 +242,51 @@
         fd.append("qid", document.getElementById('qid').value);
 
         try {
-            const res = await fetch("/api/face_login/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const res = await fetch("/api/face_login/", { 
+                method: "POST", 
+                body: fd, 
+                headers: {"X-CSRFToken": getCSRF()} 
+            });
             const data = await res.json();
 
-            const statusLabel = document.getElementById('statusLabel');
-            const camContainer = document.getElementById('camContainer');
-            const ring = document.getElementById('ring');
-            const laser = document.getElementById('laser');
+            const label = document.getElementById('statusLabel');
+            const ring = document.getElementById('uiRing');
 
-            statusLabel.innerText = data.message;
+            label.innerText = data.message;
 
             if(data.authenticated) {
                 isProcessing = false;
-                statusLabel.style.color = "var(--success)";
-                camContainer.className = "cam-container status-success";
-                laser.style.display = 'none';
-                ring.style.borderTopColor = "var(--success)";
-                setTimeout(() => window.location.href = "/dashboard/", 1500);
+                ring.className = "scanner-ring status-success";
+                label.style.color = "#10b981";
+                label.classList.remove('animate__infinite');
+                setTimeout(() => window.location.href = "/", 1500);
                 return;
             }
 
             if(data.success === false) {
-                camContainer.className = "cam-container status-error";
-                ring.style.borderTopColor = "var(--error)";
+                ring.className = "scanner-ring status-error";
+                label.style.color = "#ef4444";
                 if(data.message === "USER NOT FOUND" || data.message === "FACE DOES NOT MATCHED") {
                     isProcessing = false;
                     document.getElementById('retryGroup').classList.remove('hidden');
-                    laser.style.display = 'none';
                     return;
                 }
             } else {
-                camContainer.className = "cam-container status-scanning";
-                ring.style.borderTopColor = "var(--processing)";
+                ring.className = "scanner-ring status-scanning";
+                label.style.color = "#64748b";
             }
 
-            setTimeout(scanLoop, 200);
-        } catch (e) { setTimeout(scanLoop, 500); }
+            if(isProcessing) setTimeout(captureLoop, 300); // Slightly slower loop for better performance
+        } catch (e) { 
+            if(isProcessing) setTimeout(captureLoop, 1000); 
+        }
+    }
+
+    function restartScan() {
+        document.getElementById('retryGroup').classList.add('hidden');
+        document.getElementById('uiRing').className = "scanner-ring";
+        isProcessing = true;
+        captureLoop();
     }
 </script>
-
-</body>
-</html>
+{% endblock %}

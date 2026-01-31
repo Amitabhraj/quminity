@@ -71,7 +71,7 @@ def login_with_face(request):
         print("lap_var:", lap_var, "fft_score:", fft_score, " depth_diff:", depth_diff)
 
         # Validation Logic
-        if lap_var < 37 or fft_score < 122 or depth_diff < 0.06:
+        if lap_var < 13 or fft_score < 115 or depth_diff < 0.06:
                 return JsonResponse({"success": False, "message": "Face is Not Clear"})
 
         ear = get_ear(landmarks, w, h)
@@ -128,9 +128,12 @@ def login_with_face(request):
                         "message": f"Welcome, {matched_user.first_name}!"
                     })
                 else:
-                    return JsonResponse({"success": False,"face_detected": False, "message": "USER NOT FOUND"})
+                    return JsonResponse({"success": False,"face_detected": False, "message": "FACE DOES NOT MATCHED"})
 
         return JsonResponse({"success": True, "face_detected": True, "message": "BLINK TO IDENTIFY"})
+
+
+
 
 def face_login_page(request):
     return render(request, 'html/userOnboarding/login/login_face.html')

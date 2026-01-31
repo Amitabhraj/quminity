@@ -1,0 +1,124 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}404 | System Mapping Error{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-wrap { text-align: center; position: relative; z-index: 10; }
+
+    /* Radar Scanning Container */
+    .radar-container {
+        position: relative;
+        width: 320px;
+        height: 320px;
+        margin: 0 auto 40px;
+        border-radius: 50%;
+        border: 2px solid rgba(34, 211, 238, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.05) 0%, transparent 70%);
+    }
+
+    /* Radar Beam */
+    .radar-beam {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--accent-cyan) 0deg, transparent 90deg);
+        mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff 0);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff 0);
+        animation: spin 4s linear infinite;
+        z-index: 1;
+    }
+
+    .error-404-text {
+        font-size: 8rem;
+        font-weight: 800;
+        margin: 0;
+        /* Fixed visibility: removed transparent fill and set solid white */
+        color: #ffffff; 
+        position: relative;
+        z-index: 2;
+        letter-spacing: -5px;
+        /* Added stronger glow for "Classic" look */
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 
+                     0 0 40px rgba(34, 211, 238, 0.2);
+    }
+
+    .status-alert {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 20px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--error-red);
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 25px;
+    }
+
+    .status-alert .dot {
+        width: 8px; height: 8px;
+        background: var(--error-red);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-reauth {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        color: white;
+        padding: 18px 45px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-reauth:hover {
+        transform: scale(1.05);
+        color: white;
+        box-shadow: 0 15px 40px rgba(34, 211, 238, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-wrap animate__animated animate__zoomIn">
+    
+    <div class="radar-container">
+        <div class="radar-beam"></div>
+        <h1 class="error-404-text">404</h1>
+    </div>
+
+    <div class="status-alert">
+        <span class="dot"></span>
+        Coordinate Not Found
+    </div>
+
+    <h2 class="fw-bold mb-3">System Navigation Failure</h2>
+    <p class="text-dim mb-5" style="max-width: 500px; margin: 0 auto 40px; color: #94a3b8;">
+        The directory you are attempting to access does not exist within the current security perimeter. 
+        Your session may have timed out or the mapping link is broken.
+    </p>
+
+    <a href="/" class="btn-reauth">
+        RE-AUTHENTICATE SYSTEM
+    </a>
+    <br><br><br>
+</div>
+{% endblock %}
