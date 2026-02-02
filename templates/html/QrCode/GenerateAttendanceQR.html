@@ -1,49 +1,736 @@
+{% extends 'html/base.html' %}
+{% load static %}
 
-<center style="padding-top: 30px;">
-<h2>QR Code for Event: {{event.event}}</h2>
-<h3>Date: {{event.event_date}}</h3>
+{% block title %}Quminity | Event QR Code - {{ event.event }}{% endblock %}
 
-<img id="qr-img"
-     style="
-        max-width: 90vw;
-        width: 350px;
+{% block extra_css %}
+<style>
+    :root {
+        --accent-primary: #667eea;
+        --accent-secondary: #764ba2;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --glass-bg: rgba(255, 255, 255, 0.92);
+        --glass-border: rgba(255, 255, 255, 0.3);
+    }
+
+    .qr-page-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated background elements */
+    .qr-page-wrapper::before {
+        content: '';
+        position: absolute;
+        width: 300%;
+        height: 300%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1.5px solid var(--glass-border);
+        border-radius: 32px;
+        padding: 40px 30px;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 10;
+        margin: 20px;
+    }
+
+    /* Event Info Section */
+    .event-header {
+        margin-bottom: 40px;
+        padding-bottom: 25px;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .event-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #1f2937;
+        margin-bottom: 10px;
+        line-height: 1.2;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .event-date {
+        font-size: 1.2rem;
+        color: #6b7280;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .event-date i {
+        color: var(--accent-primary);
+    }
+
+    /* QR Code Container */
+    .qr-container {
+        position: relative;
+        margin: 0 auto 40px;
+        width: 100%;
+        max-width: 400px;
         aspect-ratio: 1/1;
-        border: 3px solid black;
-     ">
-</center>
+    }
 
+    .qr-outer-ring {
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+        border: 3px solid transparent;
+        border-radius: 30px;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)) border-box;
+        -webkit-mask: 
+            linear-gradient(#fff 0 0) padding-box, 
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        z-index: 1;
+        animation: pulse-ring 3s infinite;
+    }
+
+    @keyframes pulse-ring {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    .qr-inner-frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 
+            0 10px 25px rgba(0, 0, 0, 0.1),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        z-index: 2;
+    }
+
+    #qr-img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        transition: transform 0.5s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+    }
+
+    #qr-img:hover {
+        transform: scale(1.02);
+    }
+
+    /* Scan Guidelines */
+    .scan-guide {
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .scan-guide h4 {
+        color: var(--accent-primary);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .guide-items {
+        display: grid;
+        gap: 12px;
+    }
+
+    .guide-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        color: #4b5563;
+    }
+
+    .guide-item i {
+        color: var(--accent-primary);
+        width: 20px;
+        text-align: center;
+    }
+
+    /* Timer and Status */
+    .qr-status {
+        background: white;
+        border-radius: 50px;
+        padding: 15px 25px;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .timer {
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .timer i {
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .status-text {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .status-text.active {
+        color: var(--success-color);
+    }
+
+    /* Download Button */
+    .download-btn {
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        margin-top: 20px;
+    }
+
+    .download-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .download-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Loading State */
+    .qr-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+        border-radius: 20px;
+        z-index: 3;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .qr-loading.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #e5e7eb;
+        border-top-color: var(--accent-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .glass-card {
+            padding: 30px 20px;
+            margin: 15px;
+        }
+        
+        .event-title {
+            font-size: 1.8rem;
+        }
+        
+        .qr-container {
+            max-width: 320px;
+        }
+        
+        .qr-status {
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+        }
+        
+        .timer {
+            min-width: 100px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .qr-page-wrapper {
+            padding: 15px;
+        }
+        
+        .glass-card {
+            padding: 25px 15px;
+            border-radius: 25px;
+        }
+        
+        .event-title {
+            font-size: 1.5rem;
+        }
+        
+        .qr-container {
+            max-width: 280px;
+        }
+        
+        .scan-guide {
+            padding: 15px;
+        }
+        
+        .guide-item {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* High Contrast Mode for Better Scanning */
+    @media (prefers-contrast: high) {
+        .qr-inner-frame {
+            background: black;
+        }
+        
+        #qr-img {
+            filter: invert(1);
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .qr-page-wrapper {
+            background: white;
+        }
+        
+        .glass-card {
+            box-shadow: none;
+            border: 2px solid #000;
+        }
+        
+        .download-btn,
+        .scan-guide {
+            display: none;
+        }
+        
+        .qr-outer-ring {
+            display: none;
+        }
+        
+        .qr-inner-frame {
+            border: 3px solid #000;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="qr-page-wrapper">
+    <div class="glass-card animate__animated animate__fadeInUp">
+        <!-- Event Header -->
+        <div class="event-header">
+            <h1 class="event-title">{{ event.event }}</h1>
+            <div class="event-date">
+                <i class="fa fa-calendar-alt"></i>
+                <span>{{ event.event_date }}</span>
+                {% if event.event_time %}
+                <i class="fa fa-clock ml-3"></i>
+                <span>{{ event.event_time }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- QR Code Container -->
+        <div class="qr-container">
+            <div class="qr-outer-ring"></div>
+            <div class="qr-inner-frame">
+                <img id="qr-img" 
+                     alt="Event QR Code for {{ event.event }}"
+                     style="background: white;">
+                
+                <!-- Loading Overlay -->
+                <div class="qr-loading" id="qr-loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Generating New QR Code...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Guidelines -->
+        <div class="scan-guide">
+            <h4><i class="fa fa-qrcode"></i> Scan Instructions</h4>
+            <div class="guide-items">
+                <div class="guide-item">
+                    <i class="fa fa-mobile-alt"></i>
+                    <span>Hold phone 1-2 feet away from screen</span>
+                </div>
+                <div class="guide-item">
+                    <i class="fa fa-lightbulb"></i>
+                    <span>Ensure good lighting and reduce glare</span>
+                </div>
+                <div class="guide-item">
+                    <i class="fa fa-expand-alt"></i>
+                    <span>Center QR code within your camera view</span>
+                </div>
+                <div class="guide-item">
+                    <i class="fa fa-shield-alt"></i>
+                    <span>This QR refreshes every <span id="refresh-seconds">30</span> seconds for security</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status and Timer -->
+        <div class="qr-status">
+            <div class="timer">
+                <i class="fa fa-sync"></i>
+                <span id="countdown">30s</span>
+            </div>
+            <div class="status-text active" id="status-text">
+                <i class="fa fa-check-circle"></i> QR Code is Active & Scannable
+            </div>
+        </div>
+
+        <!-- Download Button -->
+        <button class="download-btn" id="download-btn">
+            <i class="fa fa-download"></i>
+            Download QR Code
+        </button>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="/" class="text-decoration-none text-muted fw-bold">
+                <i class="fa fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 let qrTimeout = null;
+let countdownInterval = null;
+let currentExpiry = 30; // Default expiry time in seconds
+
+// Initialize page with loading
+document.addEventListener('DOMContentLoaded', function() {
+    refreshQR();
+    
+    // Add click effect to download button
+    const downloadBtn = document.getElementById('download-btn');
+    downloadBtn.addEventListener('click', downloadQR);
+    
+    // Add click effect to QR container for better mobile UX
+    document.querySelector('.qr-inner-frame').addEventListener('click', function() {
+        const qrImg = document.getElementById('qr-img');
+        qrImg.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            qrImg.style.transform = 'scale(1)';
+        }, 200);
+    });
+});
 
 function refreshQR() {
+    // Show loading overlay
+    const loadingOverlay = document.getElementById('qr-loading');
+    loadingOverlay.classList.add('active');
+    
+    // Update status text
+    document.getElementById('status-text').innerHTML = 
+        '<i class="fa fa-sync fa-spin"></i> Updating QR Code...';
+    
     fetch("/api/GenerateAttendanceQR/{{ event.id }}/")
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
         .then(data => {
-            const img = document.getElementById("qr-img");
-
+            const img = document.getElementById('qr-img');
+            const refreshSeconds = document.getElementById('refresh-seconds');
+            
             // Clear old QR (avoid caching issues)
             img.src = "";
-
+            
+            // Set new QR code
             img.src = "data:image/png;base64," + (data.qr || data.qr_image);
-
+            img.onload = function() {
+                // Hide loading overlay
+                loadingOverlay.classList.remove('active');
+                
+                // Update status text
+                document.getElementById('status-text').innerHTML = 
+                    '<i class="fa fa-check-circle"></i> QR Code is Active & Scannable';
+                
+                // Start countdown animation
+                if (data.expires_in) {
+                    currentExpiry = data.expires_in;
+                    refreshSeconds.textContent = currentExpiry;
+                    startCountdown(data.expires_in);
+                }
+                
+                // Add subtle success animation
+                const qrFrame = document.querySelector('.qr-inner-frame');
+                qrFrame.style.animation = 'none';
+                setTimeout(() => {
+                    qrFrame.style.animation = 'pulse-ring 3s infinite';
+                }, 10);
+            };
+            
             // Clear previous timeout if exists
             if (qrTimeout) {
                 clearTimeout(qrTimeout);
             }
-
+            
             // Schedule next refresh using backend expiry
-            const expiresInMs = data.expires_in * 1000;
-
-            qrTimeout = setTimeout(refreshQR, expiresInMs);
+            const expiresInMs = (data.expires_in || 30) * 1000;
+            
+            // Subtract 2 seconds for smoother transition
+            const refreshTime = Math.max(expiresInMs - 2000, 1000);
+            
+            qrTimeout = setTimeout(refreshQR, refreshTime);
+            
         })
         .catch(err => {
             console.error("QR refresh failed:", err);
-
-            // Optional retry after 5 seconds on failure
+            
+            // Show error state
+            loadingOverlay.classList.remove('active');
+            document.getElementById('status-text').innerHTML = 
+                '<i class="fa fa-exclamation-triangle"></i> Failed to load QR. Retrying...';
+            document.getElementById('status-text').style.color = 'var(--warning-color)';
+            
+            // Show error on QR image
+            const img = document.getElementById('qr-img');
+            img.alt = "Failed to load QR code. Please check connection.";
+            
+            // Retry after 5 seconds on failure
             qrTimeout = setTimeout(refreshQR, 5000);
+            
+            // Reset countdown
+            if (countdownInterval) clearInterval(countdownInterval);
+            document.getElementById('countdown').textContent = '--s';
         });
 }
 
-// Initial call after page load
-document.addEventListener("DOMContentLoaded", refreshQR);
+function startCountdown(seconds) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    let timeLeft = seconds;
+    const countdownElement = document.getElementById('countdown');
+    const timerElement = document.querySelector('.timer');
+    
+    countdownElement.textContent = `${timeLeft}s`;
+    
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.textContent = "0s";
+            
+            // Add warning animation before refresh
+            timerElement.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                timerElement.style.animation = '';
+            }, 500);
+            
+            return;
+        }
+        
+        countdownElement.textContent = `${timeLeft}s`;
+        
+        // Change color when 5 seconds remaining
+        if (timeLeft <= 5) {
+            timerElement.style.background = 'linear-gradient(45deg, #ef4444, #dc2626)';
+            timerElement.style.animation = 'pulse 1s infinite';
+        } else if (timeLeft <= 10) {
+            timerElement.style.background = 'linear-gradient(45deg, #f59e0b, #d97706)';
+        } else {
+            timerElement.style.background = 'linear-gradient(45deg, var(--accent-primary), var(--accent-secondary))';
+            timerElement.style.animation = '';
+        }
+    }, 1000);
+}
+
+function downloadQR() {
+    const img = document.getElementById('qr-img');
+    const downloadBtn = document.getElementById('download-btn');
+    
+    // Add click feedback
+    downloadBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Preparing...';
+    downloadBtn.disabled = true;
+    
+    // Create a canvas to ensure high quality download
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = 1000; // High resolution for print
+    canvas.height = 1000;
+    
+    // Draw white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Load image and draw it
+    const downloadImg = new Image();
+    downloadImg.crossOrigin = 'anonymous';
+    downloadImg.onload = function() {
+        // Draw QR code
+        const padding = 50;
+        ctx.drawImage(downloadImg, padding, padding, 
+                     canvas.width - (padding * 2), 
+                     canvas.height - (padding * 2));
+        
+        // Add event name text
+        ctx.fillStyle = '#1f2937';
+        ctx.font = 'bold 40px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('{{ event.event }}', canvas.width / 2, 40);
+        
+        // Add date text
+        ctx.font = '30px Arial, sans-serif';
+        ctx.fillText('{{ event.event_date }}', canvas.width / 2, canvas.height - 30);
+        
+        // Create download link
+        const link = document.createElement('a');
+        const filename = `QR-{{ event.event|slugify }}-{{ event.event_date|date:"Y-m-d" }}.png`;
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Reset button state
+        setTimeout(() => {
+            downloadBtn.innerHTML = '<i class="fa fa-download"></i> Download QR Code';
+            downloadBtn.disabled = false;
+            
+            // Show success message
+            const originalText = downloadBtn.textContent;
+            downloadBtn.innerHTML = '<i class="fa fa-check"></i> Downloaded!';
+            setTimeout(() => {
+                downloadBtn.innerHTML = '<i class="fa fa-download"></i> Download QR Code';
+            }, 2000);
+        }, 500);
+    };
+    
+    downloadImg.src = img.src;
+}
+
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.9; }
+    }
+`;
+document.head.appendChild(style);
+
+// Handle page visibility change (pause countdown when tab is hidden)
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        if (countdownInterval) clearInterval(countdownInterval);
+    } else {
+        // Restart countdown with remaining time
+        const currentText = document.getElementById('countdown').textContent;
+        const currentSeconds = parseInt(currentText) || currentExpiry;
+        startCountdown(currentSeconds);
+    }
+});
+
+// Prevent image context menu on mobile
+document.getElementById('qr-img').addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Add keyboard shortcut for refresh (Ctrl/Cmd + R)
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        refreshQR();
+    }
+});
 </script>
+{% endblock %}

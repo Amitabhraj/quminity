@@ -4,183 +4,196 @@
 {% block title %}Quminity | Biometric Access{% endblock %}
 
 {% block extra_css %}
-    <style>
-        :root {
-            --accent-primary: #000000;
-            --text-muted: #64748b;
-            --glass-border: rgba(0, 0, 0, 0.08);
-        }
+<style>
+    :root {
+        --accent-primary: #000000;
+        --text-muted: #64748b;
+        --glass-border: rgba(0, 0, 0, 0.1);
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
 
-        /* 1. COMPACT CAMERA FRAME (Fits without scrolling) */
-        .cam-frame {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            padding: 5px;
-            background: #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .auth-page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(circle at center, rgba(34, 175, 207, 0.05) 0%, transparent 70%);
+    }
 
-        .video-container {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            background: #000; /* Black background for contrast while loading */
-        }
+    .glass-card {
+        background: rgba(247, 247, 247, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 40px;
+        padding: 40px 30px;
+        border: 1px solid rgba(178, 178, 178, 0.4) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        z-index: 10;
+    }
 
-        #video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            transform: scaleX(-1);
-            display: block;
-        }
+    .cam-frame {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 25px;
+        border-radius: 50%;
+        padding: 6px;
+        background: #fff;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
 
-        /* 2. SCANNING UI */
-        .scanner-ring {
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            border-radius: 50%;
-            border: 4px solid transparent;
-            border-top-color: var(--accent-primary);
-            animation: spin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            z-index: 5;
-            pointer-events: none;
-        }
+    .video-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        background: #1a1a1a;
+    }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+    #video { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        transform: scaleX(-1);
+    }
 
-        .status-success { border: 5px solid #10b981 !important; animation: none; }
-        .status-error { border: 5px solid #ef4444 !important; animation: none; }
+    .scanner-ring {
+        position: absolute;
+        top: -4px; left: -4px; right: -4px; bottom: -4px;
+        border-radius: 50%;
+        border: 4px solid transparent;
+        border-top-color: var(--accent-primary);
+        animation: spin 1.5s linear infinite;
+        z-index: 5;
+    }
 
-        /* 3. UI BUTTONS & INPUTS */
-        .form-control {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 12px;
-            color: #1e293b !important;
-            font-weight: 700;
-            text-align: center;
-        }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-        .btn-action {
-            background: #000000;
-            border: none; color: white; padding: 15px; border-radius: 14px;
-            font-weight: 800; width: 100%; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .btn-action:hover { background: #27272a; transform: translateY(-2px); }
+    .form-control {
+        border: 2px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 14px;
+        font-size: 1.1rem;
+        transition: 0.3s;
+        background: #f8fafc;
+    }
 
-        .status-text {
-            font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; 
-            color: var(--text-muted); text-transform: uppercase;
-        }
+    .btn-action {
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+    }
 
-        .btn-back-link {
-            color: var(--text-muted); text-decoration: none; font-size: 0.8rem; 
-            font-weight: 700; transition: 0.3s; text-transform: uppercase;
-        }
+    .status-text {
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
 
-        /* UTILS */
-        .hidden { display: none !important; }
-        
-        .float-icon {
-            position: fixed; opacity: 0.1; color: #000; font-size: 2rem; z-index: 0;
-            animation: floatMove 8s infinite ease-in-out;
-        }
+    #timerDisplay {
+        font-family: monospace;
+        font-size: 1.2rem;
+        color: #000000;
+        display: block;
+        margin-top: 5px;
+    }
 
-        /* Increased max-width and padding for a more "grand" feel */
-        .glass-card {
-            position: relative;
-            z-index: 10;
-            background: var(--card-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgb(163, 163, 163);
-            border-radius: 100px;
-            padding: 10px 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            width: 100%;
-            text-align: center;
-        }
+    .hidden { display: none !important; }
+    .status-success { border: 4px solid #10b981 !important; animation: none; }
+    .status-error { border: 4px solid #ef4444 !important; animation: none; }
 
-        /* Make the button feel more massive */
-        .btn-action {
-            height: 65px;
-            font-size: 0.9rem !important;
-            letter-spacing: 2.9px !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
-
-        /* Force standard text to look bolder in Light Mode */
-        .fw-900 { font-weight: 900 !important; }
-        .fw-800 { font-weight: 800 !important; }
-
-        /* Input focus effect to make it feel high-tech */
-        .form-control:focus {
-            border-color: #000 !important;
-            box-shadow: 0 0 0 5px rgba(0,0,0,0.03) !important;
-        }
-        @keyframes floatMove { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-    </style>
+    .float-item {
+        position: absolute;
+        font-size: 3rem;
+        opacity: 0.9;
+        color: rgba(118, 75, 162, 0.3);
+        z-index: 0;
+        animation: floatMove 6s infinite ease-in-out;
+    }
+    @keyframes floatMove {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+    .pos-1 { top: 10%; left: 5%; }
+    .pos-2 { bottom: 10%; left: 10%; }
+    .pos-3 { top: 15%; right: 5%; }
+    .pos-4 { bottom: 15%; right: 10%; }
+</style>
 {% endblock %}
 
 {% block content %}
-    <div class="glass-card text-center animate__animated animate__fadeIn" style="max-width: 450px; padding: 60px 40px; position: relative; z-index: 1;">
+<div class="auth-page-wrapper">
+
+    <i class="fa fa-book float-item pos-1"></i>
+    <i class="fa fa-pencil float-item pos-2"></i>
+    <i class="fa fa-graduation-cap float-item pos-3"></i>
+    <i class="fa fa-code float-item pos-4"></i>
+    
+    <div class="glass-card animate__animated animate__fadeIn">
         {% csrf_token %}
         
-        <div id="setupView" class="py-1">
-
+        <div id="setupView">
             <div class="mb-4">
-                <h2 class="fw-800 mb-2" style="font-size: 2.2rem; letter-spacing: 1px;">LOGIN GATEWAY</h2>
-                <p class="text-muted fw-bold small" style="letter-spacing: 1.5px;">ENTER QID TO SCAN YOUR FACE</p>
+                <h2 class="fw-900 mb-2">Login Gateway</h2>
+                <p class="text-muted fw-bold small">SECURE FACE LOGIN</p>
             </div>
             
-            <div class="mb-3 text-start">
-                <label class="small fw-800 text-dark ms-1 mb-2" style="letter-spacing: 1px;">UNIVERSITY QID</label>
-                <input type="number" id="qid" class="form-control form-control-lg shadow-sm" placeholder="Enter QID">
+            <div class="mb-4 text-start">
+                <label class="small fw-800 text-dark ms-2 mb-2">UNIVERSITY QID</label>
+                <input type="number" id="qid" class="form-control" placeholder="Enter QID">
             </div>
         
-            <button class="btn-action py-1 mb-2" onclick="initScan()">
-                AUTHORIZE CAMERA
-            </button>
+            <button class="btn-action" onclick="initScan()">CONTINUE TO SCAN</button>
         
-            <div class="mt-2">
-            <a href="/" class="btn-back-link">
-                <i class="fa fa-arrow-left me-2"></i>Go Back
-            </a>
-        </div>
-    </div>
-
-    <div id="cameraView" class="hidden">
-        <h4 class="fw-900 mb-3">Initializing Sensor</h4>
-        
-        <div class="cam-frame">
-            <div class="scanner-ring" id="uiRing"></div>
-            <div class="video-container">
-                <video id="video" autoplay playsinline muted></video>
+            <div class="mt-4">
+                <a href="/" class="text-decoration-none text-muted small fw-bold">
+                    <i class="fa fa-arrow-left me-2"></i>BACK
+                </a>
             </div>
         </div>
 
-        <p id="statusLabel" class="status-text mb-3 animate__animated animate__pulse animate__infinite">Aligning Profile...</p>
+        <div id="cameraView" class="hidden">
+            <h4 class="fw-900 mb-4">Verifying Profile</h4>
+            
+            <div class="cam-frame">
+                <div class="scanner-ring" id="uiRing"></div>
+                <div class="video-container">
+                    <video id="video" autoplay playsinline muted></video>
+                </div>
+            </div>
 
-        <div id="retryGroup" class="hidden mb-3">
-            <button class="btn btn-dark fw-800 px-4 py-2 rounded-pill btn-sm" onclick="restartScan()">RETRY</button>
+            <p id="statusLabel" class="status-text mb-2 animate__animated animate__pulse animate__infinite">
+                Initializing...
+            </p>
+            <div id="timerContainer" class="mb-4">
+                <span id="timerDisplay">15s</span>
+            </div>
+
+            <div id="retryGroup" class="hidden mb-3">
+                <button id="retryBtn" class="btn btn-dark fw-800 px-5 py-3 rounded-pill" onclick="restartScan()">RETRY SCAN</button>
+            </div>
         </div>
-
-        <a href="javascript:void(0)" onclick="location.reload()" class="btn-back-link">
-            <i class="fa fa-times-circle me-1"></i>Abort
-        </a>
     </div>
 </div>
 {% endblock %}
@@ -188,13 +201,17 @@
 {% block extra_js %}
 <script>
     let isProcessing = false;
+    let startTime = null;
+    const MAX_SCAN_TIME = 15000; // 15 Seconds
     const getCSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     async function initScan() {
         const qid = document.getElementById('qid').value;
-        if(!qid) return;
+        if(!qid) {
+            alert("Please enter your QID");
+            return;
+        }
 
-        // Visual Transition
         document.getElementById('setupView').classList.add('hidden');
         document.getElementById('cameraView').classList.remove('hidden');
 
@@ -202,26 +219,19 @@
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    width: { ideal: 640 }, 
-                    height: { ideal: 640 },
-                    facingMode: "user" 
-                } 
+                video: { width: { ideal: 640 }, height: { ideal: 640 }, facingMode: "user" } 
             });
             
             video.srcObject = stream;
-            
-            // Critical: Wait for video metadata to play stream
             video.onloadedmetadata = () => {
                 video.play();
                 isProcessing = true;
-                document.querySelector('#cameraView h4').innerText = "Verifying Identity";
+                startTime = Date.now(); // Start Timer
                 captureLoop();
             };
             
         } catch (e) {
-            console.error(e);
-            document.getElementById('statusLabel').innerText = "CAMERA BLOCKED";
+            document.getElementById('statusLabel').innerText = "CAMERA ACCESS DENIED";
             document.getElementById('statusLabel').style.color = "#ef4444";
         }
     }
@@ -229,13 +239,26 @@
     async function captureLoop() {
         if(!isProcessing) return;
 
+        // Timer Logic
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, Math.ceil((MAX_SCAN_TIME - elapsed) / 1000));
+        document.getElementById('timerDisplay').innerText = remaining + "s";
+
+        if (elapsed >= MAX_SCAN_TIME) {
+            isProcessing = false;
+            document.getElementById('statusLabel').innerText = "TIMEOUT REACHED";
+            document.getElementById('statusLabel').style.color = "#ef4444";
+            document.getElementById('uiRing').className = "scanner-ring status-error";
+            document.getElementById('retryGroup').classList.remove('hidden');
+            return;
+        }
+
         const video = document.getElementById('video');
         const canvas = document.createElement("canvas");
         canvas.width = 400; canvas.height = 400;
         canvas.getContext("2d").drawImage(video, 0, 0, 400, 400);
         
         const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.7));
-
         const fd = new FormData();
         fd.append("action", "login_face");
         fd.append("frame", blob);
@@ -258,7 +281,7 @@
                 isProcessing = false;
                 ring.className = "scanner-ring status-success";
                 label.style.color = "#10b981";
-                label.classList.remove('animate__infinite');
+                document.getElementById('timerContainer').classList.add('hidden');
                 setTimeout(() => window.location.href = "/", 1500);
                 return;
             }
@@ -272,21 +295,50 @@
                     return;
                 }
             } else {
-                ring.className = "scanner-ring status-scanning";
+                ring.className = "scanner-ring";
                 label.style.color = "#64748b";
             }
 
-            if(isProcessing) setTimeout(captureLoop, 300); // Slightly slower loop for better performance
+            if(isProcessing) setTimeout(captureLoop, 400); 
         } catch (e) { 
             if(isProcessing) setTimeout(captureLoop, 1000); 
         }
     }
 
-    function restartScan() {
-        document.getElementById('retryGroup').classList.add('hidden');
-        document.getElementById('uiRing').className = "scanner-ring";
-        isProcessing = true;
-        captureLoop();
+    async function restartScan() {
+        const btn = document.getElementById('retryBtn');
+        const originalText = btn.innerText;
+        btn.innerText = "CLEARING...";
+        btn.disabled = true;
+
+        try {
+            // Send clear_session action to API
+            const fd = new FormData();
+            fd.append("action", "clear_session");
+            
+            await fetch("/api/face_login/", { 
+                method: "POST", 
+                body: fd, 
+                headers: {"X-CSRFToken": getCSRF()} 
+            });
+            
+            // UI Reset
+            document.getElementById('retryGroup').classList.add('hidden');
+            document.getElementById('uiRing').className = "scanner-ring";
+            document.getElementById('statusLabel').style.color = "#64748b";
+            document.getElementById('statusLabel').innerText = "Restarting Scan...";
+            
+            btn.innerText = originalText;
+            btn.disabled = false;
+            
+            // Restart Logic
+            isProcessing = true;
+            startTime = Date.now(); 
+            captureLoop();
+        } catch (e) {
+            btn.innerText = "ERROR - TRY AGAIN";
+            btn.disabled = false;
+        }
     }
 </script>
 {% endblock %}

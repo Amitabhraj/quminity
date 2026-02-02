@@ -1,23 +1,169 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Secure Checkout | Quminity{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-success: #10b981;
+        --brand-indigo: #4f46e5;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .checkout-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        text-align: center;
+        border: 1px solid #f1f5f9;
+    }
+
+    .payment-icon {
+        width: 64px;
+        height: 64px;
+        background: #eef2ff;
+        color: var(--brand-indigo);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 20px;
+    }
+
+    .amount-display {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 10px 0;
+    }
+
+    .payment-details {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 20px;
+        margin: 25px 0;
+        text-align: left;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .detail-label { color: #64748b; }
+    .detail-value { color: #1e293b; font-weight: 600; }
+
+    .btn-pay {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        color: white;
+    }
+
+    .trust-badge {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-wrapper">
+    <div class="payment-card">
+        <div class="payment-icon">
+            <i class="fa fa-check"></i>
+        </div>
+        
+        <h2 class="fw-bold">Checkout</h2>
+        <p class="text-muted">Review your transaction details</p>
+
+        <div class="amount-display">
+            ₹{{ payment.amount|floatformat:2 }}
+        </div>
+
+        <div class="payment-details">
+            <div class="detail-item">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">Club/Event Entry</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Order ID</span>
+                <span class="detail-value text-uppercase" style="font-size: 0.8rem;">#{{ payment.order_id|slice:":12" }}...</span>
+            </div>
+        </div>
+
+        <button id="pay-btn" class="btn btn-pay">
+            <i class="ri-secure-payment-fill"></i> Pay Securely Now
+        </button>
+
+        <div class="trust-badge">
+            <i class="ri-lock-2-line"></i> Secure Payment via Razorpay
+        </div>
+        
+        <div class="mt-4">
+            <a href="javascript:history.back()" class="text-decoration-none text-muted small font-weight-bold">
+                <i class="ri-arrow-left-line"></i> Cancel and go back
+            </a>
+        </div>
+    </div>
+</div>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-
-<center style="padding-top: 10%;">
-    <h2>Event Payment</h2>
-    <p>Amount to be paid: ₹{{ payment.amount|floatformat:2 }}</p>
-<button id="pay-btn" class="btn btn-success">Pay Now</button>
-</center>
-
 <script>
-    document.getElementById("pay-btn").onclick = function(){
+    document.getElementById("pay-btn").onclick = function(e) {
+        // Simple loading state
+        const btn = this;
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
+        btn.disabled = true;
+
         var options = {
             "key": "{{ razorpay_key }}",
             "amount": "{{ payment.amount }}",
             "currency": "INR",
-            "name": "Quminity Event and Clubs",
+            "name": "Quminity",
             "description": "Event/Club Entry Fee",
             "order_id": "{{ payment.order_id }}",
-            "handler": function (response){
+            "theme": { "color": "#4f46e5" },
+            "handler": function (response) {
                 fetch("/payment-verification/", {
                     method: "POST",
                     headers: {
@@ -29,10 +175,18 @@
                 .then(() => {
                     window.location.href = "/payment-status/{{ payment.order_id }}/";
                 });
+            },
+            "modal": {
+                "ondismiss": function() {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
             }
         };
 
         var rzp = new Razorpay(options);
         rzp.open();
+        e.preventDefault();
     }
 </script>
+{% endblock %}

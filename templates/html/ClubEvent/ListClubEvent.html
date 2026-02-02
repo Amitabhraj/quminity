@@ -1,172 +1,258 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quminity | Clubs & Events</title>
-  {% load static %}
+{% extends 'html/base.html' %}
+{% load static %}
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="{% static 'css/libs.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/socialv.css' %}" />
-  <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'vendor/remixicon/fonts/remixicon.css' %}" />
+{% block title %}Explore Clubs & Events | Quminity{% endblock %}
 
-  <style>
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
     body {
-      background: #f8f9fc;
-      font-family: 'Poppins', sans-serif;
+        background-color: #f0f2f5;
     }
 
     .page-header {
-      text-align: center;
-      padding: 30px 10px;
+        background: var(--primary-gradient);
+        padding: 60px 0;
+        color: white;
+        border-radius: 0 0 40px 40px;
+        margin-bottom: -40px;
+        text-align: center;
     }
 
     .page-header h2 {
-      font-weight: 700;
-      color: #333;
+        font-weight: 800;
+        letter-spacing: -0.5px;
     }
 
-    .tabs-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    .tabs-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px 50px;
     }
 
-    .nav-tabs {
-      border-bottom: 2px solid #eee;
+    .custom-tabs-nav {
+        background: white;
+        padding: 10px;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        display: inline-flex;
+        border: none;
+        margin-bottom: 30px;
     }
 
-    .nav-tabs .nav-link {
-      font-size: 18px;
-      font-weight: 600;
-      padding: 12px 25px;
-      border-radius: 0;
-      color: #444;
-      transition: 0.3s;
+    .custom-tabs-nav .nav-link {
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px 35px;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
     }
 
-    .nav-tabs .nav-link.active {
-      color: #0d6efd;
-      border-bottom: 3px solid #0d6efd;
-      background: transparent;
+    .custom-tabs-nav .nav-link.active {
+        background: var(--primary-gradient) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 226, 0.4);
     }
 
-    .club-card, .event-card {
-      display: flex;
-      align-items: center;
-      padding: 15px;
-      border-bottom: 1px solid #eee;
-      transition: 0.3s;
+    /* Grid Layout */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
     }
 
-    .club-card:hover, .event-card:hover {
-      background: #f3f6ff;
+    /* Professional Card Design */
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
     }
 
-    .club-card img, .event-card img {
-      border-radius: 50%;
-      height: 55px;
-      width: 55px;
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
 
-    .club-details h5, .event-details h5 {
-      margin: 0;
-      font-weight: 600;
+    .card-banner {
+        height: 140px;
+        background: var(--primary-gradient);
+        position: relative;
     }
 
-    .fees {
-      font-weight: bold;
-      color: #0d6efd;
+    .card-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        border: 4px solid white;
+        position: absolute;
+        bottom: -40px;
+        left: 20px;
+        object-fit: cover;
+        background: white;
     }
 
-    .join-btn {
-      padding: 6px 15px;
-      border-radius: 8px;
+    .card-body-custom {
+        padding: 50px 20px 20px;
+        flex-grow: 1;
     }
-  </style>
-</head>
-<body>
-  <!-- Navbar -->
-  <div class="iq-top-navbar">
-    <div class="iq-navbar-custom">
-      <nav class="navbar navbar-expand-lg navbar-light p-0">
-        <div class="iq-navbar-logo d-flex justify-content-between">
-          <a href="/">
-            <img src="{% static 'images/logo/quminity.jpg' %}" style="height:75px;border-radius: 40%;" />
-          </a>
-        </div>
-      </nav>
+
+    .card-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+
+    .card-title-custom {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #2d3748;
+    }
+
+    .meta-info {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-footer-custom {
+        padding: 15px 20px;
+        border-top: 1px solid #f7fafc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .price-tag {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #2d3748;
+    }
+
+    .btn-join {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: opacity 0.3s;
+    }
+
+    .btn-join:hover {
+        opacity: 0.9;
+        color: white;
+    }
+
+    .joined-badge {
+        background: #c6f6d5;
+        color: #22543d;
+        padding: 5px 15px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h2>Explore Your Community</h2>
+        <p class="opacity-75">Discover clubs that match your passion and events that create memories.</p>
     </div>
-  </div>
+</div>
 
-  <div class="page-header">
-    <h2>Explore Clubs & Events</h2>
-  </div>
-
-  <div class="tabs-container">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="clubs-tab" data-bs-toggle="tab" data-bs-target="#clubs" type="button" role="tab">Clubs</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">Events</button>
-      </li>
-    </ul>
-
-    <div class="tab-content p-3" id="myTabContent">
-      <!-- Clubs Tab -->
-      <div class="tab-pane fade show active" id="clubs" role="tabpanel">
-        {% for club in clubs %}
-        <div class="club-card">
-          <img src="{% static 'images/user/01.jpg' %}" />
-          <div class="ms-3 club-details">
-            <h5>{{club.club_name}}</h5>
-            {% if club.president_name %}
-            <p class="mb-0 text-muted">President: {{club.president_name}}</p>
-            {% endif %}
-          </div>
-          <div class="ms-auto text-end">
-            {% if user in club.student_enrolled.all %}
-            <p class="text-success fw-bold">Joined</p>
-            {% else %}
-            <p class="fees">₹{{club.entry_fees}}</p>
-            <a href="/payment-club/{{club.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
-            {% endif %}
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Events Tab -->
-      <div class="tab-pane fade" id="events" role="tabpanel">
-        {% for event in events %}
-        <div class="event-card">
-          <img src="{% static 'images/user/02.jpg' %}" />
-            <div class="ms-3 event-details">
-              <h5>{{event.event}}</h5>
-              <p class="mb-0 text-muted">{{event.event_date}}</p>
-            </div>
-
-            <div class="ms-auto text-end">
-              {% if user in event.student_enrolled.all %}
-              <p class="text-success fw-bold">Joined</p>
-              {% else %}
-              <p class="fees">₹{{event.entry_fees}}</p>
-              <a href="/payment-event/{{event.id}}/"><button class="btn btn-primary join-btn">Join</button></a>
-              {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-      </div>
+<div class="tabs-wrapper">
+    <div class="text-center">
+        <ul class="nav nav-tabs custom-tabs-nav" id="exploreTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="clubs-tab" data-bs-toggle="tab" data-bs-target="#clubs" type="button" role="tab">
+                    <i class="ri-team-line me-2"></i>Clubs
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                    <i class="ri-calendar-event-line me-2"></i>Events
+                </button>
+            </li>
+        </ul>
     </div>
-  </div>
 
-  <script src="{% static 'js/libs.min.js' %}"></script>
-  <script src="{% static 'js/app.js' %}"></script>
-</body>
-</html>
+    <div class="tab-content" id="exploreTabContent">
+        <div class="tab-pane fade show active" id="clubs" role="tabpanel">
+            <div class="grid-container">
+                {% for club in clubs %}
+                <div class="feature-card">
+                    <div class="card-banner">
+                        <img src="{% static 'images/user/01.jpg' %}" class="card-avatar" alt="Club Logo">
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="card-title-custom">{{club.club_name}}</h5>
+                        <div class="meta-info">
+                            <i class="fa fa-user"></i>
+                            <span>{{club.president_name|default:"Club President : NA"}}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-custom">
+                        {% if user in club.student_enrolled.all %}
+                        <span class="joined-badge"><i class="ri-checkbox-circle-fill me-1"></i>Joined</span>
+                        {% else %}
+                        <span class="price-tag">₹{{club.entry_fees}}</span>
+                        <a href="/payment-club/{{club.id}}/" class="btn btn-join">Join Club</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center w-100">No clubs available at the moment.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="events" role="tabpanel">
+            <div class="grid-container">
+                {% for event in events %}
+                <div class="feature-card">
+                    <div class="card-banner" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                        <img src="{% static 'images/user/02.jpg' %}" class="card-avatar" alt="Event Image">
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="card-title-custom">{{event.event}}</h5>
+                        <div class="meta-info">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{event.event_date}}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-custom">
+                        {% if user in event.student_enrolled.all %}
+                        <span class="joined-badge"><i class="ri-checkbox-circle-fill me-1"></i>Registered</span>
+                        {% else %}
+                        <span class="price-tag">₹{{event.entry_fees}}</span>
+                        <a href="/payment-event/{{event.id}}/" class="btn btn-join">Get Ticket</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center w-100">No upcoming events found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

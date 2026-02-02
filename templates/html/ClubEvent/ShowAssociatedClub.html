@@ -1,164 +1,242 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quminity | Clubs & Events</title>
-  {% load static %}
+{% extends 'html/base.html' %}
+{% load static %}
 
-  <link rel="stylesheet" href="{% static 'css/libs.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/socialv.css' %}" />
-  <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'vendor/remixicon/fonts/remixicon.css' %}" />
+{% block title %}Manage Clubs & Events | Quminity{% endblock %}
 
-  <style>
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        --accent-blue: #0d6efd;
+        --accent-green: #10b981;
+    }
+
     body {
-      background: #f5f7fb;
-      font-family: 'Poppins', sans-serif;
+        background-color: #f0f2f5;
     }
 
     .page-header {
-      text-align: center;
-      padding: 30px 10px;
+        background: var(--primary-gradient);
+        padding: 60px 0;
+        color: white;
+        border-radius: 0 0 40px 40px;
+        margin-bottom: -40px;
+        text-align: center;
     }
 
     .page-header h2 {
-      font-weight: 700;
-      font-size: 30px;
-      color: #2e2e2e;
+        font-weight: 800;
+        letter-spacing: -0.5px;
     }
 
-    .tabs-box {
-      max-width: 1100px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    .tabs-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px 50px;
     }
 
-    .nav-tabs .nav-link {
-      font-size: 17px;
-      font-weight: 600;
-      color: #555;
-      border: none;
-      padding: 12px 25px;
+    .custom-tabs-nav {
+        background: white;
+        padding: 10px;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        display: inline-flex;
+        border: none;
+        margin-bottom: 30px;
     }
 
-    .nav-tabs .nav-link.active {
-      color: #0d6efd;
-      border-bottom: 3px solid #0d6efd;
-      background: transparent;
+    .custom-tabs-nav .nav-link {
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px 35px;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
     }
 
-    .item-card {
-      display: flex;
-      align-items: center;
-      padding: 18px;
-      border-bottom: 1px solid #eee;
-      transition: 0.3s;
+    .custom-tabs-nav .nav-link.active {
+        background: var(--primary-gradient) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 226, 0.4);
     }
 
-    .item-card:hover {
-      background: #eef4ff;
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
     }
 
-    .item-card img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
     }
 
-    .item-info h5 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
     }
 
-    .item-info p {
-      margin: 0;
-      font-size: 14px;
-      color: #777;
+    .card-banner {
+        height: 100px;
+        background: #eef2ff;
+        position: relative;
     }
 
-    .action-buttons button {
-      padding: 6px 14px;
-      font-size: 14px;
-      border-radius: 8px;
+    .card-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        border: 4px solid white;
+        position: absolute;
+        bottom: -35px;
+        left: 20px;
+        object-fit: cover;
+        background: white;
     }
-  </style>
-</head>
-<body>
 
-  <div class="iq-top-navbar">
-    <div class="iq-navbar-custom">
-      <nav class="navbar navbar-expand-lg navbar-light p-0">
-        <div class="iq-navbar-logo d-flex justify-content-between">
-          <a href="/">
-            <img src="{% static 'images/logo/quminity.jpg' %}" style="height:75px;border-radius:40%;" />
-          </a>
-        </div>
-      </nav>
+    .card-body-custom {
+        padding: 45px 20px 15px;
+        flex-grow: 1;
+    }
+
+    .card-title-custom {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .meta-info {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-footer-custom {
+        padding: 15px 20px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-manage {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .btn-qr {
+        background-color: white;
+        border: 1.5px solid var(--accent-blue);
+        color: var(--accent-blue);
+    }
+
+    .btn-qr:hover {
+        background-color: var(--accent-blue);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h2>Clubs & Events Management</h2>
+        <p class="opacity-75">Admin control panel to manage enrollments and digital access.</p>
     </div>
-  </div>
+</div>
 
-  <div class="page-header">
-    <h2>Clubs & Events Management</h2>
-  </div>
-
-  <div class="tabs-box">
-    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="clubs-tab" data-bs-toggle="tab" data-bs-target="#clubs" type="button">Clubs</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button">Events</button>
-      </li>
-    </ul>
-
-    <div class="tab-content mt-3">
-
-      <!-- Clubs Tab -->
-      <div class="tab-pane fade show active" id="clubs" role="tabpanel">
-        {% for club in clubs %}
-        <div class="item-card">
-          <img src="{% static 'images/user/01.jpg' %}" />
-          <div class="ms-3 item-info">
-            <h5>{{club.club_name}}</h5>
-            {% if club.president_name %}
-            <p>President: {{club.president_name}}</p>
-            {% endif %}
-          </div>
-
-          <div class="ms-auto action-buttons text-end">
-            <a href="/manage-clubs"><button class="btn btn-success">Club Details</button></a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Events Tab -->
-      <div class="tab-pane fade" id="events" role="tabpanel">
-        {% for event in events %}
-        <div class="item-card">
-          <img src="{% static 'images/user/02.jpg' %}" />
-          <div class="ms-3 item-info">
-            <h5>{{event.event}}</h5>
-            <p>Date: {{event.event_date}}</p>
-          </div>
-
-          <div class="ms-auto action-buttons text-end">
-            <a href="/show-event-qr/{{event.id}}/"><button class="btn btn-primary">Generate QR</button></a>
-            <a href="/manage-event/{{event.id}}/"><button class="btn btn-primary">Event Details</button></a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
+<div class="tabs-wrapper">
+    <div class="text-center">
+        <ul class="nav nav-tabs custom-tabs-nav" id="manageTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="clubs-tab" data-bs-toggle="tab" data-bs-target="#clubs" type="button" role="tab">
+                    <i class="ri-settings-4-line me-2"></i>Clubs
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                    <i class="ri-calendar-check-line me-2"></i>Events
+                </button>
+            </li>
+        </ul>
     </div>
-  </div>
 
-  <script src="{% static 'js/libs.min.js' %}"></script>
-  <script src="{% static 'js/app.js' %}"></script>
-</body>
-</html>
+    <div class="tab-content" id="manageTabContent">
+        <div class="tab-pane fade show active" id="clubs" role="tabpanel">
+            <div class="grid-container">
+                {% for club in clubs %}
+                <div class="feature-card">
+                    <div class="card-banner" style="background-color: #f0fdf4;">
+                        <img src="{% static 'images/user/01.jpg' %}" class="card-avatar" alt="Club">
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="card-title-custom">{{club.club_name}}</h5>
+                        <div class="meta-info">
+                            <i class="ri-user-star-line text-success"></i>
+                            <span>{{club.president_name|default:"President: NA"}}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-custom">
+                        <a href="/manage-clubs" class="btn btn-success btn-manage">
+                             Club Details
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center w-100 py-5">
+                    <i class="ri-inbox-line ri-3x text-muted"></i>
+                    <p class="mt-2 text-muted">No clubs found to manage.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="events" role="tabpanel">
+            <div class="grid-container">
+                {% for event in events %}
+                <div class="feature-card">
+                    <div class="card-banner" style="background-color: #eff6ff;">
+                        <img src="{% static 'images/user/02.jpg' %}" class="card-avatar" alt="Event">
+                    </div>
+                    <div class="card-body-custom">
+                        <h5 class="card-title-custom">{{event.event}}</h5>
+                        <div class="meta-info">
+                            <i class="ri-calendar-2-line text-primary"></i>
+                            <span>{{event.event_date}}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-custom">
+                        <a href="/show-event-qr/{{event.id}}/" class="btn btn-qr btn-manage">
+                            <i class="ri-qr-code-line"></i> QR
+                        </a>
+                        <a href="/manage-event/{{event.id}}/" class="btn btn-primary btn-manage">
+                            Event Details
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center w-100 py-5">
+                    <i class="ri-calendar-event-line ri-3x text-muted"></i>
+                    <p class="mt-2 text-muted">No events found to manage.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

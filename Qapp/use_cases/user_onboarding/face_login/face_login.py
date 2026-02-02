@@ -9,7 +9,6 @@ from Qapp.models import CustomUser
 import numpy as np
 import mediapipe as mp
 
-
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
 
@@ -28,7 +27,7 @@ def login_with_face(request):
 
     action = request.POST.get("action")
     session = request.session
-
+ 
     if action == "clear_session":
         for key in ['blinks', 'closed']:
             session.pop(key, None)
@@ -124,7 +123,7 @@ def login_with_face(request):
                     [session.pop(k, None) for k in ['blinks', 'closed']]
                     return JsonResponse({
                         "success": True, 
-                        "authenticated": True, 
+                        "authenticated": True,
                         "message": f"Welcome, {matched_user.first_name}!"
                     })
                 else:

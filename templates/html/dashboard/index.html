@@ -1,163 +1,380 @@
+{% extends 'html/base.html' %}
 {% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quminity</title>
 
-    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'css/libs.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/socialv.css' %}">
-    <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
+{% block title %}Quminity | Dashboard{% endblock %}
 
-    <style>
-        body {
-            background-color: #f4f6f9;
+{% block extra_css %}
+<style>
+    /* Dashboard Hero */
+    .dashboard-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2.5rem 2rem;
+        margin: 1rem 0 2rem 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        color: white;
+    }
+
+    .welcome-text {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .welcome-subtext {
+        font-size: 1rem;
+        opacity: 0.9;
+        position: relative;
+    }
+
+    .user-id {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2.5rem 0;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        border-top: 3px solid transparent;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-card:nth-child(1) {
+        border-top-color: #667eea;
+    }
+
+    .feature-card:nth-child(2) {
+        border-top-color: #f093fb;
+    }
+
+    .feature-card:nth-child(3) {
+        border-top-color: #4facfe;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .feature-card:nth-child(1) .feature-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .feature-card:nth-child(2) .feature-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .feature-card:nth-child(3) .feature-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-dark);
+    }
+
+    .feature-description {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Button Styles */
+    .btn-modern {
+        padding: 0.6rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-outline-modern {
+        border: 1.5px solid #667eea;
+        color: #667eea;
+        background: transparent;
+    }
+
+    .btn-outline-modern:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-dark-modern {
+        background: #1f2937;
+        color: white;
+        border: none;
+    }
+
+    .btn-dark-modern:hover {
+        background: #374151;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    /* Quick Stats */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .stat-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-hero {
+            padding: 1.75rem 1.5rem;
+            margin: 0.5rem 0 1.5rem 0;
         }
-
-        /* Navbar */
-        .navbar {
-            background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        
+        .welcome-text {
+            font-size: 1.5rem;
         }
-
-        .navbar-brand img {
-            height: 45px;
-            border-radius: 50%;
+        
+        .welcome-subtext {
+            font-size: 0.9rem;
         }
-
-        /* Header */
-        .hero-header {
-            position: relative;
-            height: 280px;
-            background: url("{% static 'images/page-img/community.png' %}") center/cover no-repeat;
+        
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
-
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hero-overlay h2 {
-            color: #fff;
-            font-weight: 700;
-        }
-
-        /* Cards */
+        
         .feature-card {
-            transition: all 0.3s ease;
-            border-radius: 16px;
-            overflow: hidden;
+            padding: 1.25rem;
         }
-
-        .feature-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
         }
+    }
 
-        .feature-card img.avatar-120 {
-            background: #fff;
-            padding: 10px;
+    @media (max-width: 480px) {
+        .dashboard-hero {
+            padding: 1.5rem 1rem;
         }
-
-        @media(max-width: 576px){
-            .hero-header {
-                height: 200px;
-            }
+        
+        .welcome-text {
+            font-size: 1.25rem;
         }
-    </style>
-</head>
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}
 
-<body>
+{% block content %}
+<!-- Hero Section -->
+<div class="dashboard-hero fade-in">
+    <h1 class="welcome-text">Welcome {{student_user.first_name}} 👋</h1>
+    <p class="welcome-subtext">Your all-in-one campus community platform</p>
+    <div class="user-id">
+        <i class="bi bi-person-badge me-2"></i>
+        {{ student_user.qid|default:"STUDENT_ID" }}
+    </div>
+</div>
 
-<!-- 🔝 FIXED NAVBAR -->
-<nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="{% static 'images/logo/quminity.jpg' %}" alt="Quminity">
-            <span class="ms-2 fw-bold">Quminity</span>
-        </a>
+<!-- Quick Stats -->
+<div class="stats-bar">
+    <div class="stat-item">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Active Clubs</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">45</div>
+        <div class="stat-label">Events</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">98%</div>
+        <div class="stat-label">Attendance</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">A+</div>
+        <div class="stat-label">Performance</div>
+    </div>
+</div>
 
-        <div class="ms-auto">
-            <a href="/logout_user/" class="btn btn-danger btn-sm">
-                <i class="fas fa-sign-out-alt me-1"></i> Logout
+<!-- Features Grid -->
+<div class="features-grid">
+    <!-- Clubs & Events -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <h3 class="feature-title">Clubs & Events</h3>
+        <p class="feature-description">
+            Discover campus clubs, participate in events, manage memberships, and track attendance through smart QR codes.
+        </p>
+        <div class="action-buttons">
+            <a href="/ListClubEvents" class="btn btn-modern btn-primary-modern">
+                <i class="bi bi-compass me-1"></i>Explore Clubs
+            </a>
+            
+            {% if not club %}
+            <a href="/manage-club-events/" class="btn btn-modern btn-outline-modern">
+                <i class="bi bi-gear me-1"></i>Manage Clubs/Events
+            </a>
+            {% endif %}
+            
+            <a href="/scan-attendance-qr/" class="btn btn-modern btn-dark-modern">
+                <i class="bi bi-qr-code-scan me-1"></i>Scan Attendance
             </a>
         </div>
     </div>
-</nav>
 
-<!-- HEADER -->
-<div class="hero-header mt-5">
-    <div class="hero-overlay">
-        <h2>Welcome to Quminity</h2>
+    <!-- Academics -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="bi bi-journal-bookmark-fill"></i>
+        </div>
+        <h3 class="feature-title">Academics</h3>
+        <p class="feature-description">
+            Access academic records, course materials, grades, and academic resources in one centralized platform.
+        </p>
+        <div class="action-buttons">
+            <!-- <a href="/studentAcad/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}/" 
+               class="btn btn-modern btn-primary-modern">
+                <i class="bi bi-graph-up me-1"></i>Academic Portal
+            </a> -->
+            <a class="btn btn-modern btn-primary-modern">Coming Soon ...</a>
+        </div>
+    </div>
+
+    <!-- Discussion Forum -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <h3 class="feature-title">Discussion Forum</h3>
+        <p class="feature-description">
+            Engage with peers, share ideas, ask questions, and collaborate in an interactive learning community.
+        </p>
+        <div class="action-buttons">
+            <!-- <a href="/studentDiscussion/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}" 
+               class="btn btn-modern btn-primary-modern">
+                <i class="bi bi-chat-square-text me-1"></i>Join Discussions
+            </a> -->
+            <a class="btn btn-modern btn-primary-modern">Coming Soon ...</a>
+        </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- CONTENT -->
-<div class="container py-5">
-    <div class="row g-4">
+{% block extra_js %}
+<script>
+    // Add subtle animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stat numbers
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach((stat, index) => {
+            setTimeout(() => {
+                stat.style.transform = 'scale(1.1)';
+                stat.style.transition = 'transform 0.3s ease';
+                setTimeout(() => {
+                    stat.style.transform = 'scale(1)';
+                }, 300);
+            }, index * 200 + 500);
+        });
 
-        <!-- CLUB / EVENTS -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <img src="{% static 'images/page-img/Clubs-Societies.png' %}" class="rounded-circle avatar-120 mb-3">
-                    <h4>Clubs / Events</h4>
-
-                    <a href="/ListClubEvents" class="btn btn-primary w-100 mt-2">Explore</a>
-
-                    {% if not club %}
-                    <a href="/manage-club-events/" class="btn btn-success w-100 mt-2">
-                        Manage Clubs / Events
-                    </a>
-                    {% endif %}
-
-                    <a href="/scan-attendance-qr/" class="btn btn-dark w-100 mt-2">
-                        Scan Attendance
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- ACADEMICS -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card feature-card text-center">
-                <div class="card-body">
-                    <img src="{% static 'images/page-img/academics.png' %}" class="rounded-circle avatar-120 mb-3">
-                    <h4>Academics</h4>
-                    <a href="/studentAcad/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}/"
-                       class="btn btn-primary w-100 mt-2">Explore</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- DISCUSSION -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card feature-card text-center">
-               <div class="card-body">
-                    <img src="{% static 'images/page-img/discussion_forum.jpg' %}" class="rounded-circle avatar-120 mb-3">
-                    <h4>Discussion Forum</h4>
-                    <a href="/studentDiscussion/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}"
-                       class="btn btn-primary w-100 mt-2">Explore</a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="bg-white py-3 text-center">
-    <small>© 2025 Quminity. All Rights Reserved.</small>
-</footer>
-
-<script src="{% static 'js/libs.min.js' %}"></script>
-<script src="{% static 'js/app.js' %}"></script>
-
-</body>
-</html>
+        // Add hover effects to cards
+        const cards = document.querySelectorAll('.feature-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.zIndex = '10';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                setTimeout(() => {
+                    card.style.zIndex = '1';
+                }, 300);
+            });
+        });
+    });
+</script>
+{% endblock %}
