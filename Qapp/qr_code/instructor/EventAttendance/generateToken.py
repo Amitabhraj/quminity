@@ -35,9 +35,9 @@ def GenerateQR(request, eventId):
 
         # 4. QR Code Generation
         qr = qrcode.QRCode(
-            version=None,
-            error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=15,
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
             border=4
         )
         qr.add_data(token)

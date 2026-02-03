@@ -48,6 +48,13 @@
             min-height: 100vh;
             overflow-x: hidden;
             padding-top: 60px; /* Space for fixed navbar */
+            
+            /* --- BACKGROUND IMAGE ATTACHMENT --- */
+            background-image: url("{% static 'images/background/bg.png' %}");
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -57,19 +64,17 @@
 
         /* SLIM NAVBAR */
         .navbar-main {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-light);
-            box-shadow: var(--shadow-sm);
-            padding: 0.5rem 0;
-            height: 70px;
-            z-index: 1050;
-            transition: all 0.3s ease;
+            background: transparent !important; 
+            backdrop-filter: blur(0px); /* No blur at the very top */
+            border-bottom: 1px solid transparent !important; /* Remove the line */
+            transition: all 0.4s ease;
         }
 
         .navbar-scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(5px) !important;
+            border-bottom: 1px solid transparent !important; /* Remove the line */
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
         }
 
         /* Brand Section - Left */
@@ -245,11 +250,12 @@
 
         /* Footer */
         .main-footer {
-            background: var(--bg-white);
-            border-top: 1px solid var(--border-light);
+            background: transparent !important; 
+            backdrop-filter: blur(0px); /* No blur at the very top */
+            border-bottom: 1px solid transparent !important; /* Remove the line */
             padding: 1rem 0;
             margin-top: 2rem;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         /* Responsive Design */
@@ -428,12 +434,12 @@
         <div class="container-custom">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="copyright text-muted">
-                    <i class="bi bi-c-circle me-1"></i> {% now "Y" %} Quminity. All rights reserved.
+                    <i class="bi bi-c-circle me-1" style="color:rgb(22, 22, 22)"></i><b style="color:rgb(22, 22, 22)">{% now "Y" %} Quminity. All rights reserved.</b>
                 </div>
                 <div class="footer-links d-flex gap-3">
-                    <a href="/privacy/" class="text-decoration-none text-muted small">Privacy</a>
-                    <a href="/terms/" class="text-decoration-none text-muted small">Terms</a>
-                    <a href="/help/" class="text-decoration-none text-muted small">Help</a>
+                    <b style="color:rgb(0, 0, 0)"><a href="/privacy/" class="text-decoration-none text-muted small">Privacy</a></b>
+                    <b style="color:rgb(0, 0, 0)"><a href="/terms/" class="text-decoration-none text-muted small">Terms</a></b>
+                    <b style="color:rgb(22, 22, 22)"><a href="/help/" class="text-decoration-none text-muted small">Help</a></b>
                 </div>
             </div>
         </div>

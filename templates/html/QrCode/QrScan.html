@@ -1,424 +1,202 @@
 {% extends 'html/base.html' %}
 {% load static %}
 
-{% block title %}Quminity | Scan Attendance{% endblock %}
-
 {% block extra_css %}
 <style>
     :root {
-        --accent-primary: #667eea;
-        --accent-secondary: #764ba2;
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --accent: #4f46e5;
+        --success: #10b981;
+        --error: #ef4444;
     }
 
-    .auth-page-wrapper {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 15px; /* Reduced padding for small screens */
-        background: radial-gradient(circle at center, rgba(188, 191, 207, 0.1) 0%, transparent 70%);
+    .scan-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 1rem;
     }
 
-    .glass-card {
+    .compact-card {
         background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1.5px solid var(--glass-border);
-        border-radius: 30px; /* Slightly smaller radius for mobile */
-        padding: 30px 20px;
-        width: 100%;
-        max-width: 500px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 28px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
         text-align: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
 
-    /* RESPONSIVE CAMERA BOX */
-    .scanner-overlay {
+    .viewfinder {
         position: relative;
-        margin: 0 auto 25px auto;
         width: 100%;
-        max-width: 400px; /* Limits size on desktop */
-        aspect-ratio: 1 / 1; /* Keeps it square */
+        aspect-ratio: 1/1;
+        background: #000;
+        border-radius: 20px;
         overflow: hidden;
-        border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin-bottom: 1.25rem;
     }
 
-    #qr-reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-        background: #000 !important;
-    }
-
-    #qr-reader video {
-        object-fit: cover !important; /* Critical for filling the square container */
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    .scanner-line {
+    /* Flip Camera Button Overlay */
+    .flip-btn {
         position: absolute;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
-        top: 0;
-        z-index: 100;
-        animation: scanMove 2.5s infinite ease-in-out;
-        box-shadow: 0 0 15px var(--accent-primary);
-        pointer-events: none; /* Allows clicks to pass through */
-    }
-
-    @keyframes scanMove {
-        0% { top: 5%; }
-        50% { top: 95%; }
-        100% { top: 5%; }
-    }
-
-    .status-badge {
-        display: inline-flex;
+        top: 15px;
+        right: 15px;
+        z-index: 10;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 45px;
-        padding: 10px 20px;
-        border-radius: 100px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .flip-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
+    .laser {
+        position: absolute;
+        left: 5%;
+        width: 90%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        box-shadow: 0 0 10px var(--accent);
+        z-index: 5;
+        animation: scan 2s linear infinite;
+    }
+
+    @keyframes scan {
+        0% { top: 10%; opacity: 0; }
+        10%, 90% { opacity: 1; }
+        100% { top: 90%; opacity: 0; }
+    }
+
+    .status-area {
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: 700;
-        font-size: 0.8rem;
-        width: 100%; /* Full width on small mobile */
-        max-width: 300px;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        border-radius: 15px;
+        text-transform: uppercase;
     }
 
-    /* Media Queries for fine-tuning */
-    @media (max-width: 400px) {
-        .glass-card {
-            padding: 20px 15px;
-            border-radius: 20px;
-        }
-        h2 { font-size: 1.5rem; }
-        .camera-btn { width: 40px; height: 40px; }
-    }
-    /* Camera controls overlay */
-    .camera-controls {
-        position: absolute;
-        bottom: 15px;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        z-index: 1000;
-        pointer-events: none;
-    }
-
-    .camera-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid var(--accent-primary);
-        color: var(--accent-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        pointer-events: auto;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .camera-btn:hover {
-        background: var(--accent-primary);
-        color: white;
-        transform: scale(1.05);
-    }
-
-    /* Status badge styles */
-    .status-success {
-        background: linear-gradient(45deg, #4CAF50, #2E7D32) !important;
-        color: white !important;
-        border: none;
-    }
-
-    .status-error {
-        background: linear-gradient(45deg, #FF5722, #D32F2F) !important;
-        color: white !important;
-        border: none;
-    }
-
-    /* Rescan button */
-    #rescanBtn {
-        display: none;
-        margin-top: 15px;
-        padding: 10px 25px;
-        background: var(--accent-primary);
-        color: white;
-        border: none;
-        border-radius: 100px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    #rescanBtn:hover {
-        background: var(--accent-secondary);
-        transform: translateY(-2px);
-    }
+    .status-searching { color: #4b5563; background: #f3f4f6; }
+    .status-success { color: #fff; background: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    .status-error { color: #fff; background: var(--error); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-page-wrapper">
-    <div class="glass-card animate__animated animate__zoomIn">
-        <div class="mb-4">
-            <h2 class="fw-900 mb-1">Event Check-in</h2>
-            <p class="text-muted fw-bold small">ALIGN QR CODE WITHIN THE BOX</p>
+<div class="scan-container">
+    <div class="compact-card">
+        <div class="mb-3">
+            <h4 class="fw-bold m-0">Event Check-in</h4>
+            <p class="text-muted small m-0">Center the QR code to scan</p>
         </div>
 
-        <div class="scanner-overlay">
-            <div class="scanner-line" id="scanLine"></div>
+        <div class="viewfinder">
+            <button class="flip-btn" id="flip-btn" title="Switch Camera">
+                <i class="fa fa-sync"></i>
+            </button>
+            <div class="laser"></div>
             <div id="qr-reader"></div>
-            
-            <!-- Camera controls overlay -->
-            <div class="camera-controls">
-                <button class="camera-btn" id="flipCameraBtn" title="Flip Camera">
-                    <i class="fa fa-camera-retro"></i>
-                </button>
-            </div>
+            <canvas id="hidden-canvas" style="display:none;"></canvas>
         </div>
 
-        <div id="msg" class="status-badge">
-            <i class="fa fa-camera me-2"></i>Waiting for Camera...
-        </div>
-
-        <div class="mt-4">
-            <a href="/" class="text-decoration-none text-muted small fw-bold">
-                <i class="fa fa-arrow-left me-2"></i>EXIT SCANNER
-            </a>
+        <div id="msg" class="status-area status-searching">
+            <i class="fa fa-spinner fa-spin me-2"></i>Initializing...
         </div>
     </div>
 </div>
-<br>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-    const API_URL = "/api/validate-attendance/";
     const qrCode = new Html5Qrcode("qr-reader");
     const msgElement = document.getElementById("msg");
-    const scanLine = document.getElementById("scanLine");
-    const flipCameraBtn = document.getElementById("flipCameraBtn");
-    
-    let currentCameraId = null;
-    let isBackCamera = true;
-    let cameras = [];
+    const canvas = document.getElementById("hidden-canvas");
+    let isProcessing = false;
+    let scanInterval;
+    let currentFacingMode = "environment"; // Default to back camera
 
-    // Function to get available cameras
-    async function getCameras() {
-        try {
-            const devices = await Html5Qrcode.getCameras();
-            cameras = devices;
-            console.log("Available cameras:", cameras);
-            
-            // Find front and back cameras
-            const backCamera = cameras.find(cam => 
-                cam.label.toLowerCase().includes('back') || 
-                cam.label.toLowerCase().includes('rear') ||
-                cam.id.includes('back')
-            );
-            
-            const frontCamera = cameras.find(cam => 
-                cam.label.toLowerCase().includes('front') || 
-                cam.id.includes('front')
-            );
-            
-            return { backCamera, frontCamera };
-        } catch (error) {
-            console.error("Error getting cameras:", error);
-            return { backCamera: null, frontCamera: null };
-        }
-    }
+    const config = { 
+        fps: 25, 
+        qrbox: (w, h) => { return { width: w * 0.75, height: h * 0.75 } },
+        aspectRatio: 1.0
+    };
 
-    // Function to start camera
-    async function startCamera(useBackCamera = true) {
+    async function startScanning(mode) {
         try {
-            const { backCamera, frontCamera } = await getCameras();
-            
-            let selectedCamera = null;
-            if (useBackCamera && backCamera) {
-                selectedCamera = backCamera;
-            } else if (!useBackCamera && frontCamera) {
-                selectedCamera = frontCamera;
-            } else if (cameras.length > 0) {
-                // Fallback to first available camera
-                selectedCamera = cameras[useBackCamera ? 0 : Math.min(1, cameras.length - 1)];
-            }
-            
-            if (!selectedCamera) {
-                throw new Error("No camera found");
-            }
-            
-            currentCameraId = selectedCamera.id;
-            
-            // Stop current camera if running
+            // If already scanning, stop it first
             if (qrCode.isScanning) {
                 await qrCode.stop();
             }
             
-            // Start new camera
-            await qrCode.start(
-                { deviceId: { exact: currentCameraId } },
-                config,
-                onScanSuccess
-            );
+            await qrCode.start({ facingMode: mode }, config, () => {});
+            msgElement.innerHTML = "FINDING QR CODE...";
             
-            msgElement.innerHTML = `<i class="fa fa-circle-notch fa-spin me-2"></i>SCANNING...`;
-            scanLine.style.display = "block";
-            
-            // Update flip button icon based on current camera
-            updateFlipButtonIcon();
-            
-            return true;
-        } catch (error) {
-            console.error("Camera start error:", error);
-            return false;
-        }
-    }
-
-    // Function to flip camera
-    async function flipCamera() {
-        msgElement.innerHTML = `<i class="fa fa-sync fa-spin me-2"></i>SWITCHING CAMERA...`;
-        
-        isBackCamera = !isBackCamera;
-        const success = await startCamera(isBackCamera);
-        
-        if (success) {
-            msgElement.innerHTML = `<i class="fa fa-circle-notch fa-spin me-2"></i>SCANNING...`;
-        } else {
-            msgElement.innerHTML = `<i class="fa fa-exclamation-triangle me-2"></i>CAMERA SWITCH FAILED`;
-            msgElement.className = "status-badge status-error";
-            // Revert to previous state
-            isBackCamera = !isBackCamera;
-        }
-    }
-
-    // Update flip button icon based on current camera
-    function updateFlipButtonIcon() {
-        const icon = flipCameraBtn.querySelector('i');
-        if (isBackCamera) {
-            icon.className = "fa fa-camera-retro";
-            flipCameraBtn.title = "Switch to Front Camera";
-        } else {
-            icon.className = "fa fa-user";
-            flipCameraBtn.title = "Switch to Back Camera";
-        }
-    }
-
-    function onScanSuccess(decodedText) {
-        // Vibrate mobile on success
-        if (navigator.vibrate) navigator.vibrate(100);
-
-        qrCode.stop().then(() => {
-            scanLine.style.display = "none";
-            msgElement.innerHTML = `<i class="fa fa-spinner fa-spin me-2"></i>VALIDATING...`;
-            msgElement.className = "status-badge";
-            submitAttendance(decodedText);
-        });
-    }
-
-    // Larger qrbox for the "Big Box" feel
-    // Replace your existing 'config' constant with this:
-    const config = { 
-        fps: 20, // Increased for smoother scanning
-        qrbox: function(viewfinderWidth, viewfinderHeight) {
-            // Dynamic sizing: use 80% of the width on mobile, 
-            // but cap it so it doesn't get too huge on tablets
-            let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            let edgeSize = Math.floor(minEdge * 0.75); 
-            return { width: edgeSize, height: edgeSize };
-        },
-        aspectRatio: 1.0,
-        // This helps the camera fill the container properly
-        videoConstraints: {
-            aspectRatio: 1.0,
-            facingMode: "environment"
-        }
-    };
-
-    // Initialize scanner
-    async function initScanner() {
-        try {
-            // Try to start with back camera first
-            const started = await startCamera(true);
-            
-            if (!started) {
-                // If back camera fails, try any available camera
-                msgElement.innerHTML = `<i class="fa fa-spinner fa-spin me-2"></i>INITIALIZING CAMERA...`;
-                await qrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess
-                );
-                msgElement.innerHTML = `<i class="fa fa-circle-notch fa-spin me-2"></i>SCANNING...`;
-            }
+            // Clear existing interval if any and start fresh
+            if (scanInterval) clearInterval(scanInterval);
+            scanInterval = setInterval(captureFrameAndSend, 300);
         } catch (err) {
-            console.error("Scanner initialization error:", err);
-            msgElement.innerHTML = `<i class="fa fa-exclamation-triangle me-2"></i>CAMERA ERROR`;
-            msgElement.className = "status-badge status-error";
-            
-            // Hide flip button if camera fails
-            flipCameraBtn.style.display = "none";
+            msgElement.innerHTML = "CAMERA ERROR";
+            msgElement.className = "status-area status-error";
         }
     }
 
-    // Add event listener to flip button
-    flipCameraBtn.addEventListener("click", flipCamera);
+    document.getElementById('flip-btn').addEventListener('click', () => {
+        currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+        startScanning(currentFacingMode);
+    });
 
-    // Initialize scanner on page load
-    document.addEventListener("DOMContentLoaded", initScanner);
+    function captureFrameAndSend() {
+        if (isProcessing) return;
 
-    function submitAttendance(token) {
-        fetch(API_URL, {
+        const video = document.querySelector("#qr-reader video");
+        if (!video || video.readyState !== 4) return;
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = 480;
+        canvas.height = 480;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const frameData = canvas.toDataURL("image/jpeg", 0.5);
+
+        isProcessing = true;
+        fetch("/api/validate-attendance/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": getCookie("csrftoken")
+                "X-CSRFToken": "{{ csrf_token }}"
             },
-            body: `token=${encodeURIComponent(token)}`
+            body: `frame=${encodeURIComponent(frameData)}`
         })
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
-                msgElement.innerHTML = `<i class="fa fa-check-circle me-2"></i>${data.message}`;
-                msgElement.className = "status-badge status-success animate__animated animate__pulse";
-                // Redirect after success
+                clearInterval(scanInterval);
+                msgElement.innerHTML = `${data.message}`;
+                msgElement.className = "status-area status-success";
+                if (navigator.vibrate) navigator.vibrate(100);
                 setTimeout(() => window.location.href = "/", 2000);
             } else {
-                msgElement.innerHTML = `<i class="fa fa-times-circle me-2"></i>${data.message}`;
-                msgElement.className = "status-badge status-error animate__animated animate__shakeX";
-                document.getElementById("rescanBtn").style.display = "inline-block";
+                msgElement.innerHTML = data.message;
+                msgElement.className = (data.status === "error" || data.status === "expired") 
+                    ? "status-area status-error" 
+                    : "status-area status-searching";
+                isProcessing = false;
             }
         })
-        .catch(() => {
-            msgElement.innerHTML = `<i class="fa fa-server me-2"></i>SERVER ERROR`;
-            msgElement.className = "status-badge status-error";
-            document.getElementById("rescanBtn").style.display = "inline-block";
-        });
+        .catch(() => { isProcessing = false; });
     }
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+    document.addEventListener("DOMContentLoaded", () => startScanning(currentFacingMode));
 </script>
 {% endblock %}
