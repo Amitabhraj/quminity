@@ -1,139 +1,141 @@
 import pickle
 import cv2
-from django.http import JsonResponse
-from django.shortcuts import render
-import face_recognition
-from django.contrib.auth import login as django_login
-from django.views.decorators.csrf import csrf_exempt
-from Qapp.models import CustomUser
 import numpy as np
-import mediapipe as mp
+import os
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login as django_login
+from Qapp.models import CustomUser
+from quminity.settings import BASE_DIR # Best practice to use settings.BASE_DIR
 
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
+# --- YUNET & SFACE INITIALIZATION ---
+YUNET_PATH = os.path.join(BASE_DIR, 'face_detection_yunet_2023mar.onnx')
+SFACE_PATH = os.path.join(BASE_DIR, 'face_recognition_sface_2021dec.onnx')
 
+detector = cv2.FaceDetectorYN.create(
+    model=YUNET_PATH, config="", input_size=(320, 320),
+    score_threshold=0.9, nms_threshold=0.3, top_k=5000
+)
+# Explicitly tell OpenCV to use CPU to prevent terminal hanging on EC2
+detector = cv2.FaceDetectorYN.create(
+    model=YUNET_PATH, 
+    config="", 
+    input_size=(320, 320),
+    score_threshold=0.9, 
+    nms_threshold=0.3, 
+    top_k=5000,
+    backend_id=3,
+    target_id=0
+)
 
-def get_ear(landmarks, w, h):
-    def eye_ratio(indices):
-        p = [np.array([landmarks[i].x * w, landmarks[i].y * h]) for i in indices]
-        return (np.linalg.norm(p[1]-p[5]) + np.linalg.norm(p[2]-p[4])) / (2.0 * np.linalg.norm(p[0]-p[3]))
-    return (eye_ratio([362, 385, 387, 263, 373, 380]) + eye_ratio([33, 160, 158, 133, 153, 144])) / 2.0
+recognizer = cv2.FaceRecognizerSF.create(
+    model=SFACE_PATH, 
+    config="",
+    backend_id=3,
+    target_id=0
+)
+# --- UTILITY: PASSIVE LIVENESS CHECK ---
+def perform_liveness_check(img, face_data):
+    x, y, w, h = face_data[0:4].astype(int)
+    face_roi = img[max(0, y):y+h, max(0, x):x+w]
+    if face_roi.size == 0: return False
 
+    # Texture
+    gray_roi = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY)
+    lap_var = cv2.Laplacian(gray_roi, cv2.CV_64F).var()
+
+    # Landmarks for Geometry (Indices 4-13)
+    landmarks = face_data[4:14].reshape((5, 2))
+    eye_dist = np.linalg.norm(landmarks[0] - landmarks[1])
+    ratio = eye_dist / w
+
+    print(f"Reg Liveness -> Lap: {lap_var:.2f} | Ratio: {ratio:.4f}")
+
+    # Standardized thresholds
+    is_real = True
+    if lap_var < 45 or lap_var > 900: is_real = False
+    if ratio < 0.22 or ratio > 0.5: is_real = False
+    
+    return is_real
 
 @csrf_exempt
 def login_with_face(request):
     if request.method != "POST":
-        return render(request, 'html/dashboard/login_face.html')
+        return render(request, 'html/userOnboarding/login/login_face.html')
 
     action = request.POST.get("action")
-    session = request.session
- 
-    if action == "clear_session":
-        for key in ['blinks', 'closed']:
-            session.pop(key, None)
-        session.modified = True
-        return JsonResponse({"success": True})
-
+    
     if action == "login_face":
         file = request.FILES.get("frame")
-        qid = int(request.POST.get("qid"))
-        # Decode Image
-        img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
-        h, w, _ = img.shape
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        # 1. Face Mesh Analysis
-        results = face_mesh.process(rgb_img)
-        if not results.multi_face_landmarks and not session.get('is_saving'):
-            return JsonResponse({"success": False, "message": "Face not in Frame"})
-
-        landmarks = results.multi_face_landmarks[0].landmark
-
-        # 2. Enhanced Spoof Check
-        # Laplacian: Sharpness check
-        lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        qid_val = request.POST.get("qid")
         
-        # FFT: Screen Pattern Check
-        dft = np.fft.fftshift(np.fft.fft2(gray))
-        mag = 20 * np.log(np.abs(dft) + 1)
-        cy, cx = h // 2, w // 2
-        y, x = np.ogrid[:h, :w]
-        mask = ((x - cx)**2 + (y - cy)**2 >= 40**2) & ~((x - cx)**2 + (y - cy)**2 <= 20**2)
-        fft_score = np.mean(mag[mask]) if np.any(mask) else 0
+        if not file or not qid_val:
+            return JsonResponse({"success": False, "message": "Missing frame or QID"})
+        
+        try:
+            # 1. Image Decoding
+            img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
+            h, w, _ = img.shape
 
-        # 3D Depth check (The 'Z' distance from eyes to nose tip)
-        nose_z = landmarks[1].z
-        eyes_z = (landmarks[33].z + landmarks[263].z) / 2
-        depth_diff = abs(nose_z - eyes_z)
+            # 2. Face Detection (YuNet)
+            detector.setInputSize((w, h))
+            _, faces = detector.detect(img)
 
-        print("lap_var:", lap_var, "fft_score:", fft_score, " depth_diff:", depth_diff)
+            if faces is None or len(faces) == 0:
+                return JsonResponse({"success": False, "message": "Face not detected"})
 
-        # Validation Logic
-        if lap_var < 13 or fft_score < 115 or depth_diff < 0.06:
-                return JsonResponse({"success": False, "message": "Face is Not Clear"})
+            face_data = faces[0]
 
-        ear = get_ear(landmarks, w, h)
-        if 'blinks' not in session:
-            session['blinks'], session['closed'] = 0, False
+            # 3. Apply Localized Liveness Check
+            if not perform_liveness_check(img, face_data):
+                return JsonResponse({"success": False, "message": "Spoof Detected: Real face required!"})
 
-        if ear < 0.20:
-            session['closed'] = True
-        elif ear > 0.25 and session.get('closed'):
-            session['blinks'] += 1
-            session['closed'] = False
-        session.modified = True
+            # 4. Feature Extraction (SFace)
+            aligned_face = recognizer.alignCrop(img, face_data)
+            current_feature = recognizer.feature(aligned_face)
 
-        if session['blinks'] >= 2:
-            all_x = [l.x * w for l in landmarks]
-            all_y = [l.y * h for l in landmarks]
-            box = (int(min(all_y)), int(max(all_x)), int(max(all_y)), int(min(all_x)))
-            current_enc = face_recognition.face_encodings(rgb_img, [box])
+            # 5. Database Verification
+            user = CustomUser.objects.filter(qid=qid_val).exclude(face_encoding__isnull=True).first()
 
-            if current_enc:
-                # Get all users who have a face encoding
-                users = CustomUser.objects.filter(qid=qid).exclude(face_encoding__isnull=True)
+            if not user:
+                return JsonResponse({"success": False, "message": "User not registered"})
+
+            try:
+                # 1. Load raw data from pickle
+                raw_saved_data = pickle.loads(user.face_encoding)
                 
-                # Extract all encodings and user IDs
-                known_encodings = []
-                user_map = []
+                # 2. Convert BOTH to float32 and FLATTEN them to (1, 128)
+                # SFace MUST have (1, 128) shape for the match function
+                known_feature = np.array(raw_saved_data, dtype=np.float32).reshape(1, -1)
+                current_feature = np.array(current_feature, dtype=np.float32).reshape(1, -1)
+
+                # 3. Calculate Cosine Similarity (0 = FR_COSINE)
+                score = recognizer.match(current_feature, known_feature, 0)
                 
-                for user in users:
-                    try:
-                        known_encodings.append(pickle.loads(user.face_encoding))
-                        user_map.append(user)
-                    except:
-                        continue
-                
-                if not known_encodings:
-                    return JsonResponse({"success": False, "message": "FACE DOES NOT MATCHED"})
+                print(f"Match Score: {score:.4f}")
 
-                # Compare live face against the entire database
-                # Tolerance 0.45 is stricter for 1:N matching to avoid false positives
-                matches = face_recognition.compare_faces(known_encodings, current_enc[0], tolerance=0.45)
-                
-                if True in matches:
-                    first_match_index = matches.index(True)
-                    matched_user = user_map[first_match_index]
-                    
-                    # Login the matched user
-                    django_login(request, matched_user)
-                    
-                    # Clean session
-                    [session.pop(k, None) for k in ['blinks', 'closed']]
-                    return JsonResponse({
-                        "success": True, 
-                        "authenticated": True,
-                        "message": f"Welcome, {matched_user.first_name}!"
-                    })
-                else:
-                    return JsonResponse({"success": False,"face_detected": False, "message": "FACE DOES NOT MATCHED"})
+            except Exception as e:
+                # This will catch if the old DB vector is e.g. 512 while SFace is 128
+                return JsonResponse({"success": False, "message": f"Incompatible Face Data: Please re-register. Error: {str(e)}"})
 
-        return JsonResponse({"success": True, "face_detected": True, "message": "BLINK TO IDENTIFY"})
+            print(f"Login Attempt - QID: {qid_val} | Match Score: {score:.4f}")
 
+            # SFace Cosine Threshold is typically 0.36
+            if score > 0.36: 
+                django_login(request, user)
+                return JsonResponse({
+                    "success": True, 
+                    "authenticated": True,
+                    "message": f"Welcome, {user.first_name or user.username}!"
+                })
+            else:
+                return JsonResponse({"success": False, "message": "Face does not match"})
 
+        except Exception as e:
+            return JsonResponse({"success": False, "message": f"Login Error: {str(e)}"})
 
+    return JsonResponse({"success": False, "message": "Invalid Request"})
 
-def face_login_page(request):
+def face_login_page(request):      
     return render(request, 'html/userOnboarding/login/login_face.html')
-

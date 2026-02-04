@@ -45,14 +45,18 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- Moved to 2nd position
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Ensure it's using the DB
+
 
 ROOT_URLCONF = 'quminity.urls'
 
@@ -63,7 +67,7 @@ RAZORPAY_KEY_SECRET = 'hDNa04mD7gwB5zNMExGaX2qo'
 
 QR_SECRET_KEY = "_n66ymbrj)w^7#_rs1feqc&+*5ehg35(xha^4fn+y86q85ouv7"
 QR_JWT_ALGO = "HS256"
-QR_TOKEN_EXPIRY =  3
+QR_TOKEN_EXPIRY =  60
 QR_EVENT_ID = "EVT2026"
 
 
@@ -82,17 +86,13 @@ DEFAULT_FROM_EMAIL = 'Quminity <amitabhraj07@gmail.com>'
 
 
 
-
-# Static URL
+# 4. Static Files (Optimization for WhiteNoise)
 STATIC_URL = 'static/'
-
-# Tell Django where to look for static files during development
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    ]
-
-# Optional: for production (collectstatic)
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Use WhiteNoise's optimized storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 AUTH_USER_MODEL = "Qapp.CustomUser"
 

@@ -25,7 +25,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Qapp.urls')),
 ]
+handler404 = 'quminity.views.handle_404_redirect'
+
+# Static files should NOT be served by Django when DEBUG=False. 
+# WhiteNoise (which we set up in settings.py) handles this automatically.
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    
-handler404 = 'quminity.views.handle_404_redirect'
