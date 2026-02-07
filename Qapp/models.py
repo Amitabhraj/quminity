@@ -66,8 +66,12 @@ class CustomUser(AbstractUser):
     qid = models.CharField(max_length=15, unique=True, null=True, blank=True)
     face_encoding = models.BinaryField(null=True, blank=True, editable=True)
     anonymous = models.BooleanField(default=True,null=True, blank=True)
-    section = models.ForeignKey(Section,on_delete=models.CASCADE, null=True, blank=True)
     user_type = models.CharField(max_length=100,choices=USER_TYPE,default=None,blank=True,null=True)
+    mobile = models.CharField(max_length=15, null=True, blank=True)
+    program = models.CharField(max_length=50, null=True, blank=True)
+    branch = models.CharField(max_length=50, null=True, blank=True)
+    section = models.CharField(max_length=5, null=True, blank=True)
+    year = models.CharField(max_length=5, null=True, blank=True)
 
     def __str__(self):
         return self.username

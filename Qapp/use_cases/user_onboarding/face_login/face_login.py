@@ -54,7 +54,7 @@ def perform_liveness_check(img, face_data):
 
     # Standardized thresholds
     is_real = True
-    if lap_var < 45 or lap_var > 900: is_real = False
+    if lap_var < 38 or lap_var > 900: is_real = False
     if ratio < 0.22 or ratio > 0.5: is_real = False
     
     return is_real
@@ -101,6 +101,9 @@ def login_with_face(request):
             if not user:
                 return JsonResponse({"success": False, "message": "User not registered"})
 
+            if user.face_encoding is None:
+                return JsonResponse({"success": False, "message": "No face data found. Please contact Admin of this website"})    
+
             try:
                 # 1. Load raw data from pickle
                 raw_saved_data = pickle.loads(user.face_encoding)
@@ -122,7 +125,7 @@ def login_with_face(request):
             print(f"Login Attempt - QID: {qid_val} | Match Score: {score:.4f}")
 
             # SFace Cosine Threshold is typically 0.36
-            if score > 0.36: 
+            if score > 0.5: 
                 django_login(request, user)
                 return JsonResponse({
                     "success": True, 

@@ -53,7 +53,7 @@ def perform_liveness_check(img, face_data):
 
     # Thresholds tuned for EC2 performance
     is_real = True
-    if lap_var < 45 or lap_var > 900: is_real = False
+    if lap_var < 38 or lap_var > 900: is_real = False
     if ratio < 0.22 or ratio > 0.5: is_real = False 
 
     return is_real
