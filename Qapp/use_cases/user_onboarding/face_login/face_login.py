@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login as django_login
-from Qapp.models import CustomUser
+from Qapp.models import CustomUser, PendingUser
 from quminity.settings import BASE_DIR # Best practice to use settings.BASE_DIR
 
 # --- YUNET & SFACE INITIALIZATION ---
@@ -54,7 +54,7 @@ def perform_liveness_check(img, face_data):
 
     # Standardized thresholds
     is_real = True
-    if lap_var < 38 or lap_var > 900: is_real = False
+    if lap_var < 22 or lap_var > 900: is_real = False
     if ratio < 0.22 or ratio > 0.5: is_real = False
     
     return is_real
@@ -97,12 +97,35 @@ def login_with_face(request):
 
             # 5. Database Verification
             user = CustomUser.objects.filter(qid=qid_val).exclude(face_encoding__isnull=True).first()
+            pendinguser = PendingUser.objects.filter(qid=qid_val).exclude(face_encoding__isnull=True).first()
 
-            if not user:
+            if not pendinguser and not user:
                 return JsonResponse({"success": False, "message": "User not registered"})
+            
+            if pendinguser:
+                if pendinguser.approved:
+                    user = user
+                    if not user:
+                        return JsonResponse({
+                                        "success": True, 
+                                        "authenticated": True,
+                                        "redirect_url":f"/pending_user/{pendinguser.registration_number}",
+                                        "message": f" {pendinguser.name} , You have been Disapproved or Blocked!"
+                                    })
+                    elif not user.approved:
+                        return JsonResponse({
+                                        "success": True, 
+                                        "authenticated": True,
+                                        "redirect_url":f"/pending_user/{user.registration_number}",
+                                        "message": f" {user.username} , You have been Disapproved or Blocked!"
+                                    })
+                else:
+                    user = pendinguser
+            else:
+                user=user
 
             if user.face_encoding is None:
-                return JsonResponse({"success": False, "message": "No face data found. Please contact Admin of this website"})    
+                return JsonResponse({"success": False, "message": "No face data found. Please contact Admin of this website"})  
 
             try:
                 # 1. Load raw data from pickle
@@ -125,12 +148,14 @@ def login_with_face(request):
             print(f"Login Attempt - QID: {qid_val} | Match Score: {score:.4f}")
 
             # SFace Cosine Threshold is typically 0.36
-            if score > 0.5: 
-                django_login(request, user)
+            if score > 0.5:
+                if user.user_type == "STUDENT":
+                    django_login(request, user)
                 return JsonResponse({
                     "success": True, 
                     "authenticated": True,
-                    "message": f"Welcome, {user.first_name or user.username}!"
+                    "redirect_url":f"/pending_user/{user.registration_number}",
+                    "message": f"Welcome, {user.username}!"
                 })
             else:
                 return JsonResponse({"success": False, "message": "Face does not match"})

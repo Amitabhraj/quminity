@@ -161,7 +161,7 @@
             
             <div class="mb-4 text-start">
                 <label class="small fw-800 text-dark ms-2 mb-2">UNIVERSITY QID</label>
-                <input type="number" id="qid" class="form-control" placeholder="Enter QID">
+                <input type="text" id="qid" class="form-control" placeholder="Enter QID">
             </div>
         
             <button class="btn-action" onclick="initScan()">CONTINUE TO SCAN</button>
@@ -282,7 +282,7 @@
                 ring.className = "scanner-ring status-success";
                 label.style.color = "#10b981";
                 document.getElementById('timerContainer').classList.add('hidden');
-                setTimeout(() => window.location.href = "/", 1500);
+                setTimeout(() => window.location.href = data.redirect_url, 2000);
                 return;
             }
 

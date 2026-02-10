@@ -6,12 +6,73 @@ from django.utils import timezone
 
 
 courses_name_choices = [
-    ('B.tech CSE', 'B.tech CSE'),
-    ('B.tech Civil', 'B.tech Civil'),
-    ('B.tech AI/ML', 'B.tech AI/ML'),
-    ('B.tech Mechanical', 'B.tech Mechanical'),
+    ('B.TECH', 'B.TECH'),
+    ('M.TECH', 'M.TECH'),
     ('BCA', 'BCA'),
     ('MCA', 'MCA'),
+    ('BSC', 'BSC'),
+    ('MSC', 'MSC'),
+    ('BBA', 'BBA'),
+    ('MBA', 'MBA'),
+    ('BA', 'BA'),
+    ('MA', 'MA'),
+    ("BALLAB", "BALLAB"),
+    ("LLB", "LLB"),
+]
+
+branch_choices = [
+    ('B.TECH CSE', 'B.TECH CSE'),
+    ('B.TECH CIVIL', 'B.TECH CIVIL'),
+    ('B.TECH MECHANICAL', 'B.TECH MECHANICAL'),
+    ('B.TECH ELECTRICAL', 'B.TECH ELECTRICAL'),
+    ('M.TECH CSE', 'M.TECH CSE'),
+    ('BCA', 'BCA'),
+    ('MCA', 'MCA'),
+    ('BSC', 'BSC'),
+    ('MSC', 'MSC'),
+    ('BBA', 'BBA'),
+    ('MBA', 'MBA'),
+    ('BA', 'BA'),
+    ('MA', 'MA'),
+    ("BALLAB", "BALLAB"),
+    ("LLB", "LLB"),
+]
+
+section_choices = [
+    ('A', 'A'),
+    ('B', 'B'), 
+    ('C', 'C'),
+    ('D', 'D'),
+    ('E', 'E'),
+    ('F', 'F'),
+    ('G', 'G'),
+    ('H', 'H'),
+    ('I', 'I'),
+    ('J', 'J'),
+    ('K', 'K'),
+    ('L', 'L'),
+    ('M', 'M'),
+    ('N', 'N'),
+    ('O', 'O'),
+    ('P', 'P'),
+    ('Q', 'Q'),
+    ('R', 'R'),
+    ('S', 'S'),
+    ('T', 'T'),
+    ('U', 'U'),
+    ('V', 'V'),
+    ('W', 'W'),
+    ('X', 'X'),
+    ('Y', 'Y'),
+    ('Z', 'Z'),
+]
+
+current_year_choices = [
+    ('1st', '1st'),
+    ('2nd', '2nd'), 
+    ('3rd', '3rd'),
+    ('4th', '4th'),
+    ('5th', '5th')
 ]
 
 notification_type = [
@@ -24,6 +85,7 @@ USER_TYPE = [
     ('Student', 'Student'),
     ("N_FACULTY","N_FACULTY"),
     ("DEAN","DEAN"),
+    ("VC","VC"),
 ]
 
 
@@ -63,21 +125,50 @@ class Section(models.Model):
         return f"{self.section_name} - {self.course}"
 
 class CustomUser(AbstractUser):
-    qid = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    qid = models.CharField(max_length=15, default="000000",unique=True, null=False, blank=False)
     face_encoding = models.BinaryField(null=True, blank=True, editable=True)
     anonymous = models.BooleanField(default=True,null=True, blank=True)
-    user_type = models.CharField(max_length=100,choices=USER_TYPE,default=None,blank=True,null=True)
-    mobile = models.CharField(max_length=15, null=True, blank=True)
-    program = models.CharField(max_length=50, null=True, blank=True)
-    branch = models.CharField(max_length=50, null=True, blank=True)
-    section = models.CharField(max_length=5, null=True, blank=True)
-    year = models.CharField(max_length=5, null=True, blank=True)
+    user_type = models.CharField(max_length=100,choices=USER_TYPE,default="STUDENT",blank=False,null=False)
+    country_code_for_mobile = models.CharField(max_length=10, default="00",null=False, blank=False)
+    mobile = models.CharField(max_length=15,default="0000000000", null=False, blank=False)
+    program = models.CharField(max_length=50, choices=courses_name_choices, null=True, blank=True)
+    branch = models.CharField(max_length=50, choices=branch_choices,null=True, blank=True)
+    section = models.CharField(max_length=5, choices=section_choices, null=True, blank=True)
+    current_year = models.CharField(max_length=5, null=True, blank=True)
+    registration_number = models.CharField(max_length=20, null=True, blank=True,unique=True)
+    approved = models.BooleanField(default=False)
+    registered_at = models.DateTimeField(default=timezone.now,blank=False,null=False)
+    updated_at = models.DateTimeField(default=None,null=True,blank=True)
 
     def __str__(self):
         return self.username
     
     def get_full_name(self):   
         return f"{self.first_name} {self.last_name}"
+    
+
+
+class PendingUser(models.Model):
+    username = models.CharField(max_length=150, default=None,null=True, blank=True)
+    qid = models.CharField(max_length=15, default="000000", unique=True, null=True, blank=True)
+    face_encoding = models.BinaryField(null=True, blank=True, editable=True)
+    user_type = models.CharField(max_length=100,choices=USER_TYPE,default=None,blank=False,null=False)
+    country_code_for_mobile = models.CharField(max_length=10, null=False, blank=False)
+    mobile = models.CharField(max_length=15, null=False, blank=False)
+    email = models.EmailField(max_length=50,null=False,blank=False)
+    approved = models.BooleanField(default=False,null=True,blank=True)
+    registration_number = models.CharField(max_length=20, null=True, blank=True)
+    approved_by = models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=None,null=True)
+    approved_at = models.DateTimeField(default=None,null=True)
+    user_requested_at = models.DateTimeField(default=timezone.now,null=False,blank=False)
+
+    def __str__(self):
+        if self.approved:
+            return f"{self.registration_number}:- {self.username} request APPROVED for user-type ({self.user_type})"
+        elif not self.approved:
+            return f"{self.registration_number}:- Pending Request of {self.username} for user-type ({self.user_type})"
+        else:
+            return "ERROR"
 
 
 

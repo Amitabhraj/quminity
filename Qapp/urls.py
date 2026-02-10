@@ -13,6 +13,7 @@ from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
 from Qapp.use_cases.listing.listClubEvent import ClubEventList
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
+from Qapp.use_cases.user_onboarding.register_face.pending_user import pending_user
 from Qapp.use_cases.user_onboarding.user_login import user_login
 from Qapp.use_cases.user_onboarding.face_login.face_login import login_with_face,face_login_page
 from Qapp.use_cases.user_onboarding.register_face.face_register import register_face,face_register_page
@@ -38,6 +39,7 @@ urlpatterns = [
 
     path("api/face_login/", login_with_face, name="login_with_face"),
     path("api/face_register/", register_face, name="face_register_api"),
+    path("pending_user/<str:registration_number>/", pending_user, name="pending_user"),
 
 
     ############# QR CODE ATTENDANCE #############
