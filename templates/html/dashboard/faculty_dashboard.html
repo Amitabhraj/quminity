@@ -1,0 +1,146 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Moderator Dashboard | Quminity{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .dashboard-container {
+        padding-top: 30px;
+        min-height: 100vh;
+        align-items: center;
+    }
+
+    /* Tab/Action Cards */
+    .action-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: #fff;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-icon-wrapper {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-gradient);
+        color: white;
+        font-size: 3rem;
+    }
+
+    .action-card.reg-req .card-icon-wrapper { background: linear-gradient(135deg, #FF6B6B, #FFD93D); }
+    .action-card.clubs .card-icon-wrapper { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .action-card.events .card-icon-wrapper { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .action-card.students .card-icon-wrapper { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+    .view-btn {
+        border-radius: 10px;
+        padding: 8px 25px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    /* Section Headers */
+    .section-title {
+        font-weight: 800;
+        color: #2d3436;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 30px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 4px;
+        background: #6e8efb;
+        bottom: -10px;
+        left: 0;
+        border-radius: 2px;
+    }
+
+    /* Notifications List Style */
+    .notif-scroll-area {
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .custom-badge {
+        font-size: 0.75rem;
+        padding: 5px 12px;
+        border-radius: 50px;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="container">
+        
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold mb-2">Management Dashboard</h1>
+                <p class="text-muted">Control and monitor all Your Assigned community activities from one place.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card clubs">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Clubs</h5>
+                        <p class="text-muted small">Manage community clubs and memberships.</p>
+                        <a href="#" class="btn btn-outline-info view-btn w-100 mt-2">View Clubs</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card events">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Events</h5>
+                        <p class="text-muted small">Track upcoming schedules and attendance.</p>
+                        <a href="#" class="btn btn-outline-primary view-btn w-100 mt-2">View Events</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card students">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Students Detail</h5>
+                        <p class="text-muted small">Access comprehensive student databases.</p>
+                        <a href="#" class="btn btn-outline-success view-btn w-100 mt-2">View Students</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+    </div>
+</div>
+{% endblock %}

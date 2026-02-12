@@ -18,9 +18,10 @@ class CustomUserAdmin(UserAdmin):
                                         'registered_at',
                                         'updated_at')}),
     )
+    readonly_fields = ('face_encoding',)
 admin.site.register(Attendance)
 admin.site.register(ActiveToken)
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(CustomUser)
 admin.site.register(Section)
 admin.site.register(Subject)
 admin.site.register(Course)

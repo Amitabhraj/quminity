@@ -1,3 +1,4 @@
+import base64
 from django.utils import timezone
 import pickle
 import secrets
@@ -13,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib.auth import login as django_login
 from Qapp.models import CustomUser, PendingUser
-from Qapp.use_cases.user_onboarding.common import *
+from Qapp.common import *
 
 # --- YUNET & SFACE INITIALIZATION (EC2 SAFE) ---
 YUNET_PATH = os.path.join(settings.BASE_DIR,'face_detection_yunet_2023mar.onnx')
@@ -125,9 +126,10 @@ def register_face(request):
             aligned_face = recognizer.alignCrop(img, faces[0])
             feature = recognizer.feature(aligned_face) 
             
-            # --- CRITICAL FIX: Save as Float32 and Reshape to (1, 128) ---
-            # This ensures compatibility with the login matching logic
-            feature_to_save = np.array(feature, dtype=np.float32).reshape(1, -1)
+            # --- THE FIX: Convert to Float32 and then to Base64 String ---
+            feature_np = np.array(feature, dtype=np.float32).flatten()
+            # Convert raw bytes to a base64 string for storage in TextField
+            face_string = base64.b64encode(feature_np.tobytes()).decode('utf-8')
 
             if CustomUser.objects.filter(qid=qid,user_type=user_type).exists():
                 return JsonResponse({"success": False, "message": "QID already registered !! Contact Admin for Solution"})
@@ -146,7 +148,7 @@ def register_face(request):
                     email=email,
                     qid=qid,
                     user_type=user_type, 
-                    face_encoding=pickle.dumps(feature_to_save),
+                    face_encoding=face_string,
                     mobile = mobile_number,
                     user_requested_at = timezone.now(),
                     registration_number=registration_number
@@ -178,7 +180,7 @@ def register_face(request):
                     first_name=name,
                     qid=qid,
                     user_type=user_type, 
-                    face_encoding=pickle.dumps(feature_to_save),
+                    face_encoding=face_string,
                     mobile = mobile_number,
                     program = program,
                     current_year=year,
@@ -205,7 +207,7 @@ def register_face(request):
                 return JsonResponse({"success": True,
                                      "registered":True,
                                      "redirect_url": f"/pending_user/{registration_number}/",
-                                     "message": "SUCCESS"})
+                                     "message": f"Successfully Registered , Welcome ! {user.username}"})
 
         except Exception as e:
             return JsonResponse({"success": False, "message": f"System Error: {str(e)}"})

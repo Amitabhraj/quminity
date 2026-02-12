@@ -72,12 +72,39 @@ notification_type = [
     ('Marking Attendance', 'Marking Attendance')
 ]
 
+student_user = "STUDENT"
+faculty_user = "FACULTY"
+dean_user = "DEAN"
+vc_user = "VC"
+director_user = "DIRECTOR"
+non_faculty_user = "NON-FACULTY"
+admin_user = "ADMIN"
+
+
+#Only These Type of User can access Moderator Page (Admin Page)
+MODERATOR_USER_LIST = [admin_user,vc_user,director_user,dean_user]
+
+#This User Type will be Stored and shown in DB
 USER_TYPE = [
-    ('STUDENT', 'STUDENT'),
-    ('FACULTY', 'FACULTY'),
-    ("VC","VC"),
-    ("DEAN","DEAN"),
-    ("DIRECTOR","DIRECTOR"),
-    ("NON-FACULTY","NON-FACULTY"),
-    ('ADMIN', 'ADMIN'),
+    (student_user, student_user),
+    (faculty_user, faculty_user),
+    (dean_user,dean_user),
+    (vc_user,vc_user),
+    (director_user,director_user),
+    (non_faculty_user,non_faculty_user),
+    (admin_user, admin_user),
 ]
+
+
+president_user = "PRESIDENT"
+vice_precident_user = "VICE-PRECIDENT"
+core_member_user = "CORE-MEMBER"
+general_member_user = "GENERAL-MEMBER" 
+
+#Club Members/Core Members
+ROLE_CHOICES = [
+        (president_user, president_user),
+        (vice_precident_user, vice_precident_user),
+        (core_member_user, core_member_user),
+        (general_member_user,general_member_user)
+    ]

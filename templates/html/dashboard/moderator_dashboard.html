@@ -1,0 +1,219 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Moderator Dashboard | Quminity{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .dashboard-container {
+        padding-top: 30px;
+        min-height: 100vh;
+    }
+
+    /* Tab/Action Cards */
+    .action-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: #fff;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-icon-wrapper {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-gradient);
+        color: white;
+        font-size: 3rem;
+    }
+
+    .action-card.reg-req .card-icon-wrapper { background: linear-gradient(135deg, #FF6B6B, #FFD93D); }
+    .action-card.clubs .card-icon-wrapper { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .action-card.events .card-icon-wrapper { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .action-card.students .card-icon-wrapper { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+    .view-btn {
+        border-radius: 10px;
+        padding: 8px 25px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    /* Section Headers */
+    .section-title {
+        font-weight: 800;
+        color: #2d3436;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 30px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 4px;
+        background: #6e8efb;
+        bottom: -10px;
+        left: 0;
+        border-radius: 2px;
+    }
+
+    /* Notifications List Style */
+    .notif-scroll-area {
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .custom-badge {
+        font-size: 0.75rem;
+        padding: 5px 12px;
+        border-radius: 50px;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="container">
+        
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold mb-2">Management Dashboard</h1>
+                <p class="text-muted">Control and monitor all community activities from one place.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card reg-req">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Registration Requests</h5>
+                        <p class="text-muted small">Verify and approve new user applications.</p>
+                        <a href="#" class="btn btn-outline-danger view-btn w-100 mt-2">View Requests</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card clubs">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Clubs</h5>
+                        <p class="text-muted small">Manage community clubs and memberships.</p>
+                        <a href="#" class="btn btn-outline-info view-btn w-100 mt-2">View Clubs</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card events">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Events</h5>
+                        <p class="text-muted small">Track upcoming schedules and attendance.</p>
+                        <a href="#" class="btn btn-outline-primary view-btn w-100 mt-2">View Events</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card action-card students">
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">Students Detail</h5>
+                        <p class="text-muted small">Access comprehensive student databases.</p>
+                        <a href="#" class="btn btn-outline-success view-btn w-100 mt-2">View Students</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row">
+            <div class="col-12">
+                <h3 class="section-title">Attendance Request</h3>
+                
+                {% for message in messages %}
+                <div class="alert alert-info alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+
+                <div class="row g-4 mt-1">
+                    {% for notif in notifications %}
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 {% if notif.read %}opacity-75{% endif %}">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light-primary rounded-circle p-2 me-3">
+                                            <i class="fas fa-bell text-primary"></i>
+                                        </div>
+                                        <h5 class="fw-bold mb-0">{{ notif.subject }}</h5>
+                                    </div>
+                                    <span class="text-muted small">{{ notif.date|date:"d M, h:i A" }}</span>
+                                </div>
+
+                                <div class="p-3 bg-light rounded-3 mb-3">
+                                    <p class="mb-0 text-secondary">{{ notif.message|linebreaks }}</p>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">By: <strong>{{ notif.push_by.username }}</strong></small>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="/attendace-event-list/{{notif.event.id}}/" class="btn btn-sm btn-light text-primary fw-bold">
+                                            <i class="fas fa-list me-1"></i> List
+                                        </a>
+
+                                        {% if notif.approved_by_dean %}
+                                        <span class="badge bg-success-subtle text-success custom-badge border border-success">
+                                            <i class="fas fa-check"></i> Approved
+                                        </span>
+                                        {% else %}
+                                        <a href="{% url 'ApproveEventAttendance' notif.event.id %}" class="btn btn-sm btn-success fw-bold px-3">
+                                            Mark Attendance
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 py-5 text-center">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5058/5058046.png" alt="Empty" style="width: 80px; opacity: 0.5;">
+                        <p class="mt-3 text-muted">No attendance notifications found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

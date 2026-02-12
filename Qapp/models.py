@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser,User
 from django.db import models
 from django.utils import timezone
+from Qapp.common import ROLE_CHOICES, USER_TYPE
 
 
 courses_name_choices = [
@@ -79,15 +80,6 @@ notification_type = [
     ('Marking Attendance', 'Marking Attendance')
 ]
 
-USER_TYPE = [
-    ('Admin', 'Admin'),
-    ('Faculty', 'Faculty'),
-    ('Student', 'Student'),
-    ("N_FACULTY","N_FACULTY"),
-    ("DEAN","DEAN"),
-    ("VC","VC"),
-]
-
 
 class Course(models.Model):
     course_name = models.CharField(max_length=100, choices=courses_name_choices,default="",null=True, blank=True)
@@ -126,7 +118,7 @@ class Section(models.Model):
 
 class CustomUser(AbstractUser):
     qid = models.CharField(max_length=15, default="000000",unique=True, null=False, blank=False)
-    face_encoding = models.BinaryField(null=True, blank=True, editable=True)
+    face_encoding = models.TextField(null=True, blank=True)
     anonymous = models.BooleanField(default=True,null=True, blank=True)
     user_type = models.CharField(max_length=100,choices=USER_TYPE,default="STUDENT",blank=False,null=False)
     country_code_for_mobile = models.CharField(max_length=10, default="00",null=False, blank=False)
@@ -151,7 +143,7 @@ class CustomUser(AbstractUser):
 class PendingUser(models.Model):
     username = models.CharField(max_length=150, default=None,null=True, blank=True)
     qid = models.CharField(max_length=15, default="000000", unique=True, null=True, blank=True)
-    face_encoding = models.BinaryField(null=True, blank=True, editable=True)
+    face_encoding = models.TextField(null=True, blank=True)
     user_type = models.CharField(max_length=100,choices=USER_TYPE,default=None,blank=False,null=False)
     country_code_for_mobile = models.CharField(max_length=10, null=False, blank=False)
     mobile = models.CharField(max_length=15, null=False, blank=False)
@@ -172,25 +164,39 @@ class PendingUser(models.Model):
 
 
 
-######################### Start Club/Events Models #########################
-
+########### Start Club #######################################
 class Club(models.Model):
-    club_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    members_detail = models.JSONField(default=dict,blank=True,null=True)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
-    entry_fees = models.IntegerField(null=True, blank=True)
+    club_name = models.CharField(max_length=150, unique=True)
+    description = models.TextField()
+    logo = models.ImageField(upload_to='club_logos/')
+    entry_fees = models.IntegerField(default=0, help_text="0 means FREE")
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, 
+        through='ClubMembership', 
+        related_name='joined_clubs'
+    )
     active = models.BooleanField(default=True)
-    description = models.TextField(null=True, blank=True)
-    club_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
-    logo = models.ImageField(upload_to='club_logos/', null=True, blank=True)
-    core_members = models.ManyToManyField(CustomUser, related_name='core_members_club', blank=True)
-    student_enrolled = models.ManyToManyField(CustomUser, related_name='student_enrolled_club', blank=True)
-    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_club', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.club_name}"
+        return self.club_name
+
+class ClubMembership(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    position = models.CharField(max_length=100, choices=ROLE_CHOICES, default='MEMBER')
+    joined_at = models.DateField(auto_now_add=True)
+
+class ClubGallery(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='gallery_images')
+    image = models.ImageField(upload_to='club_gallery/')
+
+########### End Club #######################################
+
     
+
+######################## Start Event #########################
 class Event(models.Model):
     event = models.CharField(max_length=100, unique=True, null=True, blank=True)
     club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
@@ -235,7 +241,7 @@ class EventPayment(models.Model):
     def __str__(self):
         return f"{self.payment_id}"
 
-######################### End Club/Events Models #########################
+######################### End Events Models #########################
 
 
 

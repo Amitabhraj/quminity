@@ -1,9 +1,6 @@
 from django.shortcuts import render
+from Qapp.decorators import faculty_required
 
-
-def MainView(request, FacultyId, facultyName):
-    context = {
-        'studentId': FacultyId,
-        'studentName': facultyName,
-    }
-    return render(request, 'html/student_side/student_dashboard.html', context)
+@faculty_required
+def MainView(request):
+    return render(request, 'html/dashboard/faculty_dashboard.html')
