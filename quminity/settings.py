@@ -29,6 +29,17 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
+CORS_ALLOWED_ORIGINS = [
+    'localhost:8000',
+    "https://d28xp4w96lfabk.cloudfront.net/",
+]
+
+# Ensure CSRF also trusts the new domain
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:8000',
+    "https://d28xp4w96lfabk.cloudfront.net/",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -112,12 +123,6 @@ TEMPLATES = [
         },
     },
 ]
-
-CSRF_TRUSTED_ORIGINS = ['https://quminity.onrender.com',
-                        'https://quminity.onrender.com/login',
-                        'http://localhost:8000',
-                        'http://quminity.onrender.com',
-                        'http://quminity.onrender.com/login']
 
 WSGI_APPLICATION = 'quminity.wsgi.application'
 
