@@ -35,6 +35,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://ec2-13-232-185-226.ap-south-1.compute.amazonaws.com:8000"
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8000',
     "http://ec2-13-232-185-226.ap-south-1.compute.amazonaws.com:8000",
