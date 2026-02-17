@@ -1,3 +1,5 @@
+setuptools
+wheel
 asgiref==3.8.1
 beautifulsoup4==4.12.2
 blinker==1.9.0
