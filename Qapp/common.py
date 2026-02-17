@@ -97,9 +97,12 @@ USER_TYPE = [
 
 
 president_user = "PRESIDENT"
-vice_precident_user = "VICE-PRECIDENT"
+vice_precident_user = "VICE-PRESIDENT"
 core_member_user = "CORE-MEMBER"
 general_member_user = "GENERAL-MEMBER" 
+
+TOP_ROLE = [president_user,vice_precident_user]
+LEAD_ROLE = [president_user,vice_precident_user,core_member_user]
 
 #Club Members/Core Members
 ROLE_CHOICES = [

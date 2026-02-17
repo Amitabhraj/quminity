@@ -166,32 +166,84 @@ class PendingUser(models.Model):
 
 ########### Start Club #######################################
 class Club(models.Model):
-    club_name = models.CharField(max_length=150, unique=True)
-    description = models.TextField()
-    logo = models.ImageField(upload_to='club_logos/')
+    club_name = models.CharField(default="",max_length=150, unique=True)
+    description = models.TextField(default="")
+    logo = models.ImageField(default=None,upload_to='club_logos/')
     entry_fees = models.IntegerField(default=0, help_text="0 means FREE")
-    members = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, 
-        through='ClubMembership', 
-        related_name='joined_clubs'
-    )
+    members = models.ManyToManyField(CustomUser,blank=True,related_name='clubs_as_member')
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    faculty_assigned = models.ManyToManyField(CustomUser,default=None,blank=False,related_name='faculty_assigned_club')
 
     def __str__(self):
         return self.club_name
 
 class ClubMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE)
-    position = models.CharField(max_length=100, choices=ROLE_CHOICES, default='MEMBER')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,default=None,null=False,blank=False,related_name='user_in_club')
+    club = models.ForeignKey(Club,default=None, on_delete=models.CASCADE,null=False,blank=False,related_name='club_membership')
+    position = models.CharField(max_length=100, choices=ROLE_CHOICES, default='GENERAL-MEMBER')
     joined_at = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'club')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.user not in self.club.members.all():
+            self.club.members.add(self.user)
+    
+    def delete(self, *args, **kwargs):
+        print("TRUEEEE")
+        super().delete(*args, **kwargs)
+        self.club.members.remove(self.user)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.club.club_name} ({self.position})"
+
+
+class ClubPayment(models.Model):
+    club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True,related_name='club_payment')
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True,related_name='user_payment_club')
+    payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    amount = models.IntegerField(default=0)
+    status = models.BooleanField(default=False)
+    member_position = models.CharField(max_length=100,default="GENERAL-MEMBER",choices=ROLE_CHOICES,null=False,blank=False)
+    
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.status == False:
+            clb = ClubMembership.objects.filter(user=self.user,club=self.club)
+            for clb in clb:
+                clb.delete()
+
+        if self.status == True and self.user not in self.club.members.all():
+            clb = ClubMembership.objects.filter(user=self.user,club=self.club)
+            for clb in clb:
+                clb.delete()
+            ClubMembership.objects.create(
+                user = self.user,
+                club = self.club,
+                position = self.member_position
+            )
+    
+    def delete(self, *args, **kwargs):
+        clb = ClubMembership.objects.filter(user=self.user,club=self.club)
+        for clb in clb:
+                clb.delete()
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.payment_id}"
+    
 
 class ClubGallery(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='gallery_images')
-    image = models.ImageField(upload_to='club_gallery/')
-
+    image = models.ImageField(default=None,upload_to='club_gallery/')
+    
 ########### End Club #######################################
 
     
@@ -211,24 +263,18 @@ class Event(models.Model):
     is_free = models.BooleanField(default=False)
     event_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
     banner = models.ImageField(upload_to='event_banners/', null=True, blank=True)
-    student_enrolled = models.ManyToManyField(CustomUser, related_name='student_enrolled_event', blank=True)
-    blocked_student = models.ManyToManyField(CustomUser, related_name='blocked_students_event', blank=True)
 
     def __str__(self):
         return f"{self.event} by {self.club} on {self.event_date.strftime('%Y-%m-%d')}"
 
 
-class ClubPayment(models.Model):
-    club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
-    student = models.ForeignKey(CustomUser,on_delete=models.CASCADE, null=True, blank=True)
-    payment_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    amount = models.IntegerField(default=0)
+class StudentEventEnrolled(models.Model):
+    event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)
+    student_enrolled = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='student_enrolled_event', blank=True)
     status = models.BooleanField(default=False)
+    created_at = models.DateField(default=timezone.now, null=False,blank=False)
+    actual_enrolled_time = models.DateField(default=timezone.now, null=True,blank=True)
 
-    def __str__(self):
-        return f"{self.payment_id}"
-    
 
 class EventPayment(models.Model):
     event = models.ForeignKey(Event,on_delete=models.CASCADE, null=True, blank=True)

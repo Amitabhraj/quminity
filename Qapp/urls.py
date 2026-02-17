@@ -1,11 +1,12 @@
 from django.urls import path
 from Qapp.qr_code.student.EventAttendance.scan_qr import ScanEventAttendanceQr
-from Qapp.use_cases.admin_side.add_club import AddClub
+from Qapp.use_cases.admin_side.add_club import createClub, send_club_otp
 from Qapp.use_cases.attendance.attendaceList import ListEventAttendace
 from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
 from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
 from Qapp.use_cases.certificate.emailCertificate import GenerateCertificate
+from Qapp.use_cases.event.addEvent import createEvent
 from Qapp.use_cases.event.manage_event import manageEvent
 from Qapp.use_cases.event.EventPayment import CreateEventPayment
 from Qapp.use_cases.payment.paymentStatus import PaymentStatus
@@ -72,7 +73,8 @@ urlpatterns = [
 
 
     ########################## Manage Club/Events Start ############################
-    path('add-club/', AddClub, name='AddClub'),
+    path('create-club/', createClub, name='createClub'),
+    path('create-event/', createEvent, name='createEvent'),
     path('manage-club-events/', ShowAssociatedClub, name='ShowClubEvents'),
     path('manage-club/', ShowAssociatedClub, name='ShowClubEvents'),
     path('manage-event/<int:eventId>/', manageEvent, name='ManageEvent'),
@@ -95,4 +97,14 @@ urlpatterns = [
     path('faculty_dashboard/',faculty_dashboard,name="facultView"),   
     path('moderator_dashboard/', admin_dashboard, name='adminView'),
     ########################## DASHBOARD END ############################
+
+
+    ###################### Search ##################################
+    path('search_members_api/',search_members_api,name='search_members_api'),
+    ################## End Search #################################
+
+
+    ######################### Send OTP For Creating Club ############################
+    path('send-club-otp/',send_club_otp,name='send_club_otp'),
+    ######################### End SEND OTP ############################
 ]

@@ -1,0 +1,254 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .glass-container {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+    }
+    .table-input {
+        border: none !important;
+        border-bottom: 2px solid #6e8efb33 !important;
+        border-radius: 0 !important;
+        font-weight: 600;
+        background: transparent !important;
+    }
+    .btn-create {
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        border: none; color: white; font-weight: 700;
+    }
+    .btn-create:disabled { background: #d0d0d0; cursor: not-allowed; }
+    .add-row-btn {
+        display: inline-block; margin-top: 10px; padding: 6px 18px;
+        background: #f0f4ff; border-radius: 50px; color: #6e8efb;
+        cursor: pointer; font-size: 0.85rem; font-weight: bold;
+    }
+    .search-results { position: absolute; z-index: 1050; width: 100%; display: none; }
+    .otp-field { font-size: 2rem; letter-spacing: 10px; text-align: center; border: 2px solid #6e8efb !important; }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-container">
+                <div class="text-center mb-5">
+                    <h1 class="fw-bold">Create New Club</h1>
+                    <p class="text-muted">Register your official campus community</p>
+                </div>
+
+                <form id="clubForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="otp_code" id="hiddenOtp">
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small">CLUB FULL NAME *</label>
+                            <input type="text" name="club_name" class="form-control req-field" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small">OFFICIAL LOGO *</label>
+                            <input type="file" name="logo" class="form-control req-field" accept="image/*" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small">DESCRIPTION *</label>
+                        <textarea name="description" class="form-control req-field" rows="3" required></textarea>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">ENTRY STATUS</label>
+                            <select name="fees" class="form-select" id="feeSelect" onchange="toggleFeeInput(this.value)">
+                                <option value="FREE">FREE</option>
+                                <option value="PAID">PAID</option>
+                            </select>
+                            <div id="feeAmountContainer" class="mt-3 d-none">
+                                <label class="form-label small fw-bold text-primary">ENTRY FEE (INR) *</label>
+                                <input type="number" name="fee_amount" id="fee_amount_input" class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">GALLERY (OPTIONAL)</label>
+                            <input type="file" name="gallery" class="form-control" multiple>
+                        </div>
+                    </div>
+
+                    <hr class="my-5 opacity-50">
+
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-sitemap me-2"></i> Board Members</h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle" id="membersTable">
+                                <tbody>
+                                    <tr>
+                                        <td width="30%"><input type="text" name="pos[]" value="PRESIDENT" class="form-control table-input" readonly></td>
+                                        <td class="position-relative">
+                                            <input type="text" class="form-control table-input search-input" placeholder="Search Member..." onkeyup="searchMember(this)">
+                                            <input type="hidden" name="user_id[]" class="user-id-hidden req-id">
+                                            <div class="list-group search-results shadow"></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="pos[]" value="VICE-PRESIDENT" class="form-control table-input" readonly></td>
+                                        <td class="position-relative">
+                                            <input type="text" class="form-control table-input search-input" placeholder="Search Member..." onkeyup="searchMember(this)">
+                                            <input type="hidden" name="user_id[]" class="user-id-hidden req-id">
+                                            <div class="list-group search-results shadow"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="add-row-btn" onclick="addRow('membersTable', 'pos[]', false)"><i class="fas fa-plus"></i> Add Position</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3 text-success"><i class="fas fa-user-shield me-2"></i> Core Members</h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle" id="coreMembersTable">
+                                <tbody>
+                                    <tr>
+                                        <td width="30%"><input type="text" name="core_pos[]" value="CORE MEMBER" class="form-control table-input" readonly></td>
+                                        <td class="position-relative">
+                                            <input type="text" class="form-control table-input search-input" placeholder="Search Member..." onkeyup="searchMember(this)">
+                                            <input type="hidden" name="core_user_id[]" class="user-id-hidden req-id">
+                                            <div class="list-group search-results shadow"></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="30%"><input type="text" name="core_pos[]" value="CORE MEMBER" class="form-control table-input" readonly></td>
+                                        <td class="position-relative">
+                                            <input type="text" class="form-control table-input search-input" placeholder="Search Member..." onkeyup="searchMember(this)">
+                                            <input type="hidden" name="core_user_id[]" class="user-id-hidden req-id">
+                                            <div class="list-group search-results shadow"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="add-row-btn" onclick="addRow('coreMembersTable', 'core_pos[]', true)"><i class="fas fa-plus"></i> Add Core Member</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button type="button" id="launchBtn" class="btn btn-create btn-lg px-5 rounded-pill shadow" onclick="requestOTP()" disabled>
+                            <i class="fas fa-rocket me-2"></i> Launch Club
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="otpModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-body text-center p-5">
+                <div id="otpLoading">
+                    <div class="spinner-border text-primary mb-3"></div>
+                    <p>Sending verification code to your email...</p>
+                </div>
+                <div id="otpBox" style="display:none;">
+                    <h3 class="fw-bold">Security Check</h3>
+                    <p class="text-muted">Enter the 6-digit OTP to finalize</p>
+                    <input type="text" id="otpInput" class="form-control otp-field mb-4" maxlength="6">
+                    <button type="button" class="btn btn-primary w-100 rounded-pill btn-lg" onclick="verifySubmit()">Verify & Create</button>
+                    <button type="button" class="btn btn-link mt-2 text-muted" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // FORM TOGGLE LOGIC
+    function toggleFeeInput(value) {
+        const container = document.getElementById('feeAmountContainer');
+        const input = document.getElementById('fee_amount_input');
+        if (value === 'PAID') {
+            container.classList.remove('d-none');
+            input.required = true;
+        } else {
+            container.classList.add('d-none');
+            input.required = false;
+            input.value = '';
+        }
+    }
+
+    // SEARCH & VALIDATION
+    function validateForm() {
+        let ok = true;
+        document.querySelectorAll('.req-field').forEach(i => { if(!i.value) ok = false; });
+        document.querySelectorAll('.req-id').forEach(i => { if(!i.value) ok = false; });
+        document.getElementById('launchBtn').disabled = !ok;
+    }
+    document.getElementById('clubForm').addEventListener('input', validateForm);
+
+    function searchMember(input) {
+        const query = input.value;
+        const results = input.parentElement.querySelector('.search-results');
+        if (query.length >= 4) {
+            fetch(`/search_members_api/?q=${query}`).then(r => r.json()).then(data => {
+                results.innerHTML = ''; results.style.display = 'block';
+                data.results.forEach(u => {
+                    let b = document.createElement('button');
+                    b.className = 'list-group-item list-group-item-action small';
+                    b.type = "button"; b.innerText = u.text;
+                    b.onclick = () => {
+                        input.value = u.text;
+                        input.parentElement.querySelector('.user-id-hidden').value = u.id;
+                        results.style.display = 'none';
+                        validateForm();
+                    };
+                    results.appendChild(b);
+                });
+            });
+        }
+    }
+
+    function addRow(tid, n, core) {
+        const tb = document.querySelector(`#${tid} tbody`);
+        const tr = document.createElement('tr');
+        const role = core ? 'CORE MEMBER' : '';
+        const idN = core ? 'core_user_id[]' : 'user_id[]';
+        tr.innerHTML = `
+            <td><input type="text" name="${n}" value="${role}" class="form-control table-input" ${core ? 'readonly':''}></td>
+            <td class="position-relative">
+                <input type="text" class="form-control table-input search-input" onkeyup="searchMember(this)">
+                <input type="hidden" name="${idN}" class="user-id-hidden">
+                <div class="list-group search-results shadow"></div>
+            </td>
+            <td><i class="fas fa-times text-danger" onclick="this.closest('tr').remove(); validateForm();"></i></td>`;
+        tb.appendChild(tr);
+        validateForm();
+    }
+
+    // OTP HANDLER
+    const modal = new bootstrap.Modal(document.getElementById('otpModal'));
+    function requestOTP() {
+        modal.show();
+        fetch('/send-club-otp/', { method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'} })
+        .then(r => r.json()).then(d => {
+            document.getElementById('otpLoading').style.display = 'none';
+            document.getElementById('otpBox').style.display = 'block';
+        });
+    }
+
+    function verifySubmit() {
+        const val = document.getElementById('otpInput').value;
+        if(val.length === 6) {
+            document.getElementById('hiddenOtp').value = val;
+            document.getElementById('clubForm').submit();
+        }
+    }
+</script>
+{% endblock %}

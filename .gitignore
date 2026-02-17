@@ -1,0 +1,109 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===============================
+# Virtual Environment
+# ===============================
+myenv/
+venv/
+env/
+ENV/
+.venv/
+
+# ===============================
+# Django
+# ===============================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media files (User uploads)
+media/
+
+# Static files collected
+staticfiles/
+
+# ===============================
+# Environment Variables
+# ===============================
+.env
+.env.*
+*.env
+
+# ===============================
+# IDEs
+# ===============================
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# ===============================
+# OS files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Testing
+# ===============================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ===============================
+# Migrations (Optional)
+# ===============================
+# Uncomment if you don't want migrations tracked
+# **/migrations/*
+# !**/migrations/__init__.py
+
+# ===============================
+# Docker (if using)
+# ===============================
+*.pid
+*.seed
+*.pid.lock
+
+# ===============================
+# Jupyter Notebook
+# ===============================
+.ipynb_checkpoints
+
+# ===============================
+# Large ML Models (if applicable)
+# ===============================
+*.h5
+*.hdf5
+*.ckpt
+*.pt
+*.pth
+*.onnx
