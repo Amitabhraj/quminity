@@ -26,11 +26,17 @@ SECRET_KEY = 'django-insecure-xpp6b4&n9=$6709*p2#!#=&c&7oonu7^+esba#f()s(*r+pn10
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    "d28xp4w96lfabk.cloudfront.net",
+    "ec2-13-232-185-226.ap-south-1.compute.amazonaws.com",
+]
+
 
 
 CORS_ALLOWED_ORIGINS = [
-    'localhost:8000',
+    'http://localhost:8000',
     "https://d28xp4w96lfabk.cloudfront.net",
     "http://ec2-13-232-185-226.ap-south-1.compute.amazonaws.com"
 ]
