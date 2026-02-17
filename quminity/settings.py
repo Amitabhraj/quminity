@@ -31,14 +31,14 @@ ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
     'localhost:8000',
-    "https://d28xp4w96lfabk.cloudfront.net/",
+    "https://d28xp4w96lfabk.cloudfront.net",
     "http://ec2-13-232-185-226.ap-south-1.compute.amazonaws.com:8000"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8000',
     "http://ec2-13-232-185-226.ap-south-1.compute.amazonaws.com:8000",
-    "https://d28xp4w96lfabk.cloudfront.net/",
+    "https://d28xp4w96lfabk.cloudfront.net",
 ]
 
 # Application definition
