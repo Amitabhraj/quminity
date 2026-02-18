@@ -10,6 +10,6 @@ def GetClub(clubId):
         return {'redirect':True,'clubObj':None}
     
 
-def getClubList():
+def getActiveClubList():
     club = Club.objects.filter(active=True)
     return club

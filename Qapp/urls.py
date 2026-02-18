@@ -6,12 +6,14 @@ from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceN
 from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
 from Qapp.use_cases.certificate.emailCertificate import GenerateCertificate
-from Qapp.use_cases.event.addEvent import createEvent
+from Qapp.use_cases.event.CreateEvent import createEvent
+from Qapp.use_cases.event.listEvent import EventList
+from Qapp.use_cases.event.listEvent import EventList
 from Qapp.use_cases.event.manage_event import manageEvent
 from Qapp.use_cases.event.EventPayment import CreateEventPayment
 from Qapp.use_cases.payment.paymentStatus import PaymentStatus
 from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
-from Qapp.use_cases.listing.listClubEvent import ClubEventList
+from Qapp.use_cases.club.listClub import  ClubList
 from Qapp.use_cases.student_side.studentDiscussion import studentDiscussion
 from Qapp.use_cases.student_side.studentAcademics import studentAcad
 from Qapp.use_cases.user_onboarding.register_face.pending_user import pending_user
@@ -73,18 +75,20 @@ urlpatterns = [
 
 
     ########################## Manage Club/Events Start ############################
+    path('ListClubs/', ClubList, name='ClubList'),
     path('create-club/', createClub, name='createClub'),
-    path('create-event/', createEvent, name='createEvent'),
-    path('manage-club-events/', ShowAssociatedClub, name='ShowClubEvents'),
     path('manage-club/', ShowAssociatedClub, name='ShowClubEvents'),
-    path('manage-event/<int:eventId>/', manageEvent, name='ManageEvent'),
+
+    path('ListEvents/', EventList, name="EventList"),
+    path('create-event/', createEvent, name='createEvent'),
+    path('manage-event/', manageEvent, name='ManageEvent'),
     ########################## Manage Club/Events End ############################
 
     ###################### Main Pages Start ########################################
     path('studentAcad/<int:studentId>/<int:qid>/<str:studentName>/', studentAcad, name='studentAcad'),
-    path('ListClubEvents/', ClubEventList, name='ClubEventList'),
     path('studentDiscussion/<int:studentId>/<int:qid>/<str:studentName>/', studentDiscussion, name='studentDiscussion'),
     ##################### Main Pages Start End ####################################
+
 
 
     ################################ Certificate ##########################

@@ -9,7 +9,7 @@ def GetEvent(eventId):
         return {'redirect':True,'event_obj':None}
     
 
-def getEventList():
+def getActiveEventList():
     now = timezone.now()
     events = Event.objects.all()
     return events

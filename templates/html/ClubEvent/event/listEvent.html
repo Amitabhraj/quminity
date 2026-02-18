@@ -1,0 +1,140 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Upcoming Events | Quminity{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --event-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .page-header {
+        background: var(--event-gradient);
+        padding: 80px 0 100px;
+        color: white;
+        border-radius: 0 0 50px 50px;
+        text-align: center;
+        margin-bottom: -50px;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto 50px;
+    }
+
+    /* Flip Card Logic */
+    .flip-card { height: 380px; perspective: 1000px; }
+    .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+    }
+    .is-flipped { transform: rotateY(180deg); }
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 24px;
+        background: white;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+
+    .card-back {
+        background: #fff5f5;
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border: 2px solid #feb2b2;
+    }
+
+    .event-date-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.9);
+        padding: 8px 15px;
+        border-radius: 12px;
+        font-weight: 700;
+        color: #f5576c;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-event {
+        background: var(--event-gradient);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 600;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Campus Events</h1>
+        <p class="lead opacity-75">Don't just attend. Experience.</p>
+    </div>
+</div>
+
+<div class="grid-container">
+    {% for event in events %}
+    <div class="flip-card">
+        <div class="flip-card-inner" id="card-event-{{event.id}}">
+            <div class="card-front">
+                <div class="card-banner" style="background: var(--event-gradient); height: 160px;">
+                    <div class="event-date-badge">
+                        <i class="bi bi-calendar3 me-1"></i> {{event.event_date|date:"M d"}}
+                    </div>
+                </div>
+                <div class="card-content" style="padding: 20px;">
+                    <h4 class="fw-bold">{{event.event}}</h4>
+                    <p class="text-muted"><i class="bi bi-geo-alt me-1"></i> Main Auditorium</p>
+                    
+                    <div class="mt-4">
+                        {% if user in event.student_enrolled.all %}
+                            <button class="btn btn-dark w-100 disabled" style="border-radius:14px;">Already Registered</button>
+                        {% else %}
+                            <span class="d-block mb-2 fw-bold">Ticket: ₹{{event.entry_fees}}</span>
+                            {% if event.entry_fees == 0 or event.entry_fees == "0" %}
+                                <button onclick="handleJoinFree('event-{{event.id}}')" class="btn btn-event">Grab Free Ticket</button>
+                            {% else %}
+                                <a href="/payment-event/{{event.id}}/" class="btn btn-event">Buy Ticket</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-back">
+                <div style="font-size: 3rem;">🎉</div>
+                <h3 class="fw-bold" style="color: #f5576c;">You're In!</h3>
+                <p class="text-center">Your spot for <strong>{{event.event}}</strong> is reserved.</p>
+                <button onclick="location.reload()" class="btn btn-outline-danger mt-3">See My Tickets</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function handleJoinFree(id) {
+    document.getElementById('card-' + id).classList.add('is-flipped');
+}
+</script>
+{% endblock %}

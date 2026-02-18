@@ -1,0 +1,175 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Explore Clubs | Quminity{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .page-header {
+        background: var(--primary-gradient);
+        padding: 80px 0 100px;
+        color: white;
+        border-radius: 0 0 50px 50px;
+        text-align: center;
+        margin-bottom: -50px;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto 50px;
+    }
+
+    /* 3D Flip Card Logic */
+    .flip-card {
+        background-color: transparent;
+        height: 380px;
+        perspective: 1000px;
+    }
+
+    .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+    }
+
+    /* The class applied via JS on click */
+    .is-flipped {
+        transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 24px;
+        background: white;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+
+    .card-back {
+        background: #f0fff4; /* Light green success bg */
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        border: 2px solid #68d391;
+    }
+
+    .card-banner {
+        height: 120px;
+        background: var(--primary-gradient);
+        position: relative;
+    }
+
+    .card-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 22px;
+        border: 5px solid white;
+        position: absolute;
+        bottom: -45px;
+        left: 25px;
+        background: #eee;
+    }
+
+    .card-content {
+        padding: 55px 25px 25px;
+    }
+
+    .btn-action {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 14px;
+        font-weight: 600;
+        width: 100%;
+        transition: transform 0.2s;
+    }
+
+    .btn-action:hover { transform: scale(1.02); color: white; }
+
+    .success-icon {
+        font-size: 4rem;
+        color: #48bb78;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Campus Clubs</h1>
+        <p class="lead opacity-75">Where interests become lifelong friendships.</p>
+    </div>
+</div>
+
+<div class="grid-container">
+    {% for club in clubs %}
+    <div class="flip-card">
+        <div class="flip-card-inner" id="card-club-{{club.id}}">
+            <div class="card-front">
+                <div class="card-banner">
+                    <img src="{% static 'images/user/01.jpg' %}" class="card-avatar">
+                </div>
+                <div class="card-content">
+                    <h4 class="fw-bold mb-2">{{club.club_name}}</h4>
+                    <p class="text-muted small mb-4"><i class="bi bi-person-circle me-2"></i>{{club.president_name|default:"Lead: NA"}}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        {% if user in club.student_enrolled.all %}
+                            <button class="btn btn-success w-100 disabled" style="border-radius:14px;">Already Joined</button>
+                        {% else %}
+                            <div class="w-100">
+                                <span class="d-block mb-2 fw-bold text-dark">Fee: ₹{{club.entry_fees}}</span>
+                                {% if club.entry_fees == 0 or club.entry_fees == "0" %}
+                                    <button onclick="handleJoinFree('club-{{club.id}}')" class="btn btn-action">Join for Free</button>
+                                {% else %}
+                                    <a href="/payment-club/{{club.id}}/" class="btn btn-action">Pay & Join</a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-back">
+                <div class="success-icon"><i class="bi bi-check2-circle"></i></div>
+                <h3 class="fw-bold text-success">Welcome!</h3>
+                <p>You are now a member of <br><strong>{{club.club_name}}</strong></p>
+                <button onclick="location.reload()" class="btn btn-sm btn-outline-success mt-3">View My Clubs</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function handleJoinFree(id) {
+    const card = document.getElementById('card-' + id);
+    // Add flip animation
+    card.classList.add('is-flipped');
+    
+    // In a real app, you would add an AJAX call here to save the membership
+    console.log("Joined " + id);
+}
+</script>
+{% endblock %}

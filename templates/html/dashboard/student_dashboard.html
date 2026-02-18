@@ -5,376 +5,241 @@
 
 {% block extra_css %}
 <style>
-    /* Dashboard Hero */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    /* Advanced Hero Section */
     .dashboard-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 16px;
-        padding: 2.5rem 2rem;
-        margin: 1rem 0 2rem 0;
+        background: var(--primary-gradient);
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
         color: white;
     }
 
-    .welcome-text {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        position: relative;
+    /* Decorative circles for that "Modern App" look */
+    .dashboard-hero::after {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
     }
 
-    .welcome-subtext {
-        font-size: 1rem;
-        opacity: 0.9;
-        position: relative;
+    .welcome-text {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
     }
 
     .user-id {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        display: inline-block;
-        margin-top: 0.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.4rem 1rem;
+        border-radius: 12px;
+        font-weight: 500;
     }
 
-    /* Features Grid */
+    /* Stats with Glassmorphism */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.25rem;
+        margin-top: -40px; /* Overlap with hero */
+        padding: 0 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-item {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover { transform: translateY(-5px); }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Feature Cards - Higher Contrast */
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin: 2.5rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
     }
 
     .feature-card {
         background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        transition: all 0.3s ease;
-        border-top: 3px solid transparent;
-        height: 100%;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .feature-card:nth-child(1) {
-        border-top-color: #667eea;
-    }
-
-    .feature-card:nth-child(2) {
-        border-top-color: #f093fb;
-    }
-
-    .feature-card:nth-child(3) {
-        border-top-color: #4facfe;
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
     }
 
     .feature-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-        color: white;
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        font-size: 1.75rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    .feature-card:nth-child(1) .feature-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Multi-Button Layout for Clubs */
+    .club-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
     }
+    
+    .full-width { grid-column: span 2; }
 
-    .feature-card:nth-child(2) .feature-icon {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .feature-card:nth-child(3) .feature-icon {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .feature-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        color: var(--text-dark);
-    }
-
-    .feature-description {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.5;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Button Styles */
     .btn-modern {
-        padding: 0.6rem 1.25rem;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        border: none;
         transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
     }
 
     .btn-primary-modern {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-    }
-
-    .btn-primary-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        background: var(--primary-gradient);
         color: white;
     }
 
-    .btn-outline-modern {
-        border: 1.5px solid #667eea;
-        color: #667eea;
-        background: transparent;
-    }
-
-    .btn-outline-modern:hover {
-        background: #667eea;
+    .btn-secondary-modern {
+        background: var(--accent-gradient);
         color: white;
-        transform: translateY(-2px);
     }
 
-    .btn-dark-modern {
-        background: #1f2937;
-        color: white;
-        border: none;
-    }
-
-    .btn-dark-modern:hover {
-        background: #374151;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .action-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    /* Quick Stats */
-    .stats-bar {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin: 2rem 0;
-    }
-
-    .stat-item {
-        background: white;
-        padding: 1rem;
-        border-radius: 10px;
+    /* Badge for "Coming Soon" */
+    .badge-soon {
+        background: #f3f4f6;
+        color: #9ca3af;
+        padding: 0.5rem;
+        border-radius: 8px;
         text-align: center;
-        box-shadow: var(--shadow-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px dashed #d1d5db;
     }
 
-    .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .dashboard-hero {
-            padding: 1.75rem 1.5rem;
-            margin: 0.5rem 0 1.5rem 0;
-        }
-        
-        .welcome-text {
-            font-size: 1.5rem;
-        }
-        
-        .welcome-subtext {
-            font-size: 0.9rem;
-        }
-        
-        .features-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .feature-card {
-            padding: 1.25rem;
-        }
-        
-        .btn-modern {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .dashboard-hero {
-            padding: 1.5rem 1rem;
-        }
-        
-        .welcome-text {
-            font-size: 1.25rem;
-        }
-        
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
-        }
-        
-        .feature-title {
-            font-size: 1.1rem;
-        }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="dashboard-hero fade-in">
-    <h1 class="welcome-text">Welcome {{student_user.first_name}} 👋</h1>
-    <p class="welcome-subtext">Your all-in-one campus community platform</p>
-    <div class="user-id">
-        <i class="bi bi-person-badge me-2"></i>
-        {{ student_user.qid|default:"STUDENT_ID" }}
-    </div>
-</div>
-
-<!-- Quick Stats -->
-<div class="stats-bar">
-    <div class="stat-item">
-        <div class="stat-value">12</div>
-        <div class="stat-label">Active Clubs</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">45</div>
-        <div class="stat-label">Events</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">98%</div>
-        <div class="stat-label">Attendance</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">A+</div>
-        <div class="stat-label">Performance</div>
-    </div>
-</div>
-
-<!-- Features Grid -->
-<div class="features-grid">
-    <!-- Clubs & Events -->
-    <div class="feature-card">
-        <div class="feature-icon">
-            <i class="bi bi-people-fill"></i>
+<div class="container py-4">
+    <div class="dashboard-hero">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="welcome-text">Hey {{student_user.first_name|default:"Student"}}!</h1>
+                <p class="welcome-subtext mb-3">Welcome back to your Quminity command center.</p>
+                <div class="user-id">
+                    <i class="bi bi-fingerprint me-2"></i>{{ student_user.qid|default:"STU-2024-001" }}
+                </div>
+            </div>
         </div>
-        <h3 class="feature-title">Clubs & Events</h3>
-        <p class="feature-description">
-            Discover campus clubs, participate in events, manage memberships, and track attendance through smart QR codes.
-        </p>
-        <div class="action-buttons">
-            <a href="/ListClubEvents" class="btn btn-modern btn-primary-modern">
-                <i class="bi bi-compass me-1"></i>Explore
-            </a>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Clubs</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">45</div>
+            <div class="stat-label">Events</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">98%</div>
+            <div class="stat-label">Attendance</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">A+</div>
+            <div class="stat-label">Grade</div>
+        </div>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon bg-primary text-white mb-4 d-flex align-items-center justify-content-center" style="background: var(--primary-gradient) !important;">
+                <i class="bi bi-rocket-takeoff"></i>
+            </div>
+            <h3 class="feature-title">Clubs & Events</h3>
+            <p class="feature-description text-muted">Join vibrant communities and stay updated with the latest campus happenings.</p>
             
-            {% if not club %}
-            <a href="/manage-club-events/" class="btn btn-modern btn-outline-modern">
-                <i class="bi bi-gear me-1"></i>Manage
-            </a>
-            {% endif %}
+            <div class="club-actions mb-3">
+                <a href="/ListClubs" class="btn btn-modern btn-primary-modern">
+                    <i class="bi bi-people me-1"></i> Clubs
+                </a>
+                <a href="/ListEvents" class="btn btn-modern btn-secondary-modern">
+                    <i class="bi bi-calendar-event me-1"></i> Events
+                </a>
+            </div>
             
-            <a href="/scan-attendance-qr/" class="btn btn-modern btn-dark-modern">
-                <i class="bi bi-qr-code-scan me-1"></i>Scan Attendance
-            </a>
+            <div class="action-buttons">
+                {% if not club %}
+                <a href="/manage-club-events/" class="btn btn-modern btn-outline-primary w-100 mb-2" style="border: 2px solid #667eea; color: #667eea;">
+                    <i class="bi bi-kanban me-1"></i> Manage My Club
+                </a>
+                {% endif %}
+                <a href="/scan-attendance-qr/" class="btn btn-modern btn-dark w-100">
+                    <i class="bi bi-qr-code-scan me-1"></i> Scan Attendance
+                </a>
+            </div>
         </div>
-    </div>
 
-    <!-- Academics -->
-    <div class="feature-card">
-        <div class="feature-icon">
-            <i class="bi bi-journal-bookmark-fill"></i>
+        <div class="feature-card">
+            <div class="feature-icon mb-4 d-flex align-items-center justify-content-center" style="background: var(--info-gradient); color: white;">
+                <i class="bi bi-mortarboard"></i>
+            </div>
+            <h3 class="feature-title">Academic Hub</h3>
+            <p class="feature-description text-muted">Monitor your progress, download notes, and view your digital gradebook.</p>
+            <div class="badge-soon">
+                <i class="bi bi-clock-history me-2"></i>Coming soon
+            </div>
         </div>
-        <h3 class="feature-title">Academics</h3>
-        <p class="feature-description">
-            Access academic records, course materials, grades, and academic resources in one centralized platform.
-        </p>
-        <div class="action-buttons">
-            <!-- <a href="/studentAcad/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}/" 
-               class="btn btn-modern btn-primary-modern">
-                <i class="bi bi-graph-up me-1"></i>Academic Portal
-            </a> -->
-            <a class="btn btn-modern btn-primary-modern">Coming Soon ...</a>
-        </div>
-    </div>
 
-    <!-- Discussion Forum -->
-    <div class="feature-card">
-        <div class="feature-icon">
-            <i class="bi bi-chat-dots-fill"></i>
-        </div>
-        <h3 class="feature-title">Discussion Forum</h3>
-        <p class="feature-description">
-            Engage with peers, share ideas, ask questions, and collaborate in an interactive learning community.
-        </p>
-        <div class="action-buttons">
-            <!-- <a href="/studentDiscussion/{{student_user.id}}/{{student_user.qid}}/{{student_user.username}}" 
-               class="btn btn-modern btn-primary-modern">
-                <i class="bi bi-chat-square-text me-1"></i>Join Discussions
-            </a> -->
-            <a class="btn btn-modern btn-primary-modern">Coming Soon ...</a>
+        <div class="feature-card">
+            <div class="feature-icon mb-4 d-flex align-items-center justify-content-center" style="background: var(--accent-gradient); color: white;">
+                <i class="bi bi-globe"></i>
+            </div>
+            <h3 class="feature-title">Discussion Forum</h3>
+            <p class="feature-description text-muted">A safe space for students to collaborate, ask questions, and share resources.</p>
+            <div class="badge-soon">
+                <i class="bi bi-clock-history me-2"></i>Coming soon
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Add subtle animations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animate stat numbers
-        const statValues = document.querySelectorAll('.stat-value');
-        statValues.forEach((stat, index) => {
-            setTimeout(() => {
-                stat.style.transform = 'scale(1.1)';
-                stat.style.transition = 'transform 0.3s ease';
-                setTimeout(() => {
-                    stat.style.transform = 'scale(1)';
-                }, 300);
-            }, index * 200 + 500);
-        });
-
-        // Add hover effects to cards
-        const cards = document.querySelectorAll('.feature-card');
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.zIndex = '10';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                setTimeout(() => {
-                    card.style.zIndex = '1';
-                }, 300);
-            });
-        });
-    });
-</script>
 {% endblock %}
