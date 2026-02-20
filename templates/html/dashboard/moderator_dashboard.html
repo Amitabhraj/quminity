@@ -11,10 +11,6 @@
         --fab-gradient: linear-gradient(135deg, #00b09b, #96c93d);
     }
 
-    body {
-        background-color: #f8f9fc;
-    }
-
     .dashboard-container {
         padding-top: 30px;
         padding-bottom: 100px;
@@ -188,7 +184,7 @@
                     <div class="card-body text-center p-4">
                         <h5 class="fw-bold">Manage Clubs</h5>
                         <p class="text-muted small">Oversee active communities and club leads.</p>
-                        <a href="#" class="btn btn-outline-info view-btn w-100">Manage Clubs</a>
+                        <a href="{% url 'ListAssociatedClub' %}" class="btn btn-outline-info view-btn w-100">Manage Clubs</a>
                     </div>
                 </div>
             </div>
@@ -201,7 +197,7 @@
                     <div class="card-body text-center p-4">
                         <h5 class="fw-bold">Manage Events</h5>
                         <p class="text-muted small">Update, edit or cancel ongoing event schedules.</p>
-                        <a href="#" class="btn btn-outline-primary view-btn w-100">Manage Events</a>
+                        <a href="{% url 'ListAssociatedEvent' %}" class="btn btn-outline-primary view-btn w-100">Manage Events</a>
                     </div>
                 </div>
             </div>

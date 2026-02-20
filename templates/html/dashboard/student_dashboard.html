@@ -6,154 +6,181 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         --glass-bg: rgba(255, 255, 255, 0.95);
     }
 
-    /* Advanced Hero Section */
+    /* Hero Section Enhancements */
     .dashboard-hero {
         background: var(--primary-gradient);
-        border-radius: 24px;
-        padding: 3rem 2.5rem;
-        margin-bottom: 2rem;
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        margin-bottom: 3rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
         color: white;
     }
 
-    /* Decorative circles for that "Modern App" look */
-    .dashboard-hero::after {
+    .dashboard-hero::before {
         content: '';
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
+        width: 300px;
+        height: 300px;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 50%;
+        top: -100px;
+        left: -100px;
     }
 
     .welcome-text {
-        font-size: 2.5rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
+        font-size: 3rem;
+        font-weight: 850;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
     }
 
-    .user-id {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 0.4rem 1rem;
-        border-radius: 12px;
-        font-weight: 500;
-    }
-
-    /* Stats with Glassmorphism */
+    /* Stats Bar Overlap Fix */
     .stats-bar {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.25rem;
-        margin-top: -40px; /* Overlap with hero */
-        padding: 0 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin-top: -60px;
+        padding: 0 2rem;
         position: relative;
-        z-index: 2;
+        z-index: 10;
     }
 
     .stat-item {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        padding: 1.5rem;
-        border-radius: 18px;
+        background: white;
+        padding: 1.75rem;
+        border-radius: 24px;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        border: 1px solid rgba(255,255,255,0.3);
-        transition: transform 0.3s ease;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,1);
+        transition: all 0.3s ease;
     }
 
-    .stat-item:hover { transform: translateY(-5px); }
+    .stat-item:hover { transform: translateY(-10px); }
 
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: 800;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    /* Feature Cards - Higher Contrast */
+    /* Main Feature Grid (Now 2 Big Columns) */
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2rem;
-        margin: 3rem 0;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2.5rem;
+        margin: 4rem 0;
     }
 
     .feature-card {
         background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border-radius: 32px;
+        padding: 3rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         border: 1px solid #f0f0f0;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
     }
 
     .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+        transform: translateY(-15px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.12);
     }
 
     .feature-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
-        font-size: 1.75rem;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        width: 80px;
+        height: 80px;
+        border-radius: 22px;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* Multi-Button Layout for Clubs */
-    .club-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+    .feature-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
     }
-    
-    .full-width { grid-column: span 2; }
 
+    /* Button Styling */
     .btn-modern {
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        border: none;
+        border-radius: 100px;
+        padding: 1rem 1.5rem;
+        font-weight: 700;
         transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
 
     .btn-primary-modern {
         background: var(--primary-gradient);
         color: white;
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
     }
 
     .btn-secondary-modern {
         background: var(--accent-gradient);
         color: white;
+        box-shadow: 0 10px 20px rgba(240, 147, 251, 0.3);
     }
 
-    /* Badge for "Coming Soon" */
-    .badge-soon {
-        background: #f3f4f6;
-        color: #9ca3af;
-        padding: 0.5rem;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 0.85rem;
-        font-weight: 600;
-        border: 1px dashed #d1d5db;
+    .btn-outline-custom {
+        border: 2px solid #667eea;
+        color: #667eea;
+        background: transparent;
     }
 
+    .btn-outline-custom:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    /* FLOATING BUTTON (BOTTOM LEFT) */
+    .float-qr {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        width: 70px;
+        height: 70px;
+        background: #1a1a1a;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .float-qr:hover {
+        transform: scale(1.1) rotate(15deg);
+        background: var(--primary-gradient);
+    }
+
+    /* Pulsing effect for the QR button */
+    .pulse-animation {
+        animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(102, 126, 234, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+    }
+
+    @media (max-width: 768px) {
+        .welcome-text { font-size: 2.2rem; }
+        .features-grid { grid-template-columns: 1fr; }
+    }
 </style>
 {% endblock %}
 
@@ -162,84 +189,57 @@
     <div class="dashboard-hero">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="welcome-text">Hey {{student_user.first_name|default:"Student"}}!</h1>
-                <p class="welcome-subtext mb-3">Welcome back to your Quminity command center.</p>
-                <div class="user-id">
-                    <i class="bi bi-fingerprint me-2"></i>{{ student_user.qid|default:"STU-2024-001" }}
+                <h1 class="welcome-text">Hey {{request.user.first_name|default:"Student"}}!</h1>
+                <div class="user-id d-inline-block">
+                    <i class="bi bi-person me-2"></i>{{ request.user.qid|default:"" }}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="stats-bar">
-        <div class="stat-item">
-            <div class="stat-value">12</div>
-            <div class="stat-label">Clubs</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">45</div>
-            <div class="stat-label">Events</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">98%</div>
-            <div class="stat-label">Attendance</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">A+</div>
-            <div class="stat-label">Grade</div>
-        </div>
-    </div>
-
     <div class="features-grid">
         <div class="feature-card">
-            <div class="feature-icon bg-primary text-white mb-4 d-flex align-items-center justify-content-center" style="background: var(--primary-gradient) !important;">
-                <i class="bi bi-rocket-takeoff"></i>
+            <div class="feature-icon text-white" style="background: var(--primary-gradient);">
+                <i class="bi bi-people-fill"></i>
             </div>
-            <h3 class="feature-title">Clubs & Events</h3>
-            <p class="feature-description text-muted">Join vibrant communities and stay updated with the latest campus happenings.</p>
+            <h3 class="feature-title">University Clubs</h3>
+            <p class="text-muted mb-4 fs-5">Lead your community or join new ones. Access all club memberships and leadership panels here.</p>
             
-            <div class="club-actions mb-3">
-                <a href="/ListClubs" class="btn btn-modern btn-primary-modern">
-                    <i class="bi bi-people me-1"></i> Clubs
+            <div class="d-grid gap-3">
+                <a href="/ListClubs" class="btn btn-modern btn-primary-modern py-3">
+                    <i class="bi bi-search me-2"></i> Discover Clubs
                 </a>
-                <a href="/ListEvents" class="btn btn-modern btn-secondary-modern">
-                    <i class="bi bi-calendar-event me-1"></i> Events
-                </a>
-            </div>
-            
-            <div class="action-buttons">
-                {% if not club %}
-                <a href="/manage-club-events/" class="btn btn-modern btn-outline-primary w-100 mb-2" style="border: 2px solid #667eea; color: #667eea;">
-                    <i class="bi bi-kanban me-1"></i> Manage My Club
+                {% if is_associated_with_club %}
+                <a href="{% url 'ListAssociatedClub' %}" class="btn btn-modern btn-outline-custom py-3">
+                    <i class="bi bi-shield-lock me-2"></i> Club Manager Panel
                 </a>
                 {% endif %}
-                <a href="/scan-attendance-qr/" class="btn btn-modern btn-dark w-100">
-                    <i class="bi bi-qr-code-scan me-1"></i> Scan Attendance
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon text-white" style="background: var(--accent-gradient);">
+                <i class="bi bi-calendar2-heart-fill"></i>
+            </div>
+            <h3 class="feature-title">Campus Events</h3>
+            <p class="text-muted mb-4 fs-5">From Hackathons to Cultural Fests. Stay updated with registrations and manage your organized events.</p>
+            
+            <div class="d-grid gap-3">
+                <a href="/ListEvents" class="btn btn-modern btn-secondary-modern py-3">
+                    <i class="bi bi-ticket-perforated me-2"></i> Upcoming Events
                 </a>
-            </div>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon mb-4 d-flex align-items-center justify-content-center" style="background: var(--info-gradient); color: white;">
-                <i class="bi bi-mortarboard"></i>
-            </div>
-            <h3 class="feature-title">Academic Hub</h3>
-            <p class="feature-description text-muted">Monitor your progress, download notes, and view your digital gradebook.</p>
-            <div class="badge-soon">
-                <i class="bi bi-clock-history me-2"></i>Coming soon
-            </div>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon mb-4 d-flex align-items-center justify-content-center" style="background: var(--accent-gradient); color: white;">
-                <i class="bi bi-globe"></i>
-            </div>
-            <h3 class="feature-title">Discussion Forum</h3>
-            <p class="feature-description text-muted">A safe space for students to collaborate, ask questions, and share resources.</p>
-            <div class="badge-soon">
-                <i class="bi bi-clock-history me-2"></i>Coming soon
+                {% if is_associated_with_event %}
+                <a href="{% url 'ListAssociatedEvent' %}" class="btn btn-modern btn-outline-custom py-3">
+                    <i class="bi bi-gear-wide-connected me-2"></i> Event Manager Panel
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<a href="/scan-attendance-qr/" class="float-qr pulse-animation" title="Scan QR Code">
+    <i class="bi bi-qr-code-scan"></i>
+</a>
+
 {% endblock %}

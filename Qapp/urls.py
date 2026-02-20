@@ -1,16 +1,20 @@
 from django.urls import path
 from Qapp.qr_code.student.EventAttendance.scan_qr import ScanEventAttendanceQr
-from Qapp.use_cases.admin_side.add_club import createClub, send_club_otp
+from Qapp.use_cases.admin_side.add_club import send_club_otp
 from Qapp.use_cases.attendance.attendaceList import ListEventAttendace
 from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
 from Qapp.use_cases.attendance.markAttendance import ApproveEventAttendance
 from Qapp.use_cases.club.ClubPayment import CreateClubPayment
 from Qapp.use_cases.certificate.emailCertificate import GenerateCertificate
-from Qapp.use_cases.event.CreateEvent import createEvent
+from Qapp.use_cases.club.CreateClub import CreateClub
+from Qapp.use_cases.club.ListAssociatedClub import ListAssociatedClub
+from Qapp.use_cases.club.edit_club import EditClub
+from Qapp.use_cases.event.CreateEvent import CreateEvent
+from Qapp.use_cases.event.edit_event import EditEvent
 from Qapp.use_cases.event.listEvent import EventList
-from Qapp.use_cases.event.listEvent import EventList
-from Qapp.use_cases.event.manage_event import manageEvent
+from Qapp.use_cases.event.ListAssociatedEvent import ListAssociatedEvent
 from Qapp.use_cases.event.EventPayment import CreateEventPayment
+from Qapp.use_cases.event.manage_event import ManageEvent
 from Qapp.use_cases.payment.paymentStatus import PaymentStatus
 from Qapp.use_cases.payment.VerifyPayment import VerifyPayment
 from Qapp.use_cases.club.listClub import  ClubList
@@ -21,12 +25,12 @@ from Qapp.use_cases.user_onboarding.user_login import user_login
 from Qapp.use_cases.user_onboarding.face_login.face_login import login_with_face,face_login_page
 from Qapp.use_cases.user_onboarding.register_face.face_register import register_face,face_register_page
 from .views import *
-from .use_cases.listing.listAssociatedClubEvent import ShowAssociatedClub
+from .use_cases.club.manage_club import ManageClub
 from .use_cases.user_onboarding.logout_user import user_logout
 from .use_cases.student_side.studentView import MainView as student_dashboard
 from .use_cases.faculty_side.facultyView import MainView as faculty_dashboard
 from .use_cases.admin_side.adminView import MainView as admin_dashboard
-from Qapp.qr_code.instructor.EventAttendance import EventQrCode
+from Qapp.qr_code.instructor.EventAttendance.EventQrCode import QrGeneratePage
 from Qapp.qr_code.instructor.EventAttendance.generateToken import GenerateQR
 from Qapp.qr_code.instructor.EventAttendance.validateAttend import validate_attendance
 from Qapp.use_cases.chatting.chatting import demoChat
@@ -46,8 +50,8 @@ urlpatterns = [
 
 
     ############# QR CODE ATTENDANCE #############
-    path('show-event-qr/<int:eventId>/', EventQrCode.QrGeneratePage, name='Show_Attendance_QR'),
-    path('api/GenerateAttendanceQR/<int:eventId>/', GenerateQR, name='GenerateQR'),
+    path('show-event-qr/<int:EventId>/', QrGeneratePage, name='Show_Attendance_QR'),
+    path('api/GenerateAttendanceQR/<int:EventId>/', GenerateQR, name='GenerateQR'),
 
     path('scan-attendance-qr/', ScanEventAttendanceQr, name='scan_page'),
     path('api/validate-attendance/', validate_attendance, name='validate_attendance'),
@@ -75,14 +79,20 @@ urlpatterns = [
 
 
     ########################## Manage Club/Events Start ############################
+    path('ListAssociatedClub/',ListAssociatedClub,name='ListAssociatedClub'),
     path('ListClubs/', ClubList, name='ClubList'),
-    path('create-club/', createClub, name='createClub'),
-    path('manage-club/', ShowAssociatedClub, name='ShowClubEvents'),
+    path('create-club/', CreateClub, name='createClub'),
+    path('manage-club/<int:ClubId>/', ManageClub, name='ManageClub'),
+    path('edit-club/<int:ClubId>/', EditClub, name='EditClub'),
 
     path('ListEvents/', EventList, name="EventList"),
-    path('create-event/', createEvent, name='createEvent'),
-    path('manage-event/', manageEvent, name='ManageEvent'),
+    path('ListAssociatedEvent/', ListAssociatedEvent, name='ListAssociatedEvent'),
+    path('create-event/', CreateEvent, name='createEvent'),
+    path('manage-event/<int:EventId>/', ManageEvent, name='ManageEvent'),
+    path('edit-event/<int:EventId>/', EditEvent, name='EditEvent'),
     ########################## Manage Club/Events End ############################
+
+
 
     ###################### Main Pages Start ########################################
     path('studentAcad/<int:studentId>/<int:qid>/<str:studentName>/', studentAcad, name='studentAcad'),

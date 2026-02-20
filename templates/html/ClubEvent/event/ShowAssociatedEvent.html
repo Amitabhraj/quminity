@@ -1,0 +1,287 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Manage Events | Quminity{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+<style>
+    :root {
+        --glass-bg: rgba(17, 24, 39, 0.85); /* Deep Midnight Navy */
+        --glass-border: rgba(255, 255, 255, 0.12);
+        --accent-blue: #3b82f6;
+        --accent-cyan: #2dd4bf;
+        --event-grad: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+    }
+
+    /* Hero Section */
+    .hero-section {
+        padding: 80px 0 40px;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -1px;
+        background: var(--event-grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.3));
+        margin-bottom: 0;
+    }
+
+    .hero-subtitle {
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    /* Grid Layout */
+    .grid-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 35px;
+        padding: 40px 20px;
+        max-width: 1300px;
+        margin: 0 auto 100px;
+    }
+
+    /* The Unique Event Card */
+    .event-card-unique {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 35px;
+        padding: 35px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .event-card-unique:hover {
+        border-color: var(--accent-cyan);
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(45, 212, 191, 0.15);
+        background: rgba(17, 24, 39, 0.95);
+    }
+
+    /* Animated Status Ring Decor */
+    .status-ring {
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 140px;
+        height: 140px;
+        background: var(--event-grad);
+        border-radius: 50%;
+        opacity: 0.05;
+        transition: 0.5s;
+    }
+
+    .event-card-unique:hover .status-ring {
+        transform: scale(1.4);
+        opacity: 0.15;
+    }
+
+    /* Pulse for Active events */
+    .live-pulse {
+        width: 10px;
+        height: 10px;
+        background: var(--accent-cyan);
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+        box-shadow: 0 0 12px var(--accent-cyan);
+        animation: pulse-ring 2s infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.8; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(0.8); opacity: 0.8; }
+    }
+
+    /* Icon and Meta Styling */
+    .event-icon-box {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .event-icon-box i {
+        font-size: 2.5rem;
+        background: var(--event-grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .event-id-tag {
+        font-family: 'JetBrains Mono', 'Monaco', monospace;
+        font-size: 0.7rem;
+        color: var(--accent-cyan);
+        background: rgba(45, 212, 191, 0.1);
+        padding: 5px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(45, 212, 191, 0.2);
+    }
+
+    .event-name {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #94a3b8;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .info-row i {
+        color: var(--accent-blue);
+        font-size: 1.1rem;
+    }
+
+    /* Dynamic Action Buttons */
+    .card-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-cyber {
+        flex: 1;
+        padding: 14px;
+        border-radius: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-qr {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        max-width: 60px;
+    }
+
+    .btn-qr:hover {
+        background: #ffffff;
+        color: #0f172a;
+        transform: rotate(90deg);
+        border-radius: 50%;
+    }
+
+    .btn-manage {
+        background: var(--event-grad);
+        color: #0f172a;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-manage:hover {
+        box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4);
+        letter-spacing: 2px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+        background: var(--glass-bg);
+        border-radius: 35px;
+        border: 2px dashed var(--glass-border);
+        grid-column: 1 / -1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <p class="hero-subtitle">Operations Dashboard</p>
+        <h1 class="hero-title">Nexus Control</h1>
+    </div>
+</section>
+
+<div class="grid-wrapper">
+    {% for event in associated_event %}
+    <div class="event-card-unique" data-tilt data-tilt-max="10" data-tilt-speed="1000" data-tilt-glare="true" data-tilt-max-glare="0.1">
+        <div class="status-ring"></div>
+        
+        <div class="event-icon-box">
+            <i class="ri-radar-line"></i>
+            <span class="event-id-tag">REF#{{ event.id|add:"1000" }}</span>
+        </div>
+        
+        <h3 class="event-name">{{ event.event }}</h3>
+        
+        <div class="info-row">
+            <i class="ri-calendar-event-line"></i>
+            <span>{{ event.event_date|date:"l, d M Y" }}</span>
+        </div>
+        
+        <div class="info-row">
+            <i class="ri-map-pin-2-line"></i>
+            <span>{{ event.location|default:"Venue Not Set" }}</span>
+        </div>
+
+        <div class="info-row mt-3">
+            <div class="live-pulse"></div>
+            <span class="small text-uppercase fw-bold text-success" style="letter-spacing: 1px;">Live Link Established</span>
+        </div>
+
+        <div class="card-actions">
+            <a href="{% url 'Show_Attendance_QR' event.id %}" class="btn-cyber btn-qr" title="Open Scanner">
+                <i class="ri-qr-code-line ri-lg"></i>
+            </a>
+
+            <a href="{% url 'ManageEvent' event.id %}" class="btn-cyber btn-manage">
+                Manage System <i class="ri-arrow-right-up-line"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="ri-error-warning-line ri-4x text-muted mb-4 d-block"></i>
+        <h4 class="text-white fw-bold">No Active Uplinks</h4>
+        <p class="text-muted">You are not currently authorized as a coordinator for any scheduled events.</p>
+        <a href="{% url 'create_event' %}" class="btn btn-outline-info rounded-pill mt-3 px-4">Create New Event</a>
+    </div>
+    {% endfor %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+<script>
+    // Initialize 3D Tilt Effect
+    VanillaTilt.init(document.querySelectorAll(".event-card-unique"), {
+        max: 8,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.2,
+        scale: 1.03,
+        perspective: 1000
+    });
+</script>
+{% endblock %}

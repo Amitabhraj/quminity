@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
 import jwt
@@ -5,16 +6,15 @@ import qrcode
 import base64
 import time
 from io import BytesIO
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.conf import settings
-from Qapp.models import ActiveToken
-from Qapp.use_cases.event.getEvent_coordinator import check_event_coordinator
+from Qapp.models import ActiveToken, Event
 
-def GenerateQR(request, eventId):
-    # 1. Validate Coordinator (Ensure eventId matches URL param)
-    event = check_event_coordinator(request, eventId)
-    if not event:
-        return JsonResponse({"status": "error", "message": "Unauthorized or Event not found"}, status=403)
+def GenerateQR(request, EventId):
+    if not Event.objects.is_user_associated_with_provided_event(request.user, EventId):
+        raise Http404
+    
+    event = get_object_or_404(Event, id=EventId)
 
     # 2. Use settings with fallbacks to prevent NoneType errors
     SECRET_KEY = getattr(settings, 'QR_SECRET_KEY', 'fallback-secret')
@@ -23,7 +23,7 @@ def GenerateQR(request, eventId):
 
     # 3. JWT payload (Use the dynamic event.id, not the hardcoded one)
     payload = {
-        "event_id": str(event.id), 
+        "event_id": str(EventId), 
         "role": "student_attendance",
         "iat": int(time.time()),
         "exp": int(time.time()) + TOKEN_EXPIRY,

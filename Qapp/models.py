@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser,User
 from django.db import models
 from django.utils import timezone
-from Qapp.common import ROLE_CHOICES, USER_TYPE
-
+from Qapp.common import LEAD_ROLE, MODERATOR_USER_LIST, ROLE_CHOICES, USER_TYPE
+from django.db.models import Q
 
 courses_name_choices = [
     ('B.TECH', 'B.TECH'),
@@ -165,6 +165,24 @@ class PendingUser(models.Model):
 
 
 ########### Start Club #######################################
+class ClubManager(models.Manager):
+    def get_associated_clubs(self, user):
+        """
+        Returns all Related clubs where the user fulfil at least one of the following conditions:
+        1. A Staff/Moderator (returns all clubs)
+        2. A Lead Role in Club (PRESIDENT, VICE-PRESIDENT, CORE-MEMBER)
+        3. A Faculty member assigned to the club
+        """
+        # 1. Check Privilege (Staff/Moderator)
+        if user.is_staff or user.user_type in MODERATOR_USER_LIST:
+            return self.get_queryset().all()
+
+        # 2. & 3. Combine Lead roles and Faculty assignments using Q objects
+        return self.get_queryset().filter(
+            Q(club_membership__user=user, club_membership__position__in=LEAD_ROLE) |
+            Q(faculty_assigned=user)
+        ).distinct()
+        
 class Club(models.Model):
     club_name = models.CharField(default="",max_length=150, unique=True)
     description = models.TextField(default="")
@@ -175,6 +193,8 @@ class Club(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     faculty_assigned = models.ManyToManyField(CustomUser,default=None,blank=False,related_name='faculty_assigned_club')
+
+    objects = ClubManager()
 
     def __str__(self):
         return self.club_name
@@ -194,7 +214,6 @@ class ClubMembership(models.Model):
             self.club.members.add(self.user)
     
     def delete(self, *args, **kwargs):
-        print("TRUEEEE")
         super().delete(*args, **kwargs)
         self.club.members.remove(self.user)
 
@@ -249,6 +268,47 @@ class ClubGallery(models.Model):
     
 
 ######################## Start Event #########################
+class EventManager(models.Manager):
+    def get_associated_events(self, user):
+        """
+        Returns all events associated with a user based on (at least) one of the following conditions:
+        1. Staff/Moderator privilege (returns all)
+        2. Faculty assigned to the event
+        3. Event Coordinator role
+        4. Events belonging to a club where the user is a Leader
+        """
+        # 1. Staff/Privilege check
+        if user.is_staff or getattr(user, 'user_type', None) in MODERATOR_USER_LIST:
+            return self.get_queryset().all()
+
+        # 2, 3, & 4 combined into one optimized query
+        return self.get_queryset().filter(
+            Q(faculty_assigned=user) |          # Faculty condition
+            Q(event_coordinator=user) |         # Coordinator condition
+            Q(club__club_membership__user=user,       # Club Lead condition
+              club__club_membership__position__in=LEAD_ROLE)
+        ).distinct()
+
+
+    def is_user_associated_with_provided_event(self, user, event_id):
+        """
+        Returns True if the specific event (event_id) is associated with the user.
+        Uses the same 4 conditions.
+        """
+        # 1. Staff/Privilege check - Always allowed
+        if user.is_staff or getattr(user, 'user_type', None) in MODERATOR_USER_LIST:
+            return True
+
+        # 2, 3, & 4 checked against the specific event_id
+        return self.get_queryset().filter(
+            Q(id=event_id) & (
+                Q(faculty_assigned=user) | 
+                Q(event_coordinator=user) | 
+                Q(club__club_membership__user=user, 
+                  club__club_membership__position__in=LEAD_ROLE)
+            )
+        ).exists()
+    
 class Event(models.Model):
     event = models.CharField(max_length=100, unique=True, null=True, blank=True)
     club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
@@ -263,6 +323,9 @@ class Event(models.Model):
     is_free = models.BooleanField(default=False)
     event_video = models.FileField(upload_to='event_videos/', null=True, blank=True)
     banner = models.ImageField(upload_to='event_banners/', null=True, blank=True)
+    active = models.BooleanField(default=False)
+
+    objects = EventManager()
 
     def __str__(self):
         return f"{self.event} by {self.club} on {self.event_date.strftime('%Y-%m-%d')}"

@@ -1,0 +1,226 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --event-primary: #4facfe;
+        --event-secondary: #00f2fe;
+    }
+    .glass-container {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: var(--event-primary);
+        box-shadow: 0 0 0 0.25rem rgba(79, 172, 254, 0.1);
+    }
+    .btn-launch {
+        background: linear-gradient(135deg, var(--event-primary), var(--event-secondary));
+        border: none; color: white; font-weight: 700;
+        padding: 12px 40px;
+    }
+    .badge-user {
+        background: #f0f4ff;
+        color: var(--event-primary);
+        padding: 8px 15px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        margin: 5px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .badge-user i { cursor: pointer; margin-left: 8px; color: #ff6b6b; }
+    .search-results { position: absolute; z-index: 1050; width: 100%; display: none; max-height: 200px; overflow-y: auto; }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-container">
+                <div class="text-center mb-5">
+                    <h1 class="fw-bold">Host New Event</h1>
+                    <p class="text-muted">Broadcast your event to the Quminity ecosystem</p>
+                </div>
+
+                <form id="eventForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold small">EVENT TITLE *</label>
+                            <input type="text" name="event" class="form-control req-field" placeholder="e.g. Annual Tech Symposium" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small">ORGANIZING CLUB *</label>
+                            <select name="club" class="form-select req-field" required>
+                                <option value="">Select Club</option>
+                                {% for club in clubs %}
+                                <option value="{{ club.id }}">{{ club.club_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small">EVENT DESCRIPTION *</label>
+                        <textarea name="description" class="form-control req-field" rows="4" placeholder="Tell students what the event is about..." required></textarea>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small">DATE & TIME *</label>
+                            <input type="datetime-local" name="event_date" class="form-control req-field" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small">LOCATION *</label>
+                            <input type="text" name="location" class="form-control req-field" placeholder="Seminar Hall / Meet Link" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small">ENTRY STATUS</label>
+                            <select name="is_free" class="form-select" id="freeSelect" onchange="toggleFees(this.value)">
+                                <option value="True">FREE</option>
+                                <option value="False">PAID</option>
+                            </select>
+                            <div id="feeInputDiv" class="mt-2 d-none">
+                                <input type="number" name="entry_fees" class="form-control" placeholder="Fee in INR">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">EVENT BANNER (IMAGE)</label>
+                            <input type="file" name="banner" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">PROMO VIDEO (OPTIONAL)</label>
+                            <input type="file" name="event_video" class="form-control" accept="video/*">
+                        </div>
+                    </div>
+
+                    <hr class="my-5 opacity-50">
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-3 text-primary small"><i class="fas fa-chalkboard-teacher me-2"></i> FACULTY ASSIGNED</h5>
+                            <div class="position-relative">
+                                <input type="text" class="form-control search-input" placeholder="Search Faculty by Name/QID..." onkeyup="searchUsers(this, 'faculty')">
+                                <div class="list-group search-results shadow"></div>
+                            </div>
+                            <div id="facultyList" class="mt-3 d-flex flex-wrap">
+                                </div>
+                            <div id="facultyInputs"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-3 text-info small"><i class="fas fa-user-friends me-2"></i> EVENT COORDINATORS</h5>
+                            <div class="position-relative">
+                                <input type="text" class="form-control search-input" placeholder="Search Students by Name/QID..." onkeyup="searchUsers(this, 'coordinators')">
+                                <div class="list-group search-results shadow"></div>
+                            </div>
+                            <div id="coordinatorList" class="mt-3 d-flex flex-wrap">
+                                </div>
+                            <div id="coordinatorInputs"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-launch btn-lg rounded-pill shadow">
+                            <i class="fas fa-calendar-check me-2"></i> Publish Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle Fee Input
+    function toggleFees(val) {
+        const div = document.getElementById('feeInputDiv');
+        if(val === 'False') div.classList.remove('d-none');
+        else div.classList.add('d-none');
+    }
+
+    // User Search and Add (M2M Logic)
+    function searchUsers(input, type) {
+        const query = input.value;
+        const resultsBox = input.parentElement.querySelector('.search-results');
+        
+        if (query.length >= 3) {
+            fetch(`/search_members_api/?q=${query}`)
+                .then(r => r.json())
+                .then(data => {
+                    resultsBox.innerHTML = '';
+                    resultsBox.style.display = 'block';
+                    data.results.forEach(user => {
+                        let btn = document.createElement('button');
+                        btn.className = 'list-group-item list-group-item-action small';
+                        btn.type = 'button';
+                        btn.innerHTML = `<strong>${user.text}</strong>`;
+                        btn.onclick = () => addUserBadge(user.id, user.text, type, input, resultsBox);
+                        resultsBox.appendChild(btn);
+                    });
+                });
+        } else {
+            resultsBox.style.display = 'none';
+        }
+    }
+
+    function addUserBadge(id, name, type, input, resultsBox) {
+        const listId = type === 'faculty' ? 'facultyList' : 'coordinatorList';
+        const inputId = type === 'faculty' ? 'facultyInputs' : 'coordinatorInputs';
+        const fieldName = type === 'faculty' ? 'faculty_assigned[]' : 'event_coordinator[]';
+        
+        // Prevent duplicate adding
+        if (document.querySelector(`input[value="${id}"][name="${fieldName}"]`)) {
+            resultsBox.style.display = 'none';
+            input.value = '';
+            return;
+        }
+
+        // Create Badge
+        const container = document.getElementById(listId);
+        const badge = document.createElement('div');
+        badge.className = 'badge-user';
+        badge.innerHTML = `${name} <i class="fas fa-times" onclick="removeUser('${id}', this, '${type}')"></i>`;
+        container.appendChild(badge);
+
+        // Create Hidden Input
+        const inputContainer = document.getElementById(inputId);
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = fieldName;
+        hidden.value = id;
+        hidden.id = `input-${type}-${id}`;
+        inputContainer.appendChild(hidden);
+
+        // Reset
+        input.value = '';
+        resultsBox.style.display = 'none';
+    }
+
+    function removeUser(id, el, type) {
+        el.parentElement.remove();
+        document.getElementById(`input-${type}-${id}`).remove();
+    }
+
+    // Close search results on click outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.classList.contains('search-input')) {
+            document.querySelectorAll('.search-results').forEach(r => r.style.display = 'none');
+        }
+    });
+</script>
+{% endblock %}

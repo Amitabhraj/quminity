@@ -4,7 +4,7 @@ from Qapp.models import Club
 
 
 @is_associatedWithClub
-def ManageClub(request):
+def ListAssociatedClub(request):
     associated_club = Club.objects.get_associated_clubs(request.user)
     context = {
         'associated_club': associated_club

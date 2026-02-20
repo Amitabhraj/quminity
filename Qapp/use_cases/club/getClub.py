@@ -13,3 +13,10 @@ def GetClub(clubId):
 def getActiveClubList():
     club = Club.objects.filter(active=True)
     return club
+
+
+def getAssociatedClubList(user):
+    associated_club_list = []
+    if user.is_authenticated:
+        associated_club_list = user.faculty_assigned_club.filter(active=True)
+    return associated_club_list
