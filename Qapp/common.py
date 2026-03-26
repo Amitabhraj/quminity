@@ -100,14 +100,16 @@ president_user = "PRESIDENT"
 vice_precident_user = "VICE-PRESIDENT"
 core_member_user = "CORE-MEMBER"
 general_member_user = "GENERAL-MEMBER" 
+student_coordinator = "COORDINATOR"
 
 TOP_ROLE = [president_user,vice_precident_user]
-LEAD_ROLE = [president_user,vice_precident_user,core_member_user]
+LEAD_ROLE = [president_user,vice_precident_user,core_member_user,student_coordinator]
 
 #Club Members/Core Members
 ROLE_CHOICES = [
         (president_user, president_user),
         (vice_precident_user, vice_precident_user),
         (core_member_user, core_member_user),
-        (general_member_user,general_member_user)
+        (general_member_user,general_member_user),
+        (student_coordinator,student_coordinator)
     ]

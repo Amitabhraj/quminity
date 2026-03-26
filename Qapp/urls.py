@@ -34,6 +34,8 @@ from Qapp.qr_code.instructor.EventAttendance.EventQrCode import QrGeneratePage
 from Qapp.qr_code.instructor.EventAttendance.generateToken import GenerateQR
 from Qapp.qr_code.instructor.EventAttendance.validateAttend import validate_attendance
 from Qapp.use_cases.chatting.chatting import demoChat
+from Qapp.use_cases.attendance.attendance_forward_dean import ForwardAttendanceNotificationToDean
+from Qapp.views import winbuzz
 
 
 urlpatterns = [
@@ -121,4 +123,7 @@ urlpatterns = [
     ######################### Send OTP For Creating Club ############################
     path('send-club-otp/',send_club_otp,name='send_club_otp'),
     ######################### End SEND OTP ############################
+
+
+    path('winbuzz/',winbuzz,name='winbuzz'),
 ]

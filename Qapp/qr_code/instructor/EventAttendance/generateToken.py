@@ -8,8 +8,10 @@ import time
 from io import BytesIO
 from django.http import Http404, JsonResponse
 from django.conf import settings
+from Qapp.decorators import login_required
 from Qapp.models import ActiveToken, Event
 
+@login_required
 def GenerateQR(request, EventId):
     if not Event.objects.is_user_associated_with_provided_event(request.user, EventId):
         raise Http404

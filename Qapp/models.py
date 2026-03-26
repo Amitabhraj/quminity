@@ -166,23 +166,24 @@ class PendingUser(models.Model):
 
 ########### Start Club #######################################
 class ClubManager(models.Manager):
-    def get_associated_clubs(self, user):
-        """
-        Returns all Related clubs where the user fulfil at least one of the following conditions:
+    """
+        Returns all Related clubs if user fulfil at least one of the following conditions:
         1. A Staff/Moderator (returns all clubs)
-        2. A Lead Role in Club (PRESIDENT, VICE-PRESIDENT, CORE-MEMBER)
-        3. A Faculty member assigned to the club
-        """
+        2. A Lead Role in Club (PRESIDENT, VICE-PRESIDENT, CORE-MEMBER, COORDINATOR)
+        3. A Faculty member assigned for the club
+    """
+    def get_associated_clubs(self, user):
         # 1. Check Privilege (Staff/Moderator)
         if user.is_staff or user.user_type in MODERATOR_USER_LIST:
             return self.get_queryset().all()
 
-        # 2. & 3. Combine Lead roles and Faculty assignments using Q objects
+        # 2 & 3 Combine Lead roles and Faculty assignments using Q objects
         return self.get_queryset().filter(
             Q(club_membership__user=user, club_membership__position__in=LEAD_ROLE) |
             Q(faculty_assigned=user)
         ).distinct()
         
+
 class Club(models.Model):
     club_name = models.CharField(default="",max_length=150, unique=True)
     description = models.TextField(default="")
@@ -193,7 +194,6 @@ class Club(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     faculty_assigned = models.ManyToManyField(CustomUser,default=None,blank=False,related_name='faculty_assigned_club')
-
     objects = ClubManager()
 
     def __str__(self):
@@ -228,8 +228,8 @@ class ClubPayment(models.Model):
     order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     amount = models.IntegerField(default=0)
     status = models.BooleanField(default=False)
-    member_position = models.CharField(max_length=100,default="GENERAL-MEMBER",choices=ROLE_CHOICES,null=False,blank=False)
-    
+    payment_time = models.DateTimeField(default=timezone.now,null=False, blank=False)
+    is_paid_offline = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -269,14 +269,14 @@ class ClubGallery(models.Model):
 
 ######################## Start Event #########################
 class EventManager(models.Manager):
-    def get_associated_events(self, user):
-        """
+    """
         Returns all events associated with a user based on (at least) one of the following conditions:
         1. Staff/Moderator privilege (returns all)
         2. Faculty assigned to the event
         3. Event Coordinator role
         4. Events belonging to a club where the user is a Leader
-        """
+    """
+    def get_associated_events(self, user):
         # 1. Staff/Privilege check
         if user.is_staff or getattr(user, 'user_type', None) in MODERATOR_USER_LIST:
             return self.get_queryset().all()
@@ -285,16 +285,12 @@ class EventManager(models.Manager):
         return self.get_queryset().filter(
             Q(faculty_assigned=user) |          # Faculty condition
             Q(event_coordinator=user) |         # Coordinator condition
-            Q(club__club_membership__user=user,       # Club Lead condition
+            Q(club__club_membership__user=user, # Club Lead condition
               club__club_membership__position__in=LEAD_ROLE)
         ).distinct()
 
 
     def is_user_associated_with_provided_event(self, user, event_id):
-        """
-        Returns True if the specific event (event_id) is associated with the user.
-        Uses the same 4 conditions.
-        """
         # 1. Staff/Privilege check - Always allowed
         if user.is_staff or getattr(user, 'user_type', None) in MODERATOR_USER_LIST:
             return True
@@ -308,11 +304,12 @@ class EventManager(models.Manager):
                   club__club_membership__position__in=LEAD_ROLE)
             )
         ).exists()
-    
+
 class Event(models.Model):
     event = models.CharField(max_length=100, unique=True, null=True, blank=True)
     club = models.ForeignKey(Club,on_delete=models.CASCADE, null=True, blank=True)
-    event_date = models.DateTimeField(null=True, blank=True)
+    event_date_from = models.DateTimeField(default=timezone.now,null=False, blank=False)
+    event_date_to = models.DateTimeField(default=timezone.now,null=False, blank=False)
     location = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     entry_fees = models.IntegerField(default=0,null=False, blank=False)
@@ -328,7 +325,7 @@ class Event(models.Model):
     objects = EventManager()
 
     def __str__(self):
-        return f"{self.event} by {self.club} on {self.event_date.strftime('%Y-%m-%d')}"
+        return f"{self.event} by {self.club} on {self.event_date_from.strftime('%Y-%m-%d')}"
 
 
 class StudentEventEnrolled(models.Model):
@@ -369,11 +366,11 @@ class Attendance(models.Model):
     attendance_marked_at = models.DateTimeField(default=timezone.now)
     attendance_marked_by_cordinator = models.BooleanField(default=False)
 
-    def __str__(self):
-        if self.is_present:
-            return f"{self.student_id} - Present in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
-        else:
-            return f"{self.student_id} - Absent in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
+    # def __str__(self):
+    #     if self.is_present:
+    #         return f"{self.student_id} - Present in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
+    #     else:
+    #         return f"{self.student_id} - Absent in {self.event.event} on {self.event.event_date.strftime('%Y-%m-%d')}"
 
 
 

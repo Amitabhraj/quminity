@@ -6,10 +6,12 @@ from pyzbar.pyzbar import decode
 from django.utils import timezone
 from django.http import JsonResponse
 from django.conf import settings
-from Qapp.models import ActiveToken, Attendance, Event
+from Qapp.decorators import login_required
+from Qapp.models import ActiveToken, Attendance, StudentEventEnrolled
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
+@login_required
 def validate_attendance(request):
     frame_data = request.POST.get("frame")
     student = request.user
@@ -26,6 +28,7 @@ def validate_attendance(request):
 
         # 2. Detect QR code using PyZbar
         qr_codes = decode(img)
+        print(qr_codes)
         if not qr_codes:
             return JsonResponse({"status": "searching", "message": "FINDING THE QR...."})
 
@@ -49,7 +52,7 @@ def validate_attendance(request):
             if Attendance.objects.filter(student=student, event=event, is_present=True).exists():
                 return JsonResponse({"status": "success", "message": "Attendance already marked"})
             
-            if student not in event.student_enrolled.all():
+            if not StudentEventEnrolled.objects.filter(event=event,status=True,student_enrolled=student).exists():
                 return JsonResponse({"status": "error", "message": "You are not Part of This Event ! Kindly Join the Event before marking Attendance."})
 
             # Create record

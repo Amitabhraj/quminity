@@ -30,3 +30,14 @@ def search_members_api(request):
         return JsonResponse({'results': results})
     
     return JsonResponse({'results': []})
+
+
+
+
+
+def winbuzz(request):
+    return JsonResponse({'message': 'Hello from winbuzz!'})
+
+
+
+
