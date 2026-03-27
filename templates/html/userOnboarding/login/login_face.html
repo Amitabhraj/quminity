@@ -126,8 +126,8 @@
     .float-item {
         position: absolute;
         font-size: 3rem;
-        opacity: 0.9;
-        color: rgba(118, 75, 162, 0.3);
+        opacity: 5;
+        color: rgba(99, 8, 190, 0.3);
         z-index: 0;
         animation: floatMove 6s infinite ease-in-out;
     }
@@ -143,6 +143,8 @@
 {% endblock %}
 
 {% block content %}
+
+
 <div class="auth-page-wrapper">
 
     <i class="fa fa-book float-item pos-1"></i>
@@ -158,9 +160,22 @@
                 <h2 class="fw-900 mb-2">Login Gateway</h2>
                 <p class="text-muted fw-bold small">SECURE FACE LOGIN</p>
             </div>
+
+
+            <script
+                src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js"
+                type="module"
+                ></script>
+
+            <center><dotlottie-wc
+            src="https://lottie.host/f1767771-5b78-402c-9d3d-5c799cce6d2d/K6JMtFjr1k.lottie"
+            style="width: 170px;height: 170px"
+            autoplay
+            loop
+            ></dotlottie-wc></center>
             
             <div class="mb-4 text-start">
-                <label class="small fw-800 text-dark ms-2 mb-2">UNIVERSITY QID</label>
+                <label class="small fw-900 text-dark ms-2 mb-2"><b>UNIVERSITY QID</b></label>
                 <input type="text" id="qid" class="form-control" placeholder="Enter QID">
             </div>
         
