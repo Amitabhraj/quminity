@@ -14,4 +14,4 @@ def handle_404_redirect(request, exception):
         else:
             return redirect('user_login')
         
-    return render(request, 'html/404.html', status=404)
+    return render(request, '404.html', status=404)

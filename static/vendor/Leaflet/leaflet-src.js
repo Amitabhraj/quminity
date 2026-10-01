@@ -9010,7 +9010,7 @@
   // @namespace GeoJSON
   // @factory L.geoJSON(geojson?: Object, options?: GeoJSON options)
   // Creates a GeoJSON layer. Optionally accepts an object in
-  // [GeoJSON format](https://tools.ietf.org/html/rfc7946) to display on the map
+  // [GeoJSON format](https://tools.ietf.org/rfc7946) to display on the map
   // (you can alternatively add it later with `addData` method) and an `options` object.
   function geoJSON(geojson, options) {
   	return new GeoJSON(geojson, options);
@@ -9055,7 +9055,7 @@
   		// @option crossOrigin: Boolean|String = false
   		// Whether the crossOrigin attribute will be added to the image.
   		// If a String is provided, the image will have its crossOrigin attribute set to the String provided. This is needed if you want to access image pixel data.
-  		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
+  		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/CORS_settings_attributes) for valid String values.
   		crossOrigin: false,
 
   		// @option errorOverlayUrl: String = ''
@@ -9285,7 +9285,7 @@
    *
    * Used to load and display a video player over specific bounds of the map. Extends `ImageOverlay`.
    *
-   * A video overlay uses the [`<video>`](https://developer.mozilla.org/docs/Web/HTML/Element/video)
+   * A video overlay uses the [`<video>`](https://developer.mozilla.org/docs/Web/Element/video)
    * HTML5 element.
    *
    * @example
@@ -11620,7 +11620,7 @@
   		// @option crossOrigin: Boolean|String = false
   		// Whether the crossOrigin attribute will be added to the tiles.
   		// If a String is provided, all tiles will have their crossOrigin attribute set to the String provided. This is needed if you want to access tile pixel data.
-  		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
+  		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/CORS_settings_attributes) for valid String values.
   		crossOrigin: false
   	},
 

@@ -14,4 +14,4 @@ def CreateEventPayment(request, eventId):
     
     payment = CreatePayment(request,clubId=None,eventId=eventId)
 
-    return render(request, "html/dashboard/payment.html", context=payment)
+    return render(request, "dashboard/payment.html", context=payment)

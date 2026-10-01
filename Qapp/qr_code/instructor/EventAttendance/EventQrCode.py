@@ -12,4 +12,4 @@ def QrGeneratePage(request,EventId):
     context = {
         'event': event_instance
     }
-    return render(request, "html/QrCode/GenerateAttendanceQR.html",context)
+    return render(request, "QrCode/GenerateAttendanceQR.html",context)

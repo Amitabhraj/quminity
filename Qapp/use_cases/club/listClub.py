@@ -10,4 +10,4 @@ def ClubList(request):
         'clubs':club
     }
 
-    return render(request,'html/ClubEvent/club/listClub.html',context)
+    return render(request,'ClubEvent/club/listClub.html',context)

@@ -12,4 +12,4 @@ def studentDiscussion(request, studentId, qid, studentName):
         'subjects':subject_names
     }
 
-    return render(request,'html/dashboard/studentDiscussion.html',context)
+    return render(request,'dashboard/studentDiscussion.html',context)

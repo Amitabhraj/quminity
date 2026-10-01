@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Events | Quminity{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+    :root {
+        /* Exact gradient from your reference image */
+        --primary-grad: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --card-bg: #ffffff;
+        --border-color: #f1f5f9;
+        --bg-soft: #f8fafc;
+    }
+
+    body { background-color: var(--bg-soft); }
+
+    /* Page Header */
+    .page-header {
+        text-align: center;
+        padding: 60px 20px 20px;
+    }
+
+    .page-header h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -1px;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .grid-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 35px;
+        padding: 40px 20px 100px;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    /* 3D Card Styling */
+    .club-card {
+        background: var(--card-bg);
+        border-radius: 32px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .icon-container {
+        width: 70px;
+        height: 70px;
+        background: var(--primary-grad);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+        transform: translateZ(40px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .icon-container i { color: white; font-size: 2rem; }
+
+    .club-title {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 12px;
+        transform: translateZ(30px);
+    }
+
+    .club-description {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+        transform: translateZ(20px);
+    }
+
+    /* Button Layout */
+    .btn-stack {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: auto;
+        transform: translateZ(50px);
+    }
+
+    /* Primary Attendance Button */
+    .btn-attendance {
+        background: var(--primary-grad);
+        color: white;
+        padding: 14px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 8px 15px rgba(124, 58, 237, 0.25);
+        transition: 0.3s;
+    }
+
+    .btn-attendance.disabled {
+        background: #e2e8f0;
+        color: #94a3b8;
+        box-shadow: none;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Secondary Row (Edit & Insights) */
+    .btn-group-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .btn-secondary-custom {
+        background: white;
+        color: #6366f1;
+        border: 1.5px solid #e2e8f0;
+        padding: 10px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: 0.2s;
+    }
+
+    .btn-secondary-custom:hover {
+        border-color: #6366f1;
+        background: #f5f3ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h1>Manage Events</h1>
+    <p>Operational Control</p>
+</header>
+
+<div class="grid-wrapper">
+    {% for event in associated_event %}
+    <div class="club-card" data-tilt>
+        <div class="icon-container">
+            <i class="ri-calendar-todo-fill"></i>
+        </div>
+
+        <h2 class="club-title">{{ event.event }}</h2>
+        <p class="club-description">
+            <i class="ri-map-pin-2-line"></i> {{ event.location|default:"Main Campus" }}<br>
+            {% if event.event_date_from|date:"d M" != event.event_date_to|date:"d M" %}
+            <i class="ri-time-line"></i> {{ event.event_date_from|date:"d M g:i A" }} <b>To</b> {{ event.event_date_to|date:"d M g:i A" }}
+            {% else %}
+            <i class="ri-time-line"></i> {{ event.event_date_from|date:"d M g:i A" }} <b>To</b> {{ event.event_date_to|date:"g:i A" }}
+            {% endif %}
+        </p>
+
+        <div class="btn-stack">
+            {% now "Y-m-d H:i" as current_time %}
+            {% if event.event_date_from|date:"Y-m-d H:i" <= current_time and event.event_date_to|date:"Y-m-d H:i" >= current_time %}
+                <a href="{% url 'Show_Attendance_QR' event.id %}" class="btn-attendance">
+                    <i class="ri-qr-code-line"></i> Attendance QR
+                </a>
+            {% else %}
+                <a href="#" class="btn-attendance disabled">
+                    <i class="ri-lock-password-line"></i> QR Locked
+                </a>
+            {% endif %}
+
+            <div class="btn-group-row">
+                <a href="{% url 'ManageEvent' event.id %}" class="btn-secondary-custom">
+                    <i class="ri-edit-line"></i> Edit
+                </a>
+                <a href="#" class="btn-secondary-custom">
+                    <i class="ri-bar-chart-box-line"></i> Insights
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1/-1; text-align: center; padding: 100px;">
+        <i class="ri-inbox-line" style="font-size: 4rem; color: #cbd5e1;"></i>
+        <h3 style="color: #64748b;">No events found</h3>
+    </div>
+    {% endfor %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+<script>
+    VanillaTilt.init(document.querySelectorAll(".club-card"), {
+        max: 10,
+        speed: 500,
+        glare: true,
+        "max-glare": 0.15,
+        scale: 1.02,
+        perspective: 1000
+    });
+</script>
+{% endblock %}

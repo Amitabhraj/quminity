@@ -42,7 +42,7 @@ def perform_liveness_check(img, face_data):
 @csrf_exempt
 def login_with_face(request):
     if request.method != "POST":
-        return render(request, 'html/userOnboarding/login/login_face.html')
+        return render(request, 'userOnboarding/login/login_face.html')
 
     action = request.POST.get("action")
     if action == "login_face":
@@ -116,4 +116,4 @@ def login_with_face(request):
     return JsonResponse({"success": False, "message": "Invalid Request"})
 
 def face_login_page(request):
-    return render(request, 'html/userOnboarding/login/login_face.html')
+    return render(request, 'userOnboarding/login/login_face.html')

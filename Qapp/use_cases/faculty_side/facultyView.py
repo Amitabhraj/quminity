@@ -8,4 +8,4 @@ def MainView(request):
         'is_associated_with_event': Event.objects.get_associated_events(request.user).exists(),
         'is_associated_with_club': Club.objects.get_associated_clubs(request.user).exists(),
     }
-    return render(request, 'html/dashboard/faculty_dashboard.html',context)
+    return render(request, 'dashboard/faculty_dashboard.html',context)

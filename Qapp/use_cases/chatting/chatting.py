@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def demoChat(request):
-    return render(request,'html/dashboard/chatting.html')
+    return render(request,'dashboard/chatting.html')

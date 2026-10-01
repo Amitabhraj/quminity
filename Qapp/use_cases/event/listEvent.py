@@ -10,4 +10,4 @@ def EventList(request):
         'events':event
     }
 
-    return render(request,'html/ClubEvent/event/listEvent.html',context)
+    return render(request,'ClubEvent/event/listEvent.html',context)

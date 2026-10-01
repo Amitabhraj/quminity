@@ -69,4 +69,4 @@ def createClub(request):
 
         return redirect('/') # Redirect to Dashboard/Home
 
-    return render(request, 'html/ClubEvent/club/create-club.html')
+    return render(request, 'ClubEvent/club/create-club.html')

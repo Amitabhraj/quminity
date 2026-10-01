@@ -9,4 +9,4 @@ def CreateEvent(request):
     context = {
         'clubs': associated_club
     }
-    return render(request, "html/ClubEvent/event/create-event.html", context)
+    return render(request, "ClubEvent/event/create-event.html", context)

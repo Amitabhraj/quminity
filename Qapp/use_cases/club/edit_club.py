@@ -1,4 +1,4 @@
 from django.shortcuts import render
 
 def EditClub(request,CludId):
-    return render(request,'/html/ClubEvent/club/manage-club.html')
+    return render(request,'/ClubEvent/club/manage-club.html')

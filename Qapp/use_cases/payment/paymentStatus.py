@@ -16,7 +16,7 @@ def PaymentStatus(request, order_id):
     if get_payment['redirect']:
         return JsonResponse({"message":get_payment['message']})
     
-    return render(request,"html/dashboard/paymentStatus.html",{"payment":payment_obj})
+    return render(request,"dashboard/paymentStatus.html",{"payment":payment_obj})
 
 
 

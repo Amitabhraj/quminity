@@ -37,4 +37,4 @@ def EditEvent(request, EventId):
     'event': event,
     'attendance': attendance
     }
-    return render(request, 'html/ClubEvent/event/manage-event.html', context)    
+    return render(request, 'ClubEvent/event/manage-event.html', context)    

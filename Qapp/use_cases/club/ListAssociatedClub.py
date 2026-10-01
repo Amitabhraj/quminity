@@ -9,4 +9,4 @@ def ListAssociatedClub(request):
     context = {
         'associated_club': associated_club
     }
-    return render(request, "html/ClubEvent/club/ShowAssociatedClub.html", context)
+    return render(request, "ClubEvent/club/ShowAssociatedClub.html", context)

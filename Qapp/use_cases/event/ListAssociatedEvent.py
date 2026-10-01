@@ -13,4 +13,4 @@ def ListAssociatedEvent(request):
     context = {
         'associated_event': associated_event
     }
-    return render(request, 'html/ClubEvent/event/ShowAssociatedEvent.html', context)    
+    return render(request, 'ClubEvent/event/ShowAssociatedEvent.html', context)    

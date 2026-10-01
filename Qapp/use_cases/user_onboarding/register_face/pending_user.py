@@ -21,7 +21,7 @@ def pending_user(request, registration_number):
         context = {
             'registration_number': registration_number
         }
-        return render(request, 'html/userOnboarding/register/pending_user.html', context)
+        return render(request, 'userOnboarding/register/pending_user.html', context)
     
     elif (pending_user_obj.approved and not custom_user_obj) or (pending_user_obj.approved and not custom_user_obj.approved):
         # If CustomUser exists but approved=False

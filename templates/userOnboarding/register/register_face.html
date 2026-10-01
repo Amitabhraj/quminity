@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quminity | FACE and Identity Enrollment{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/css/intlTelInput.css">
+
+<style>
+    :root {
+        --accent-blue: #667eea;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.4);
+    }
+
+    /* LAYOUT & CENTERING */
+    .auth-page-wrapper {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 35px;
+        padding: 35px 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* FORM STYLES */
+    .iti { width: 100%; margin-bottom: 15px; text-align: left; }
+    
+    .role-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .role-btn { position: relative; }
+    .role-btn input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .role-label {
+        display: flex; align-items: center; justify-content: center;
+        gap: 5px; padding: 10px 5px; background: #f1f5f9;
+        border-radius: 12px; font-size: 0.65rem; font-weight: 800;
+        cursor: pointer; transition: 0.2s; border: 2px solid transparent; color: #475569;
+    }
+    
+    .role-label::before {
+        content: ''; width: 14px; height: 14px; border: 2px solid #cbd5e1;
+        border-radius: 4px; background: white;
+    }
+
+    .role-btn input:checked + .role-label {
+        background: #000; color: #fff; border-color: var(--accent-blue);
+    }
+    
+    .role-btn input:checked + .role-label::before {
+        background-color: var(--accent-blue); border-color: var(--accent-blue);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+        background-size: contain;
+    }
+
+    .form-control, .form-select {
+        background: #f8fafc; border: 2px solid #f1f5f9;
+        border-radius: 12px; padding: 10px 15px; font-weight: 600; font-size: 0.9rem;
+    }
+
+    /* CAMERA UI */
+    .cam-outer {
+        position: relative; width: 220px; height: 220px; margin: 0 auto 25px;
+        border-radius: 50%; padding: 6px; background: #fff; border: 4px solid #f1f5f9;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08); overflow: hidden;
+    }
+
+    #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); border-radius: 50%; }
+
+    .timer-badge {
+        position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.8); color: #fff; padding: 5px 15px;
+        border-radius: 20px; font-weight: 800; font-size: 0.75rem; z-index: 20;
+    }
+
+    .status-scanning { border-color: var(--accent-blue); }
+    .status-error { border-color: #ef4444 !important; }
+    .status-success { border-color: #10b981 !important; }
+
+    .btn-action-primary {
+        padding: 0.8rem 2rem; font-weight: 600; border-radius: 12px;
+        width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; border: none; text-transform: uppercase;
+    }
+    .btn-action-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+    .hidden { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+    <div class="glass-card animate__animated animate__fadeInUp">
+        {% csrf_token %}
+        
+        <div id="sectionForm">
+            <h3 class="fw-900 mb-1">Identity Enrollment</h3>
+            <p class="small mb-4 text-muted fw-bold"><i>ONE TIME REGISTRATION</i></p>
+            
+            <div class="text-start">
+                <div class="row g-2 mb-3">
+                    <div class="col-5">
+                        <label class="small fw-800 text-dark mb-1 ms-2">QID<i style="color:red">*</i></label>
+                        <input type="text" id="qid" class="form-control req-field" placeholder="Enter QID">
+                    </div>
+                    <div class="col-7">
+                        <label class="small fw-800 text-dark mb-1 ms-2">Full Name<i style="color:red">*</i></label>
+                        <input type="text" id="name" class="form-control req-field" placeholder="Enter Full Name">
+                    </div>
+                </div>
+
+                <label class="small fw-800 text-dark mb-2 ms-2">User Type<i style="color:red">*</i></label>
+                <div class="role-grid">
+                    {% for val, label in USER_TYPE %}
+                    <div class="role-btn">
+                        <input type="checkbox" name="user_type" value="{{ val }}" id="role_{{ val }}" class="role-checkbox req-field" onchange="handleRoleChange(this)">
+                        <label class="role-label" for="role_{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="studentFields" class="hidden animate__animated animate__fadeIn">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="tiny fw-bold ms-2">Course</label>
+                            <select id="program" class="form-select stu-req">
+                                <option value="">Select Course</option>
+                                {% for val, label in courses_name_choices %}<option value="{{val}}">{{label}}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="tiny fw-bold ms-2">Branch</label>
+                            <select id="branch" class="form-select stu-req">
+                                <option value="">Select Branch</option>
+                                {% for val, label in branch_choices %}<option value="{{val}}">{{label}}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="tiny fw-bold ms-2">Section</label>
+                            <select id="section" class="form-select stu-req">
+                                <option value="">Section</option>
+                                {% for val, label in section_choices %}<option value="{{val}}">{{label}}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="tiny fw-bold ms-2">Year</label>
+                            <select id="year" class="form-select stu-req">
+                                <option value="">Year</option>
+                                {% for val, label in current_year_choices %}<option value="{{val}}">{{label}}</option>{% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="small fw-800 text-dark mb-1 ms-2">Mobile Number<i style="color:red">*</i></label>
+                <div>
+                    <input type="tel" id="phone" class="form-control req-field" placeholder="Mobile Number">
+                </div>
+
+                <label class="small fw-800 text-dark mb-1 ms-2 mt-2">Email Address<i style="color:red">*</i></label>
+                <div class="input-group mb-3">
+                    <input type="email" id="email" class="form-control req-field" placeholder="name@domain.com" oninput="toggleSendBtn()">
+                    <button class="btn btn-dark px-3" type="button" onclick="handleOTP('send')" id="btnSend" disabled style="font-size: 0.75rem; font-weight: 700;">
+                        <span class="spinner-border spinner-border-sm" id="spinnerSend" aria-hidden="true" hidden></span>
+                        <span id="textSend">SEND OTP</span>
+                    </button>
+                </div>
+
+                <div id="otpWrapper" class="hidden animate__animated animate__fadeIn">
+                    <div class="input-group mb-3">
+                        <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                        <button class="btn btn-success px-4" type="button" onclick="handleOTP('verify')" id="btnVerify">VERIFY</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnNext" class="btn-action-primary mt-3" disabled onclick="startBiometrics()">
+                PROCEED TO SCAN
+            </button>
+        </div>
+
+        <div id="sectionCamera" class="hidden">
+            <h4 class="fw-900 mb-4">FACE CAPTURE</h4>
+            <div class="cam-outer status-scanning" id="camWrap">
+                <div id="timer" class="timer-badge">15s</div>
+                <video id="video" autoplay playsinline muted></video>
+            </div>
+            <div id="statusLabel" class="status-text animate__animated animate__pulse animate__infinite">
+                Initializing Biometrics...
+            </div>
+            <button id="btnRetry" class="btn btn-outline-danger btn-sm mt-4 px-4 rounded-pill fw-bold hidden" onclick="restartCamera()">
+                RESTART SCAN
+            </button>
+            <div class="mt-4">
+                <a href="javascript:void(0)" onclick="location.reload()" class="text-decoration-none text-muted small fw-bold">CANCEL ENROLLMENT</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/intlTelInput.min.js"></script>
+
+<script>
+    /* 1. INITIALIZE GLOBAL STATE */
+    const phoneInput = document.querySelector("#phone");
+    const iti = window.intlTelInput(phoneInput, {
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.4/build/js/utils.js",
+        initialCountry: "in",
+        separateDialCode: true,
+        autoPlaceholder: "off",
+    });
+
+    let isOtpVerified = false;
+    let otpSent = false;
+    let timeLeft = 15, timerInterval, isProcessing = false;
+    const getCSRF = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    /* 2. FORM VALIDATION ENGINE */
+    function checkFormValidity() {
+        const qid = document.getElementById('qid').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const phone = phoneInput.value.trim();
+        const email = document.getElementById('email').value.trim();
+        const selectedRole = document.querySelector('input[name="user_type"]:checked');
+        
+        let isValid = qid !== "" && name !== "" && phone !== "" && email !== "" && selectedRole && isOtpVerified;
+
+        if (selectedRole && selectedRole.value === 'STUDENT') {
+            const program = document.getElementById('program').value;
+            const branch = document.getElementById('branch').value;
+            const section = document.getElementById('section').value;
+            const year = document.getElementById('year').value;
+            if (!program || !branch || !section || !year) isValid = false;
+        }
+
+        document.getElementById('btnNext').disabled = !isValid;
+    }
+
+    // Attach listeners to trigger validation
+    document.querySelectorAll('.req-field, .stu-req').forEach(el => {
+        el.addEventListener('input', checkFormValidity);
+        el.addEventListener('change', checkFormValidity);
+    });
+
+    /* 3. USER TYPE LOGIC */
+    function handleRoleChange(checkbox) {
+        const checkboxes = document.getElementsByName('user_type');
+        checkboxes.forEach((item) => { if (item !== checkbox) item.checked = false; });
+
+        const studentDiv = document.getElementById('studentFields');
+        if (checkbox.checked && checkbox.value === 'STUDENT') {
+            studentDiv.classList.remove('hidden');
+        } else {
+            studentDiv.classList.add('hidden');
+        }
+        checkFormValidity();
+    }
+
+    /* 4. OTP LOGIC */
+    function toggleSendBtn() {
+        const email = document.getElementById('email').value;
+        const btn = document.getElementById('btnSend');
+        const isValid = email.includes('@') && email.includes('.');
+        if(!otpSent) btn.disabled = !isValid;
+        checkFormValidity();
+    }
+
+    async function handleOTP(mode) {
+        const btn = mode === 'send' ? document.getElementById('btnSend') : document.getElementById('btnVerify');
+        const spinner = document.getElementById('spinnerSend');
+        const text = mode === 'send' ? document.getElementById('textSend') : document.getElementById('textVerify');
+
+        btn.disabled = true;
+        if(spinner && mode === 'send') spinner.hidden = false;
+
+        const fd = new FormData();
+        fd.append('action', mode === 'send' ? 'send_otp' : 'verify_otp');
+        fd.append('email', document.getElementById('email').value);
+        if(mode === 'verify') fd.append('otp', document.getElementById('otp').value);
+
+        try {
+            const res = await fetch("/api/face_register/", { method: 'POST', body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const data = await res.json();
+            if(data.success) {
+                if(mode === 'send') {
+                    otpSent = true; 
+                    document.getElementById('otpWrapper').classList.remove('hidden');
+                    document.getElementById('textSend').innerText = 'SENT';
+                } else {
+                    isOtpVerified = true;
+                    btn.innerText = 'VERIFIED';
+                    btn.className = "btn btn-success w-100";
+                    btn.disabled = true;
+                    document.getElementById('otp').disabled = true;
+                    checkFormValidity();
+                }
+            } else {
+                alert(data.message);
+                btn.disabled = false;
+            }
+        } catch (e) { alert("Network Error"); btn.disabled = false; }
+        finally { if(spinner) spinner.hidden = true; }
+    }
+
+    /* 5. CAMERA & SCAN LOGIC */
+    function startBiometrics() {
+        document.getElementById('sectionForm').classList.add('hidden');
+        document.getElementById('sectionCamera').classList.remove('hidden');
+        initCamera();
+    }
+
+    function restartCamera() {
+        const video = document.getElementById('video');
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+        document.getElementById('btnRetry').classList.add('hidden');
+        document.getElementById('camWrap').className = "cam-outer status-scanning";
+        
+        const fd = new FormData();
+        fd.append("action", "clear_session");
+        fetch("/api/face_register/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+        
+        initCamera();
+    }
+
+    async function initCamera() {
+        timeLeft = 15; isProcessing = true;
+        document.getElementById('timer').innerText = "15s";
+        if(timerInterval) clearInterval(timerInterval);
+
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 640, facingMode: "user" } });
+            document.getElementById('video').srcObject = s;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = (timeLeft < 10 ? `0${timeLeft}s` : `${timeLeft}s`);
+                if(timeLeft <= 0) finalize("SCAN TIMEOUT", "error");
+            }, 1000);
+            scanLoop();
+        } catch (e) { document.getElementById('statusLabel').innerText = "CAMERA BLOCKED"; }
+    }
+
+    async function scanLoop() {
+        if(!isProcessing) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = 400; canvas.height = 400;
+        canvas.getContext("2d").drawImage(document.getElementById('video'), 0, 0, 400, 400);
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.7));
+
+        const fd = new FormData();
+        fd.append("action", "register_face");
+        fd.append("frame", blob);
+        fd.append("qid", document.getElementById('qid').value);
+        fd.append("name", document.getElementById('name').value);
+        fd.append("email", document.getElementById('email').value);
+        fd.append("phone", iti.getNumber());
+        
+        const role = document.querySelector('input[name="user_type"]:checked')?.value;
+        fd.append("user_type", role || "");
+        
+        if(role === 'STUDENT') {
+            fd.append("program", document.getElementById('program').value);
+            fd.append("branch", document.getElementById('branch').value);
+            fd.append("section", document.getElementById('section').value);
+            fd.append("year", document.getElementById('year').value);
+        }
+
+        try {
+            const res = await fetch("/api/face_register/", { method: "POST", body: fd, headers: {"X-CSRFToken": getCSRF()} });
+            const data = await res.json();
+            
+            if (data.message === "WAIT... WE ARE PROCESSING YOUR REQUEST...") {
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            }
+
+            if(data.registered) {
+                finalize(data.message, "success");
+                setTimeout(() => window.location.href = data.redirect_url, 2000);
+                return;
+            }
+            document.getElementById('statusLabel').innerText = data.message;
+            if(isProcessing) setTimeout(scanLoop, 200);
+        } catch (e) { if(isProcessing) setTimeout(scanLoop, 500); }
+    }
+
+    function finalize(m, s) {
+        isProcessing = false; clearInterval(timerInterval);
+        document.getElementById('statusLabel').innerText = m;
+        document.getElementById('camWrap').className = `cam-outer status-${s}`;
+        if(s === 'error') {
+            document.getElementById('btnRetry').classList.remove('hidden');
+            const video = document.getElementById('video');
+            if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+        }
+    }
+</script>
+{% endblock %}

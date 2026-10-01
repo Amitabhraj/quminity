@@ -65,7 +65,7 @@ def perform_liveness_check(img, face_data):
 @csrf_exempt
 def register_face(request):
     if request.method != "POST":
-        return render(request, 'html/userOnboarding/register/register_face.html')
+        return render(request, 'userOnboarding/register/register_face.html')
 
     action = request.POST.get("action")
     session = request.session
@@ -222,6 +222,6 @@ def face_register_page(request):
         'section_choices':section_choices,
         'current_year_choices':current_year_choices
     }
-    return render(request, 'html/userOnboarding/register/register_face.html',context)
+    return render(request, 'userOnboarding/register/register_face.html',context)
 
 

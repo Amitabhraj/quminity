@@ -10,4 +10,4 @@ def ListEventAttendace(request,eventId):
         'event':event,
         'attendance':attendance
     }
-    return render(request,'html/attendance/attendancelist.html', context)
+    return render(request,'attendance/attendancelist.html', context)

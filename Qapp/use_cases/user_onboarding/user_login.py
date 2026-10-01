@@ -46,4 +46,4 @@ def user_login(request):
             messages.error(request, "Authentication failed.")
             return redirect("/")
         
-    return render(request, 'html/userOnboarding/onboarding-page.html')  
+    return render(request, 'userOnboarding/onboarding-page.html')  
